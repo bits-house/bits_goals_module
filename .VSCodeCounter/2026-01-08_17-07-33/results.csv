@@ -1,0 +1,11 @@
+"filename", "language", "Dart", "comment", "blank", "total"
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\bits_goals_module_method_channel_test.dart", "Dart", 22, 0, 6, 28
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\bits_goals_module_test.dart", "Dart", 23, 0, 7, 30
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\entities\annual_revenue_goal_test.dart", "Dart", 300, 41, 67, 408
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\entities\monthly_revenue_goal_test.dart", "Dart", 51, 12, 15, 78
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\services\split_annual_revenue_goal_test.dart", "Dart", 83, 19, 22, 124
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\money_test.dart", "Dart", 346, 48, 114, 508
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\month\month_test.dart", "Dart", 162, 15, 34, 211
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\year_test.dart", "Dart", 77, 9, 25, 111
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\features\goals_management\domain\use_cases\create_annual_revenue_goal\create_annual_revenue_goal_test.dart", "Dart", 222, 99, 64, 385
+"Total", "-", 1286, 243, 354, 1883
