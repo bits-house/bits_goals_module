@@ -4,7 +4,7 @@ import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/a
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/repositories/yearly_revenue_goal_repository.dart';
+import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
