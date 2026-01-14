@@ -4,6 +4,7 @@ import 'package:bits_goals_module/src/core/domain/failures/repositories/reposito
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
+import 'package:bits_goals_module/src/core/domain/use_cases/use_case.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
@@ -32,11 +33,13 @@ import 'package:dartz/dartz.dart';
 /// * [CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget] - Input or split resulted in <= 0 values.
 /// * [CreateAnnualRevenueGoalFailureReason.permissionDenied] - User lacks rights.
 /// * Other unexpected and infrastructure errors.
-class CreateAnnualRevenueGoal {
+class CreateAnnualRevenueGoal
+    implements UseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
 
   CreateAnnualRevenueGoal(this.repository);
 
+  @override
   Future<Either<Failure, AnnualRevenueGoal>> call(
     CreateAnnualRevenueGoalParams params,
   ) async {
