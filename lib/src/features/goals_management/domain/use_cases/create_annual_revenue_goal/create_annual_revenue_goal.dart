@@ -2,7 +2,7 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/repositories/yearly_revenue_goal_repository.dart';
+import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
