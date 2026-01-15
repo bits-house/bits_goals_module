@@ -1,3 +1,5 @@
+import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure_reason.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 
@@ -13,7 +15,7 @@ void main() {
 
       final id1 = IdUuidV7.fromString(uuidString);
       final id2 = IdUuidV7.fromString(uuidString);
-      final id3 = IdUuidV7.fromString('another-random-string');
+      final id3 = IdUuidV7.fromString('018c2d80-5e3a-7d4d-9c21-abcdefabcdef');
 
       // Assert
       expect(id1, equals(id2));
@@ -49,7 +51,7 @@ void main() {
 
     test('factory .fromString() should store the value correctly', () {
       // Arrange
-      const rawValue = 'any-unique-string';
+      const rawValue = '018b1f3c-8c08-7e3f-9b0d-7b2f4c6e8a1d';
 
       // Act
       final id = IdUuidV7.fromString(rawValue);
@@ -65,6 +67,22 @@ void main() {
 
       // Assert
       expect(id.props, contains(value));
+    });
+
+    test(
+        'should throw [IdUuidV7Failure] with [invalidIdFormat] when given an invalid UUID string',
+        () {
+      // Arrange
+      const invalidUuidString = 'invalid-uuid-format';
+      // Act & Assert
+      expect(
+        () => IdUuidV7.fromString(invalidUuidString),
+        throwsA(isA<IdUuidV7Failure>().having(
+          (f) => f.reason,
+          'reason',
+          IdUuidV7FailureReason.invalidIdFormat,
+        )),
+      );
     });
   });
 }
