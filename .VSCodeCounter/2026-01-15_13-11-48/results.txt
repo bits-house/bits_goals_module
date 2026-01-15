@@ -1,0 +1,55 @@
+Date : 2026-01-15 13:11:48
+Directory : c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src
+Total : 13 files,  2252 codes, 392 comments, 601 blanks, all 3245 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Dart     |         13 |      2,252 |        392 |        601 |      3,245 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                                                              | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                                                                 |         13 |      2,252 |        392 |        601 |      3,245 |
+| core                                                                                                                                                                              |         12 |      1,981 |        341 |        533 |      2,855 |
+| core\data                                                                                                                                                                         |          4 |        647 |        126 |        175 |        948 |
+| core\data\extensions                                                                                                                                                              |          1 |        181 |         13 |         73 |        267 |
+| core\data\models                                                                                                                                                                  |          1 |        183 |         59 |         40 |        282 |
+| core\data\platform                                                                                                                                                                |          1 |         48 |         15 |         16 |         79 |
+| core\data\repositories                                                                                                                                                            |          1 |        235 |         39 |         46 |        320 |
+| core\domain                                                                                                                                                                       |          8 |      1,334 |        215 |        358 |      1,907 |
+| core\domain\entities                                                                                                                                                              |          2 |        470 |         77 |        104 |        651 |
+| core\domain\failures                                                                                                                                                              |          1 |         84 |         21 |         17 |        122 |
+| core\domain\services                                                                                                                                                              |          1 |         83 |         19 |         22 |        124 |
+| core\domain\value_objects                                                                                                                                                         |          4 |        697 |         98 |        215 |      1,010 |
+| core\domain\value_objects (Files)                                                                                                                                                 |          3 |        535 |         83 |        181 |        799 |
+| core\domain\value_objects\month                                                                                                                                                   |          1 |        162 |         15 |         34 |        211 |
+| features                                                                                                                                                                          |          1 |        271 |         51 |         68 |        390 |
+| features\goals_management                                                                                                                                                         |          1 |        271 |         51 |         68 |        390 |
+| features\goals_management\domain                                                                                                                                                  |          1 |        271 |         51 |         68 |        390 |
+| features\goals_management\domain\use_cases                                                                                                                                        |          1 |        271 |         51 |         68 |        390 |
+| features\goals_management\domain\use_cases\create_annual_revenue_goal                                                                                                             |          1 |        271 |         51 |         68 |        390 |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                                                                                          | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\extensions\map_parsing_extension_test.dart                                                       | Dart     |        181 |         13 |         73 |        267 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\models\monthly_revenue_goal_remote_model_test.dart                                               | Dart     |        183 |         59 |         40 |        282 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\platform\network_info_impl_test.dart                                                             | Dart     |         48 |         15 |         16 |         79 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\repositories\annual_revenue_goal_repository_impl_test.dart                                       | Dart     |        235 |         39 |         46 |        320 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\entities\annual_revenue_goal_test.dart                                                         | Dart     |        357 |         45 |         75 |        477 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\entities\monthly_revenue_goal_test.dart                                                        | Dart     |        113 |         32 |         29 |        174 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\failures\domain_failures_test.dart                                                             | Dart     |         84 |         21 |         17 |        122 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\services\split_annual_revenue_goal_test.dart                                                   | Dart     |         83 |         19 |         22 |        124 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\id_uuid_v7_test.dart                                                             | Dart     |         58 |         15 |         16 |         89 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\money_test.dart                                                                  | Dart     |        400 |         59 |        140 |        599 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\month\month_test.dart                                                            | Dart     |        162 |         15 |         34 |        211 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\year_test.dart                                                                   | Dart     |         77 |          9 |         25 |        111 |
+| c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\features\goals_management\domain\use_cases\create_annual_revenue_goal\create_annual_revenue_goal_test.dart | Dart     |        271 |         51 |         68 |        390 |
+| Total                                                                                                                                                                             |          |      2,252 |        392 |        601 |      3,245 |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

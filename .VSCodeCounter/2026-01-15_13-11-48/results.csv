@@ -1,0 +1,15 @@
+"filename", "language", "Dart", "comment", "blank", "total"
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\extensions\map_parsing_extension_test.dart", "Dart", 181, 13, 73, 267
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\models\monthly_revenue_goal_remote_model_test.dart", "Dart", 183, 59, 40, 282
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\platform\network_info_impl_test.dart", "Dart", 48, 15, 16, 79
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\data\repositories\annual_revenue_goal_repository_impl_test.dart", "Dart", 235, 39, 46, 320
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\entities\annual_revenue_goal_test.dart", "Dart", 357, 45, 75, 477
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\entities\monthly_revenue_goal_test.dart", "Dart", 113, 32, 29, 174
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\failures\domain_failures_test.dart", "Dart", 84, 21, 17, 122
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\services\split_annual_revenue_goal_test.dart", "Dart", 83, 19, 22, 124
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\id_uuid_v7_test.dart", "Dart", 58, 15, 16, 89
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\money_test.dart", "Dart", 400, 59, 140, 599
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\month\month_test.dart", "Dart", 162, 15, 34, 211
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\core\domain\value_objects\year_test.dart", "Dart", 77, 9, 25, 111
+"c:\Users\mathe\dev\PROD\packages\bits_house\bits_goals_module\test\src\features\goals_management\domain\use_cases\create_annual_revenue_goal\create_annual_revenue_goal_test.dart", "Dart", 271, 51, 68, 390
+"Total", "-", 2252, 392, 601, 3245
