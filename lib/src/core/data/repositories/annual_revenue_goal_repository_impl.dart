@@ -52,12 +52,12 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
       }
 
       throw RepositoryFailure(
-        reason: RepositoryFailureReason.infra,
+        reason: RepositoryFailureReason.connectionError,
         cause: e,
       );
     } catch (e) {
       throw RepositoryFailure(
-        reason: RepositoryFailureReason.infra,
+        reason: RepositoryFailureReason.connectionError,
         cause: e,
       );
     }
@@ -77,7 +77,7 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
       rethrow;
     } catch (e) {
       throw RepositoryFailure(
-        reason: RepositoryFailureReason.infra,
+        reason: RepositoryFailureReason.connectionError,
         cause: e,
       );
     }

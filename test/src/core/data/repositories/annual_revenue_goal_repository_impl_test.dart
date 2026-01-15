@@ -215,7 +215,7 @@ void main() {
           isA<RepositoryFailure>().having(
             (f) => f.reason,
             'reason',
-            RepositoryFailureReason.infra,
+            RepositoryFailureReason.connectionError,
           ),
         ),
       );
