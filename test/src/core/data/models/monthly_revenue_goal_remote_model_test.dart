@@ -34,12 +34,12 @@ void main() {
   /// Helper to create a perfectly valid map based on the current Schema V1
   Map<String, dynamic> createValidMap() {
     return {
-      MonthlyRevenueGoalRemoteModelSchemaV1.uuidV7: tUuidString,
-      MonthlyRevenueGoalRemoteModelSchemaV1.month: tMonthInt,
-      MonthlyRevenueGoalRemoteModelSchemaV1.year: tYearInt,
-      MonthlyRevenueGoalRemoteModelSchemaV1.targetCents: tTargetCents,
-      MonthlyRevenueGoalRemoteModelSchemaV1.progressCents: tProgressCents,
-      MonthlyRevenueGoalRemoteModelSchemaV1.schemaVersion: tSchemaVersion,
+      MonthlyRevenueGoalRemoteSchemaV1.uuidV7: tUuidString,
+      MonthlyRevenueGoalRemoteSchemaV1.month: tMonthInt,
+      MonthlyRevenueGoalRemoteSchemaV1.year: tYearInt,
+      MonthlyRevenueGoalRemoteSchemaV1.targetCents: tTargetCents,
+      MonthlyRevenueGoalRemoteSchemaV1.progressCents: tProgressCents,
+      MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: tSchemaVersion,
     };
   }
 
@@ -93,8 +93,8 @@ void main() {
         () {
           // Arrange
           final map = createValidMap();
-          map[MonthlyRevenueGoalRemoteModelSchemaV1.year] = '2026';
-          map[MonthlyRevenueGoalRemoteModelSchemaV1.targetCents] = '500000';
+          map[MonthlyRevenueGoalRemoteSchemaV1.year] = '2026';
+          map[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = '500000';
 
           // Act
           final result = MonthlyRevenueGoalRemoteModel.fromMap(map);
@@ -111,8 +111,8 @@ void main() {
           // Arrange
           final map = createValidMap();
           // Firestore often returns doubles for integers
-          map[MonthlyRevenueGoalRemoteModelSchemaV1.targetCents] = 500000.0;
-          map[MonthlyRevenueGoalRemoteModelSchemaV1.month] = 10.0;
+          map[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = 500000.0;
+          map[MonthlyRevenueGoalRemoteSchemaV1.month] = 10.0;
 
           // Act
           final result = MonthlyRevenueGoalRemoteModel.fromMap(map);
@@ -140,7 +140,7 @@ void main() {
           final map = createValidMap();
           // Removing the key causes extension to return default 'error'
           // IdUuidV7.fromString('error') should throw.
-          map.remove(MonthlyRevenueGoalRemoteModelSchemaV1.uuidV7);
+          map.remove(MonthlyRevenueGoalRemoteSchemaV1.uuidV7);
 
           // Act & Assert
           expect(
@@ -157,7 +157,7 @@ void main() {
           final map = createValidMap();
           // Removing key causes extension to return 0.
           // Month.fromInt(0) should throw (valid months are 1-12).
-          map.remove(MonthlyRevenueGoalRemoteModelSchemaV1.month);
+          map.remove(MonthlyRevenueGoalRemoteSchemaV1.month);
 
           // Act & Assert
           expect(
@@ -174,7 +174,7 @@ void main() {
           final map = createValidMap();
           // Extension tries to parse 'invalid', fails, returns default 0.
           // Year.fromInt(0) should likely throw validation error.
-          map[MonthlyRevenueGoalRemoteModelSchemaV1.year] = 'invalid_year';
+          map[MonthlyRevenueGoalRemoteSchemaV1.year] = 'invalid_year';
 
           // Act & Assert
           expect(
@@ -190,7 +190,7 @@ void main() {
       () {
         // Arrange
         final map = createValidMap();
-        map[MonthlyRevenueGoalRemoteModelSchemaV1.targetCents] = 'invalid';
+        map[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = 'invalid';
 
         // Act & Assert
         expect(
@@ -205,8 +205,7 @@ void main() {
       () {
         // Arrange
         final map = createValidMap();
-        map[MonthlyRevenueGoalRemoteModelSchemaV1.progressCents] =
-            'not_a_number';
+        map[MonthlyRevenueGoalRemoteSchemaV1.progressCents] = 'not_a_number';
 
         // Act & Assert
         expect(
@@ -248,7 +247,7 @@ void main() {
         final map1 = createValidMap();
         final map2 = createValidMap();
         // Change one value
-        map2[MonthlyRevenueGoalRemoteModelSchemaV1.targetCents] = 999999;
+        map2[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = 999999;
 
         final model1 = MonthlyRevenueGoalRemoteModel.fromMap(map1);
         final model2 = MonthlyRevenueGoalRemoteModel.fromMap(map2);
