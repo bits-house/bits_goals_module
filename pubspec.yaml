@@ -12,19 +12,23 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  web: ^0.5.1
+  web: ^1.1.1
   plugin_platform_interface: ^2.0.2
 
   # src dependencies
   equatable: ^2.0.7
   dartz: ^0.10.1
-  mocktail: ^1.0.4
   uuid: ^4.5.2
+  internet_connection_checker_plus: ^2.9.1+2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  
+  # lib and test dependencies
+  mocktail: ^1.0.4
+  fake_cloud_firestore: ^4.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
