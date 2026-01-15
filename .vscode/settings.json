@@ -2,11 +2,15 @@
   "dart.flutterSdkPath": ".fvm/versions/3.32.7",
   "cSpell.words": [
     "april",
+    "cupertino",
     "dartz",
+    "dbus",
     "december",
     "february",
     "Financials",
     "firestore",
+    "fixnum",
+    "flutterfire",
     "january",
     "july",
     "june",
@@ -14,6 +18,7 @@
     "november",
     "october",
     "parseable",
+    "petitparser",
     "Schyler",
     "september",
     "uuid"
