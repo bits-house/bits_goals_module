@@ -16,15 +16,14 @@ abstract class AnnualRevenueGoalRepository {
   ///
   /// Rules (for the implementer):
   /// - This operation MUST be atomic:
-  ///     either the entire aggregate (annual + monthly goals) is persisted,
+  ///     either the entire aggregate (all monthly goals) is persisted,
   ///     or nothing is persisted at all.)
   /// - One year can have at most one annual revenue goal.
   ///     If an annual revenue goal for the specified year already exists,
-  ///     an Failure MUST be thrown.
+  ///     a Failure MUST be thrown.
   Future<AnnualRevenueGoal> create(AnnualRevenueGoal goal);
 
   /// Gets the current year, to not get year from local offline system clock, so
-  ///
   ///
   /// Throws:
   /// - [RepositoryFailure]

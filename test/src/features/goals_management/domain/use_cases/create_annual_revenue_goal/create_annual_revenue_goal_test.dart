@@ -316,7 +316,7 @@ void main() {
             .thenAnswer((_) async => tCurrentYear);
 
         const repoFailure = RepositoryFailure(
-          reason: RepositoryFailureReason.infra,
+          reason: RepositoryFailureReason.connectionError,
         );
 
         when(() => mockRepository.create(any())).thenThrow(repoFailure);

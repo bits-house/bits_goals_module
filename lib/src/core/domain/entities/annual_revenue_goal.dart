@@ -1,7 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:equatable/equatable.dart';
@@ -10,8 +9,6 @@ import 'package:equatable/equatable.dart';
 ///
 /// This is an Aggregate Root
 class AnnualRevenueGoal extends Equatable {
-  final IdUuidV7 _id;
-
   /// The year this goal is set for.
   /// Natural key for the aggregate.
   final Year _year;
@@ -25,21 +22,17 @@ class AnnualRevenueGoal extends Equatable {
 
   /// Private constructor to enforce invariants
   const AnnualRevenueGoal._({
-    required IdUuidV7 id,
     required Year year,
     required List<MonthlyRevenueGoal> monthlyGoals,
   })  : _year = year,
-        _monthlyGoals = monthlyGoals,
-        _id = id;
+        _monthlyGoals = monthlyGoals;
 
   /// Factory constructor that validates all domain invariants
   /// before creating an instance of [AnnualRevenueGoal].
   factory AnnualRevenueGoal.create({
     required Year year,
     required List<MonthlyRevenueGoal> monthlyGoals,
-    IdUuidV7? id,
   }) {
-    final uid = id ?? IdUuidV7.generate();
     final goals = List<MonthlyRevenueGoal>.of(monthlyGoals);
 
     _validateMonthsCount(goals);
@@ -52,7 +45,6 @@ class AnnualRevenueGoal extends Equatable {
     );
 
     return AnnualRevenueGoal._(
-      id: uid,
       year: year,
       monthlyGoals: List<MonthlyRevenueGoal>.unmodifiable(goals),
     );
@@ -65,8 +57,6 @@ class AnnualRevenueGoal extends Equatable {
   List<MonthlyRevenueGoal> get monthlyGoals => List.unmodifiable(_monthlyGoals);
 
   Year get year => Year.fromInt(_year.value);
-
-  IdUuidV7 get id => IdUuidV7.fromString(_id.value);
 
   /// Total annual target is calculated as the sum of
   /// already-rounded monthly targets.
@@ -141,7 +131,6 @@ class AnnualRevenueGoal extends Equatable {
 
   @override
   List<Object?> get props => [
-        _id,
         _year,
         _monthlyGoals,
       ];
