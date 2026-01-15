@@ -20,13 +20,4 @@ abstract class AnnualRevenueGoalRemoteDataSource {
     required int year,
     required List<MonthlyRevenueGoalRemoteModel> goals,
   });
-
-  /// Fetches the current year from the remote data source.
-  ///
-  /// Throws:
-  /// - [ServerException] for server errors
-  ///
-  /// Returns:
-  /// - The current year as an integer.
-  Future<int> getCurrentYear();
 }

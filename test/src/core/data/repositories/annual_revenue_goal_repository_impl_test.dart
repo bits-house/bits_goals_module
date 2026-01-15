@@ -1,4 +1,5 @@
-import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_revenue_goal_remote_data_source.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
@@ -21,6 +22,8 @@ import 'package:mocktail/mocktail.dart';
 class MockRemoteDataSource extends Mock
     implements AnnualRevenueGoalRemoteDataSource {}
 
+class MockRemoteTimeDataSource extends Mock implements RemoteTimeDataSource {}
+
 class MockNetworkInfo extends Mock implements NetworkInfo {}
 
 class FakeMonthlyGoalList extends Fake
@@ -32,6 +35,7 @@ class FakeMonthlyGoalList extends Fake
 
 void main() {
   late MockRemoteDataSource mockRemoteDataSource;
+  late MockRemoteTimeDataSource mockRemoteTimeDataSource;
   late MockNetworkInfo mockNetworkInfo;
   late AnnualRevenueGoalRepositoryImpl repository;
 
@@ -41,10 +45,12 @@ void main() {
 
   setUp(() {
     mockRemoteDataSource = MockRemoteDataSource();
+    mockRemoteTimeDataSource = MockRemoteTimeDataSource();
     mockNetworkInfo = MockNetworkInfo();
     repository = AnnualRevenueGoalRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       networkInfo: mockNetworkInfo,
+      remoteTimeDataSource: mockRemoteTimeDataSource,
     );
   });
 
@@ -260,7 +266,7 @@ void main() {
         () async {
           // Arrange
           const tServerYear = 2025;
-          when(() => mockRemoteDataSource.getCurrentYear())
+          when(() => mockRemoteTimeDataSource.getCurrentYear())
               .thenAnswer((_) async => tServerYear);
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 
@@ -270,7 +276,7 @@ void main() {
           // Assert
           expect(result, isA<Year>());
           expect(result.value, equals(tServerYear));
-          verify(() => mockRemoteDataSource.getCurrentYear()).called(1);
+          verify(() => mockRemoteTimeDataSource.getCurrentYear()).called(1);
         },
       );
 
@@ -278,7 +284,7 @@ void main() {
         'should throw [RepositoryFailure] when DataSource fails',
         () async {
           // Arrange
-          when(() => mockRemoteDataSource.getCurrentYear())
+          when(() => mockRemoteTimeDataSource.getCurrentYear())
               .thenThrow(Exception('Time out'));
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 

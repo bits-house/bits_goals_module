@@ -23,7 +23,7 @@ abstract class AnnualRevenueGoalRepository {
   ///     a Failure MUST be thrown.
   Future<AnnualRevenueGoal> create(AnnualRevenueGoal goal);
 
-  /// Gets the current year, to not get year from local offline system clock, so
+  /// Gets the current year, to not get year from local offline system clock.
   ///
   /// Throws:
   /// - [RepositoryFailure]

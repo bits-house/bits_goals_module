@@ -1,4 +1,5 @@
-import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_revenue_goal_remote_data_source.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
@@ -11,13 +12,16 @@ import 'package:bits_goals_module/src/core/platform/network_info.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
+  final RemoteTimeDataSource _realTimeSource;
   final NetworkInfo _networkInfo;
 
   AnnualRevenueGoalRepositoryImpl({
     required AnnualRevenueGoalRemoteDataSource remoteDataSource,
     required NetworkInfo networkInfo,
+    required RemoteTimeDataSource remoteTimeDataSource,
   })  : _remoteDataSource = remoteDataSource,
-        _networkInfo = networkInfo;
+        _networkInfo = networkInfo,
+        _realTimeSource = remoteTimeDataSource;
 
   @override
   Future<AnnualRevenueGoal> create(AnnualRevenueGoal goal) async {
@@ -71,7 +75,7 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
           reason: RepositoryFailureReason.connectionError,
         );
       }
-      final yearInt = await _remoteDataSource.getCurrentYear();
+      final yearInt = await _realTimeSource.getCurrentYear();
       return Year.fromInt(yearInt);
     } on RepositoryFailure {
       rethrow;
