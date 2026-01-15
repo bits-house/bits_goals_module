@@ -2,10 +2,10 @@ import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reas
 
 class ServerException implements Exception {
   final ServerExceptionReason reason;
-  final String? message;
+  final Object? error;
 
-  ServerException({
+  const ServerException({
     required this.reason,
-    this.message,
+    this.error,
   });
 }

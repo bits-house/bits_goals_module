@@ -115,7 +115,7 @@ void main() {
               goals: any(named: 'goals'),
             ),
           ).thenThrow(
-            ServerException(reason: ServerExceptionReason.conflict),
+            const ServerException(reason: ServerExceptionReason.conflict),
           );
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 
@@ -138,15 +138,17 @@ void main() {
       );
 
       test(
-        'should throw [RepositoryFailure] with [infra] reason when an unexpected exception occurs',
+        'should throw [RepositoryFailure] when an unexpected exception occurs',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
 
           when(() => mockRemoteDataSource.createMonthlyGoalsForYear(
-                year: any(named: 'year'),
-                goals: any(named: 'goals'),
-              )).thenThrow(Exception('Firestore Connection Error'));
+                    year: any(named: 'year'),
+                    goals: any(named: 'goals'),
+                  ))
+              .thenThrow(const ServerException(
+                  reason: ServerExceptionReason.unexpected));
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 
           // Act
@@ -173,7 +175,7 @@ void main() {
             goals: any(named: 'goals'),
           ),
         ).thenThrow(
-          ServerException(reason: ServerExceptionReason.permissionDenied),
+          const ServerException(reason: ServerExceptionReason.permissionDenied),
         );
         when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 
@@ -207,7 +209,7 @@ void main() {
           goals: any(named: 'goals'),
         ),
       ).thenThrow(
-        ServerException(reason: ServerExceptionReason.unexpected),
+        const ServerException(reason: ServerExceptionReason.unexpected),
       );
       when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 
@@ -227,6 +229,42 @@ void main() {
       );
       verify(() => mockNetworkInfo.isConnected).called(1);
     });
+
+    test(
+      'should throw [RepositoryFailure] with [connectionError] reason when a generic Exception occurs',
+      () async {
+        // Arrange
+        final aggregate = createValidAggregate();
+        final tException = Exception('Generic unexpected error');
+
+        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+
+        // Simulamos uma exceção genérica (não ServerException)
+        when(() => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+            )).thenThrow(tException);
+
+        // Act
+        final call = repository.create;
+
+        // Assert
+        expect(
+          () => call(aggregate),
+          throwsA(
+            isA<RepositoryFailure>()
+                .having(
+                  (f) => f.reason,
+                  'reason',
+                  RepositoryFailureReason.connectionError,
+                )
+                .having((f) => f.cause, 'cause', equals(tException)),
+          ),
+        );
+
+        verify(() => mockNetworkInfo.isConnected).called(1);
+      },
+    );
 
     group('create (Offline)', () {
       test(

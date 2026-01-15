@@ -9,7 +9,7 @@ import 'package:equatable/equatable.dart';
 // DO NOT DELETE OR EDIT LEGACY/OLD SCHEMAS AND NAMES.
 // create a new version instead
 // and ADD LEGACY KEYS IN PARSING EXTENSION.
-class MonthlyRevenueGoalRemoteModelSchemaV1 {
+class MonthlyRevenueGoalRemoteSchemaV1 {
   static const String uuidV7 = 'uuid_v7';
   static const String month = 'month';
   static const String year = 'year';
@@ -57,27 +57,27 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
   factory MonthlyRevenueGoalRemoteModel.fromMap(Map<String, dynamic> map) {
     try {
       final idString = map.getString(
-        key: MonthlyRevenueGoalRemoteModelSchemaV1.uuidV7,
+        key: MonthlyRevenueGoalRemoteSchemaV1.uuidV7,
       );
 
       final monthInt = map.getInt(
-        key: MonthlyRevenueGoalRemoteModelSchemaV1.month,
+        key: MonthlyRevenueGoalRemoteSchemaV1.month,
       );
 
       final yearInt = map.getInt(
-        key: MonthlyRevenueGoalRemoteModelSchemaV1.year,
+        key: MonthlyRevenueGoalRemoteSchemaV1.year,
       );
 
       final targetVal = map.getInt(
-        key: MonthlyRevenueGoalRemoteModelSchemaV1.targetCents,
+        key: MonthlyRevenueGoalRemoteSchemaV1.targetCents,
       );
 
       final progressVal = map.getInt(
-        key: MonthlyRevenueGoalRemoteModelSchemaV1.progressCents,
+        key: MonthlyRevenueGoalRemoteSchemaV1.progressCents,
       );
 
       final schemaVer = map.getInt(
-        key: MonthlyRevenueGoalRemoteModelSchemaV1.schemaVersion,
+        key: MonthlyRevenueGoalRemoteSchemaV1.schemaVersion,
         defaultValue: 0,
       );
 
@@ -101,12 +101,12 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      MonthlyRevenueGoalRemoteModelSchemaV1.uuidV7: uuidV7.value,
-      MonthlyRevenueGoalRemoteModelSchemaV1.month: month.value,
-      MonthlyRevenueGoalRemoteModelSchemaV1.year: year.value,
-      MonthlyRevenueGoalRemoteModelSchemaV1.targetCents: target.cents,
-      MonthlyRevenueGoalRemoteModelSchemaV1.progressCents: progress.cents,
-      MonthlyRevenueGoalRemoteModelSchemaV1.schemaVersion: schemaVersion,
+      MonthlyRevenueGoalRemoteSchemaV1.uuidV7: uuidV7.value,
+      MonthlyRevenueGoalRemoteSchemaV1.month: month.value,
+      MonthlyRevenueGoalRemoteSchemaV1.year: year.value,
+      MonthlyRevenueGoalRemoteSchemaV1.targetCents: target.cents,
+      MonthlyRevenueGoalRemoteSchemaV1.progressCents: progress.cents,
+      MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: schemaVersion,
     };
   }
 
