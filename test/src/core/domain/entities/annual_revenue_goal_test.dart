@@ -21,9 +21,6 @@ void main() {
 
       final year2025 = Year.fromInt(2025);
 
-      final IdUuidV7 testUuid =
-          IdUuidV7.fromString('123e4567-e89b-12d3-a456-426614174000');
-
       List<MonthlyRevenueGoal> validMonthlyGoals({
         double targetAmountPerMonth = 1000,
       }) {
@@ -33,7 +30,7 @@ void main() {
             year: year2025,
             month: Month.fromInt(index + 1),
             target: Money.fromDouble(targetAmountPerMonth),
-            id: testUuid,
+            id: IdUuidV7.fromString('123e4567-e89b-12d3-a456-426614174000'),
           ),
         );
       }
@@ -50,12 +47,10 @@ void main() {
           final annualGoal = AnnualRevenueGoal.create(
             year: year2025,
             monthlyGoals: monthlyGoals,
-            id: testUuid,
           );
 
           expect(annualGoal.year, year2025);
           expect(annualGoal.monthlyGoals.length, 12);
-          expect(annualGoal.id, testUuid);
         },
       );
 
@@ -131,13 +126,11 @@ void main() {
         final a = AnnualRevenueGoal.create(
           year: year2025,
           monthlyGoals: validMonthlyGoals(),
-          id: testUuid,
         );
 
         final b = AnnualRevenueGoal.create(
           year: year2025,
           monthlyGoals: validMonthlyGoals(),
-          id: testUuid,
         );
 
         expect(a, equals(b));
