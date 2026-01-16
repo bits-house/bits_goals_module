@@ -3,7 +3,7 @@
 // This script runs all manual integration tests in the current directory
 //
 // To run this script, use the following command in your terminal:
-// dart run test/manual_integration_tests/run_all_manual_tests.dart
+// dart run test/manual_integration_tests/.run_all_manual_tests.dart
 
 import 'dart:io';
 
