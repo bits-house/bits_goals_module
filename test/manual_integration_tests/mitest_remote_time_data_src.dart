@@ -63,7 +63,7 @@ void main() async {
 
     print('   Result: $year');
     print('   Time: ${stopwatch.elapsedMilliseconds}ms');
-    print('   SUCCESS\n');
+    print('   SUCCESS (Expected)\n');
   } catch (e) {
     print('   FAIL: $e\n');
   }
@@ -86,7 +86,7 @@ void main() async {
 
     print('   Result: $year');
     print('   Time: ${stopwatch.elapsedMilliseconds}ms');
-    print('   SUCCESS\n');
+    print('   SUCCESS (Expected)\n');
   } catch (e) {
     print('   FAIL: $e\n');
   } finally {
