@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/domain/value_objects/goals_logged_in_user.dart';
 import 'package:bits_goals_module/src/core/infra/services/access_control_service_impl.dart';
 import 'package:bits_goals_module/src/goals_module_contract.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,18 @@ void main() {
   });
 
   group('AccessControlServiceImpl |', () {
+    // ============================================================
+    // FIXTURES AND HELPERS
+    // ============================================================
+    GoalsLoggedInUser generateMockUser({required String role}) {
+      return GoalsLoggedInUser.create(
+        uid: 'user_123',
+        role: role,
+        email: 'testuser@example.com',
+        displayName: 'Test User',
+      );
+    }
+
     // -------------------------------------------------------------------------
     // Scenario: Permission.none
     // -------------------------------------------------------------------------
@@ -56,12 +69,13 @@ void main() {
         const requestedPermission = GoalsModulePermission.manageGlobalGoals;
 
         // Mock the user role
-        when(() => mockConfig.getCurrentUserRole).thenReturn(() => userRole);
+        when(() => mockConfig.getCurrentUser)
+            .thenReturn(() => generateMockUser(role: userRole));
 
         // Mock the permissions map containing the specific permission
         when(() => mockConfig.rolePermissions).thenReturn({
           userRole: [
-            GoalsModulePermission.viewPersonalGoals,
+            GoalsModulePermission.none,
             GoalsModulePermission.manageGlobalGoals,
           ],
         });
@@ -85,10 +99,12 @@ void main() {
         const userRole = 'viewer';
         const requestedPermission = GoalsModulePermission.manageGlobalGoals;
 
-        when(() => mockConfig.getCurrentUserRole).thenReturn(() => userRole);
+        when(() => mockConfig.getCurrentUser).thenReturn(
+          () => generateMockUser(role: userRole),
+        );
 
         when(() => mockConfig.rolePermissions).thenReturn({
-          userRole: [GoalsModulePermission.viewPersonalGoals],
+          userRole: [GoalsModulePermission.none],
         });
 
         // Act
@@ -111,7 +127,9 @@ void main() {
         const userRole = 'unknown_role';
         const requestedPermission = GoalsModulePermission.manageGlobalGoals;
 
-        when(() => mockConfig.getCurrentUserRole).thenReturn(() => userRole);
+        when(() => mockConfig.getCurrentUser).thenReturn(
+          () => generateMockUser(role: userRole),
+        );
 
         // Mock a map that does not contain 'unknown_role'
         when(() => mockConfig.rolePermissions).thenReturn({
@@ -136,14 +154,16 @@ void main() {
         // Arrange
         const userRole = 'restricted_user';
 
-        when(() => mockConfig.getCurrentUserRole).thenReturn(() => userRole);
+        when(() => mockConfig.getCurrentUser).thenReturn(
+          () => generateMockUser(role: userRole),
+        );
         when(() => mockConfig.rolePermissions).thenReturn({
           userRole: [],
         });
 
         // Act
         final result = accessControlService
-            .hasPermission(GoalsModulePermission.viewPersonalGoals);
+            .hasPermission(GoalsModulePermission.manageGlobalGoals);
 
         // Assert
         expect(result, isFalse);

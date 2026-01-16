@@ -12,7 +12,7 @@ class AccessControlServiceImpl implements AccessControlService {
     if (permission == GoalsModulePermission.none) {
       return true;
     }
-    final currentRole = _config.getCurrentUserRole();
+    final currentRole = _config.getCurrentUser().role;
     final allowedPermissions = _config.rolePermissions[currentRole] ?? [];
     return allowedPermissions.contains(permission);
   }

@@ -1,5 +1,9 @@
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/email/email_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/email/email_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/money/invalid_money_failure.dart';
@@ -108,7 +112,7 @@ void main() {
     });
 
     // =========================================================================
-    // idUuidV7Failure
+    // IdUuidV7Failure
     // =========================================================================
     test('IdUuidV7Failure', () {
       const failure1 = IdUuidV7Failure(IdUuidV7FailureReason.invalidIdFormat);
@@ -116,6 +120,33 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1.toString(), contains('IdUuidV7Failure'));
+    });
+
+    // =========================================================================
+    // GoalsLoggedInUserFailure
+    // =========================================================================
+    test('GoalsLoggedInUserFailure', () {
+      const failure1 =
+          GoalsLoggedInUserFailure(GoalsLoggedInUserFailureReason.emptyUid);
+      const failure2 =
+          GoalsLoggedInUserFailure(GoalsLoggedInUserFailureReason.emptyUid);
+      const failureDiff =
+          GoalsLoggedInUserFailure(GoalsLoggedInUserFailureReason.invalidEmail);
+
+      expect(failure1, equals(failure2));
+      expect(failure1, isNot(equals(failureDiff)));
+      expect(failure1.toString(), contains('GoalsLoggedInUserFailure'));
+    });
+
+    // =========================================================================
+    // EmailFailure
+    // =========================================================================
+    test('EmailFailure', () {
+      const failure1 = EmailFailure(EmailFailureReason.invalid);
+      const failure2 = EmailFailure(EmailFailureReason.invalid);
+
+      expect(failure1, equals(failure2));
+      expect(failure1.toString(), contains('EmailFailure'));
     });
   });
 }
