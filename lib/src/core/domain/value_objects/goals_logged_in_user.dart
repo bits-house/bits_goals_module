@@ -52,7 +52,7 @@ class GoalsLoggedInUser extends Equatable {
   }) {
     final uUid = _getValidUid(uid);
     final uRole = _getValidRole(role);
-    final uEmail = _getEmail(email);
+    final uEmail = _getValidEmail(email);
     final uDisplayName = _getValidDisplayName(displayName);
     return GoalsLoggedInUser._(
       uUid,
@@ -96,7 +96,7 @@ class GoalsLoggedInUser extends Equatable {
     return role;
   }
 
-  static Email _getEmail(String email) {
+  static Email _getValidEmail(String email) {
     try {
       final validEmail = Email(email);
       return validEmail;
