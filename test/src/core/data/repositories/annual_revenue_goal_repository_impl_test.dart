@@ -11,7 +11,7 @@ import 'package:bits_goals_module/src/core/domain/failures/repositories/reposito
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/core/platform/network_info.dart';
+import 'package:bits_goals_module/src/core/infra/platform/network_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
