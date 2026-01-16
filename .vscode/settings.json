@@ -14,6 +14,7 @@
     "january",
     "july",
     "june",
+    "mitest",
     "mocktail",
     "november",
     "october",
@@ -21,6 +22,7 @@
     "petitparser",
     "Schyler",
     "september",
-    "uuid"
+    "uuid",
+    "worldtimeapi"
   ]
 }
