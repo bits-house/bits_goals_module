@@ -1,10 +1,11 @@
+import 'package:bits_goals_module/src/core/domain/value_objects/goals_logged_in_user.dart';
+
 /// Defines the set of permissions available within the Goals Module.
 enum GoalsModulePermission {
   /// No special permission required.
   none,
 
   manageGlobalGoals,
-  viewPersonalGoals,
 }
 
 /// Configuration class for Goals Module access control.
@@ -24,20 +25,21 @@ class GoalsModuleConfig {
   /// ```
   final Map<String, List<GoalsModulePermission>> rolePermissions;
 
-  /// Callback to fetch the current user's role.
+  /// Callback to fetch the current user's role and other details.
   /// Usage example:
   /// ```dart
   /// final config = GoalsModuleConfig(
   /// ...
-  /// getCurrentUserRole: () => mainAppService.getCurrentUserRole(),
-  /// // Ex: () => 'admin' or 'seller' based on logged-in user
-  /// );
+  /// getCurrentUser: () => mainAppService.getCurrentUser(),
+  /// // returns GoalsLoggedInUser (goals module user representation)
   /// ```
-  /// This allows dynamic retrieval of the user's role at runtime.
-  final String Function() getCurrentUserRole;
+  final GoalsLoggedInUser Function() getCurrentUser;
 
   GoalsModuleConfig({
+    // TODO: Create Firestore config as an implementation of data source integration abstraction,
+    //  with option to set collection names, pass custom Firestore instances, etc.
+    // TODO: Create data source integration abstraction
     required this.rolePermissions,
-    required this.getCurrentUserRole,
+    required this.getCurrentUser,
   });
 }
