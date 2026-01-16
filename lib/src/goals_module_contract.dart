@@ -1,7 +1,10 @@
 /// Defines the set of permissions available within the Goals Module.
-/// One per use case that requires access control.
 enum GoalsModulePermission {
-  createAnnualGoal,
+  /// No special permission required.
+  none,
+
+  manageGlobalGoals,
+  viewPersonalGoals,
 }
 
 /// Configuration class for Goals Module access control.
@@ -13,7 +16,7 @@ class GoalsModuleConfig {
   /// ```dart
   /// final config = GoalsModuleConfig(
   /// rolePermissions: {
-  ///   'admin': [GoalsModulePermission.createAnnualGoal],
+  ///   'admin': [GoalsModulePermission.manageGlobalGoals],
   ///   'user': [],
   /// },
   /// ...

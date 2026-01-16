@@ -5,6 +5,7 @@ import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/a
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
+import 'package:bits_goals_module/src/core/domain/services/access_control_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
@@ -12,6 +13,7 @@ import 'package:bits_goals_module/src/features/goals_management/domain/use_cases
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/goals_module_contract.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -19,19 +21,27 @@ import 'package:mocktail/mocktail.dart';
 class MockAnnualRevenueGoalRepository extends Mock
     implements AnnualRevenueGoalRepository {}
 
+class MockAccessControlService extends Mock implements AccessControlService {}
+
 class FakeAnnualRevenueGoal extends Fake implements AnnualRevenueGoal {}
 
 void main() {
   late CreateAnnualRevenueGoal useCase;
   late MockAnnualRevenueGoalRepository mockRepository;
+  late MockAccessControlService mockAccessControlService;
 
   setUpAll(() {
     registerFallbackValue(FakeAnnualRevenueGoal());
+    registerFallbackValue(GoalsModulePermission.manageGlobalGoals);
   });
 
   setUp(() {
     mockRepository = MockAnnualRevenueGoalRepository();
-    useCase = CreateAnnualRevenueGoal(mockRepository);
+    mockAccessControlService = MockAccessControlService();
+    useCase = CreateAnnualRevenueGoal(
+      mockRepository,
+      mockAccessControlService,
+    );
   });
 
   group('CreateAnnualRevenueGoal UseCase', () {
@@ -70,9 +80,10 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
-
         when(() => mockRepository.create(any()))
             .thenAnswer((_) async => tAnnualGoal);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         // Act
         final result = await useCase(tParams);
@@ -96,6 +107,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         final params = CreateAnnualRevenueGoalParams(
           year: tPastYear,
@@ -130,6 +143,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         final params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
@@ -159,6 +174,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         final params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
@@ -180,12 +197,36 @@ void main() {
       },
     );
 
+    test('should return Left(permissionDenied) when user lacks permission',
+        () async {
+      // Arrange
+      when(() => mockRepository.getCurrentYear())
+          .thenAnswer((_) async => tCurrentYear);
+      when(() => mockAccessControlService.hasPermission(any()))
+          .thenReturn(false);
+
+      // Act
+      final result = await useCase(tParams);
+
+      // Assert
+      expect(
+        result,
+        const Left(
+          CreateAnnualRevenueGoalFailure(
+            reason: CreateAnnualRevenueGoalFailureReason.permissionDenied,
+          ),
+        ),
+      );
+    });
+
     test(
       'should return Left(internal) when generic AnnualRevenueGoalFailure occurs',
       () async {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         const unexpectedDomainFailure = AnnualRevenueGoalFailure(
           AnnualRevenueGoalFailureReason.invalidMonthsCount, // Arbitrary reason
@@ -217,6 +258,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         when(() => mockRepository.create(any())).thenAnswer(
           (invocation) async =>
@@ -255,6 +298,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         when(() => mockRepository.create(any())).thenThrow(
           const RepositoryFailure(
@@ -284,6 +329,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         const repoFailure = RepositoryFailure(
           reason: RepositoryFailureReason.permissionDenied,
@@ -314,6 +361,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         const repoFailure = RepositoryFailure(
           reason: RepositoryFailureReason.connectionError,
@@ -347,6 +396,8 @@ void main() {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
 
         final exception = Exception('Unexpected system crash');
         when(() => mockRepository.create(any())).thenThrow(exception);

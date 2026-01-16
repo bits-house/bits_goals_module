@@ -3,11 +3,13 @@ import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
+import 'package:bits_goals_module/src/core/domain/services/access_control_service.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/use_cases/use_case.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/goals_module_contract.dart';
 
 import 'package:dartz/dartz.dart';
 
@@ -26,6 +28,7 @@ import 'package:dartz/dartz.dart';
 /// * **Year:** Must be >= current year and unique in the database.
 /// * **Distribution:** The annual target is split across exactly 12 unique months.
 /// * **Financials:** All targets must be > 0. Sum of months == Annual Target.
+/// * **Permission:** User must have rights to create annual goals.
 ///
 /// **Error Scenarios:**
 /// * [CreateAnnualRevenueGoalFailureReason.pastYear] - Year is in the past.
@@ -36,14 +39,31 @@ import 'package:dartz/dartz.dart';
 class CreateAnnualRevenueGoal
     implements UseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
+  final AccessControlService accessControl;
 
-  CreateAnnualRevenueGoal(this.repository);
+  CreateAnnualRevenueGoal(this.repository, this.accessControl);
+
+  @override
+  GoalsModulePermission get requiredPermission =>
+      GoalsModulePermission.manageGlobalGoals;
 
   @override
   Future<Either<Failure, AnnualRevenueGoal>> call(
     CreateAnnualRevenueGoalParams params,
   ) async {
     try {
+      /// User must have permission to create annual revenue goals
+      final hasPermission = accessControl.hasPermission(
+        requiredPermission,
+      );
+      if (!hasPermission) {
+        return const Left(
+          CreateAnnualRevenueGoalFailure(
+            reason: CreateAnnualRevenueGoalFailureReason.permissionDenied,
+          ),
+        );
+      }
+
       /// Annual revenue target must be greater than zero
       if (params.annualRevenueTarget.cents <= 0) {
         return left(
