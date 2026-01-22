@@ -1,5 +1,7 @@
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
@@ -145,6 +147,17 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1.toString(), contains('EmailFailure'));
+    });
+
+    // =========================================================================
+    // AppVersionFailure
+    // =========================================================================
+    test('AppVersionFailure', () {
+      const failure1 = AppVersionFailure(AppVersionFailureReason.invalidFormat);
+      const failure2 = AppVersionFailure(AppVersionFailureReason.invalidFormat);
+
+      expect(failure1, equals(failure2));
+      expect(failure1.toString(), contains('AppVersionFailure'));
     });
   });
 }
