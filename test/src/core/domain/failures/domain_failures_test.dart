@@ -2,6 +2,8 @@ import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/a
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/device_info/device_info_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/device_info/device_info_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
@@ -158,6 +160,19 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1.toString(), contains('AppVersionFailure'));
+    });
+
+    // =========================================================================
+    // DeviceInfoFailure
+    // =========================================================================
+    test('DeviceInfoFailure', () {
+      const failure1 =
+          DeviceInfoFailure(DeviceInfoFailureReason.emptyOrInvalid);
+      const failure2 =
+          DeviceInfoFailure(DeviceInfoFailureReason.emptyOrInvalid);
+
+      expect(failure1, equals(failure2));
+      expect(failure1.toString(), contains('DeviceInfoFailure'));
     });
   });
 }
