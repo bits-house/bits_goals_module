@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
 
 /// Represents infrastructure-related failures that occur during
 /// data access or external system interactions.

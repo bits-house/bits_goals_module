@@ -2,8 +2,8 @@ import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/a
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/money/invalid_money_failure.dart';
@@ -12,8 +12,8 @@ import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_f
 import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_reason.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -123,19 +123,17 @@ void main() {
     });
 
     // =========================================================================
-    // GoalsLoggedInUserFailure
+    // LoggedInUserFailure
     // =========================================================================
-    test('GoalsLoggedInUserFailure', () {
-      const failure1 =
-          GoalsLoggedInUserFailure(GoalsLoggedInUserFailureReason.emptyUid);
-      const failure2 =
-          GoalsLoggedInUserFailure(GoalsLoggedInUserFailureReason.emptyUid);
+    test('LoggedInUserFailure', () {
+      const failure1 = LoggedInUserFailure(LoggedInUserFailureReason.emptyUid);
+      const failure2 = LoggedInUserFailure(LoggedInUserFailureReason.emptyUid);
       const failureDiff =
-          GoalsLoggedInUserFailure(GoalsLoggedInUserFailureReason.invalidEmail);
+          LoggedInUserFailure(LoggedInUserFailureReason.invalidEmail);
 
       expect(failure1, equals(failure2));
       expect(failure1, isNot(equals(failureDiff)));
-      expect(failure1.toString(), contains('GoalsLoggedInUserFailure'));
+      expect(failure1.toString(), contains('LoggedInUserFailure'));
     });
 
     // =========================================================================
