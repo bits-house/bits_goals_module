@@ -6,6 +6,8 @@ import 'package:bits_goals_module/src/core/domain/failures/device_info/device_in
 import 'package:bits_goals_module/src/core/domain/failures/device_info/device_info_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/email/email_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/ip_address/ip_address_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/ip_address/ip_address_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure.dart';
@@ -173,6 +175,17 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1.toString(), contains('DeviceInfoFailure'));
+    });
+
+    // =========================================================================
+    // IpAddressFailure
+    // =========================================================================
+    test('IpAddressFailure', () {
+      const failure1 = IpAddressFailure(IpAddressFailureReason.invalidFormat);
+      const failure2 = IpAddressFailure(IpAddressFailureReason.invalidFormat);
+
+      expect(failure1, equals(failure2));
+      expect(failure1.toString(), contains('IpAddressFailure'));
     });
   });
 }
