@@ -20,6 +20,8 @@ import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_reason.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -186,6 +188,22 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1.toString(), contains('IpAddressFailure'));
+    });
+
+    // =========================================================================
+    // UserRoleFailure
+    // =========================================================================
+    test('UserRoleFailure', () {
+      const failure1 = UserRoleFailure(UserRoleFailureReason.emptyName);
+      const failure2 = UserRoleFailure(UserRoleFailureReason.emptyName);
+      const failureDiff =
+          UserRoleFailure(UserRoleFailureReason.emptyPermissions);
+
+      expect(failure1, equals(failure2));
+      expect(failure1, isNot(equals(failureDiff)));
+
+      expect(failure1.toString(), contains('UserRoleFailure'));
+      expect(failure1.toString(), contains('emptyName'));
     });
   });
 }
