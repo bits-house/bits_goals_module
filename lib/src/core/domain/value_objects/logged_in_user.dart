@@ -2,7 +2,6 @@ import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged
 import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/utils/string_utils.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/email.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
 import 'package:equatable/equatable.dart';
 
 /// LoggedInUser Value Object
@@ -15,7 +14,7 @@ class LoggedInUser extends Equatable {
   /// Unique identifier from the main app authentication provider
   final String _uid;
 
-  final UserRole _role;
+  final String _roleName;
 
   /// User's logging email address
   final Email _email;
@@ -30,7 +29,7 @@ class LoggedInUser extends Equatable {
   /// Private constructor to enforce invariants
   const LoggedInUser._(
     this._uid,
-    this._role,
+    this._roleName,
     this._email,
     this._displayName,
   );
@@ -46,19 +45,17 @@ class LoggedInUser extends Equatable {
   /// - [displayName] is empty.
   factory LoggedInUser.create({
     required String uid,
-    required UserRole role,
+    required String roleName,
     required String email,
     required String displayName,
   }) {
     final uUid = _getValidUid(uid);
+    final uRoleName = _getValidRoleName(roleName);
     final uEmail = _getValidEmail(email);
     final uDisplayName = _getValidDisplayName(displayName);
     return LoggedInUser._(
       uUid,
-      UserRole(
-        roleName: role.roleName,
-        rolePermissions: role.rolePermissions,
-      ),
+      uRoleName,
       uEmail,
       uDisplayName,
     );
@@ -68,10 +65,7 @@ class LoggedInUser extends Equatable {
   // Getters
   // =============================================================
 
-  UserRole get role => UserRole(
-        roleName: _role.roleName,
-        rolePermissions: _role.rolePermissions,
-      );
+  String get roleName => _roleName.toString();
 
   String get uid => _uid.toString();
 
@@ -90,6 +84,15 @@ class LoggedInUser extends Equatable {
       );
     }
     return uid;
+  }
+
+  static String _getValidRoleName(String roleName) {
+    if (StringUtils.isEmpty(roleName)) {
+      throw const LoggedInUserFailure(
+        LoggedInUserFailureReason.emptyRoleName,
+      );
+    }
+    return roleName;
   }
 
   static Email _getValidEmail(String email) {
@@ -119,7 +122,7 @@ class LoggedInUser extends Equatable {
   @override
   List<Object?> get props => [
         _uid,
-        _role,
+        _roleName,
         _email,
         _displayName,
       ];
