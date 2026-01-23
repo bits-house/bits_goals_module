@@ -1,21 +1,21 @@
-import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/utils/string_utils.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/email.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
 import 'package:equatable/equatable.dart';
 
-/// GoalsLoggedInUser Value Object
+/// LoggedInUser Value Object
 ///
 /// - Represents the authenticated user within the goals module context
 /// - Contains essential identity and authorization data
 /// - Immutable
 /// - Equality is based on all attributes
-class GoalsLoggedInUser extends Equatable {
+class LoggedInUser extends Equatable {
   /// Unique identifier from the main app authentication provider
   final String _uid;
 
-  /// Role assigned to the user for access control (e.g., 'admin', 'manager')
-  final String _role;
+  final UserRole _role;
 
   /// User's logging email address
   final Email _email;
@@ -28,35 +28,37 @@ class GoalsLoggedInUser extends Equatable {
   // =============================================================
 
   /// Private constructor to enforce invariants
-  const GoalsLoggedInUser._(
+  const LoggedInUser._(
     this._uid,
     this._role,
     this._email,
     this._displayName,
   );
 
-  /// Factory constructor to create a GoalsLoggedInUser with validation
+  /// Factory constructor to create a LoggedInUser with validation
   ///
   /// Performs domain validation to ensure the user object is in a valid state.
   ///
-  /// Throws [GoalsLoggedInUserFailure] if:
+  /// Throws [LoggedInUserFailure] if:
   /// - [uid] is empty.
   /// - [email] is invalid or empty.
   /// - [role] is empty.
   /// - [displayName] is empty.
-  factory GoalsLoggedInUser.create({
+  factory LoggedInUser.create({
     required String uid,
-    required String role,
+    required UserRole role,
     required String email,
     required String displayName,
   }) {
     final uUid = _getValidUid(uid);
-    final uRole = _getValidRole(role);
     final uEmail = _getValidEmail(email);
     final uDisplayName = _getValidDisplayName(displayName);
-    return GoalsLoggedInUser._(
+    return LoggedInUser._(
       uUid,
-      uRole,
+      UserRole(
+        roleName: role.roleName,
+        rolePermissions: role.rolePermissions,
+      ),
       uEmail,
       uDisplayName,
     );
@@ -66,7 +68,10 @@ class GoalsLoggedInUser extends Equatable {
   // Getters
   // =============================================================
 
-  String get role => _role.toString();
+  UserRole get role => UserRole(
+        roleName: _role.roleName,
+        rolePermissions: _role.rolePermissions,
+      );
 
   String get uid => _uid.toString();
 
@@ -80,20 +85,11 @@ class GoalsLoggedInUser extends Equatable {
 
   static String _getValidUid(String uid) {
     if (StringUtils.isEmpty(uid)) {
-      throw const GoalsLoggedInUserFailure(
-        GoalsLoggedInUserFailureReason.emptyUid,
+      throw const LoggedInUserFailure(
+        LoggedInUserFailureReason.emptyUid,
       );
     }
     return uid;
-  }
-
-  static String _getValidRole(String role) {
-    if (StringUtils.isEmpty(role)) {
-      throw const GoalsLoggedInUserFailure(
-        GoalsLoggedInUserFailureReason.emptyRole,
-      );
-    }
-    return role;
   }
 
   static Email _getValidEmail(String email) {
@@ -101,16 +97,16 @@ class GoalsLoggedInUser extends Equatable {
       final validEmail = Email(email);
       return validEmail;
     } catch (_) {
-      throw const GoalsLoggedInUserFailure(
-        GoalsLoggedInUserFailureReason.invalidEmail,
+      throw const LoggedInUserFailure(
+        LoggedInUserFailureReason.invalidEmail,
       );
     }
   }
 
   static String _getValidDisplayName(String displayName) {
     if (StringUtils.isEmpty(displayName)) {
-      throw const GoalsLoggedInUserFailure(
-        GoalsLoggedInUserFailureReason.emptyDisplayName,
+      throw const LoggedInUserFailure(
+        LoggedInUserFailureReason.emptyDisplayName,
       );
     }
     return StringUtils.cleanAndCapitalizeAll(displayName);

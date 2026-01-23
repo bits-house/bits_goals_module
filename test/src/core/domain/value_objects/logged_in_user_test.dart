@@ -1,22 +1,27 @@
-import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/goals_logged_in_user/goals_logged_in_user_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/goals_logged_in_user.dart';
+import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
+import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const tUid = 'usEr_123';
-  const tRole = 'admin';
+  final tRole = UserRole(
+    roleName: 'admin',
+    rolePermissions: const [GoalsModulePermission.manageGlobalGoals],
+  );
   const tEmail = 'test@example.com';
   const tDisplayName = 'Test User';
 
-  group('GoalsLoggedInUser', () {
+  group('LoggedInUser', () {
     group('Instantiation and Normalization', () {
       test('should create a valid instance and normalize fields', () {
         const dirtyEmailValue = '  Test@EXAMPLE.com  ';
         const dirtyDisplayName = '  Test  User  ';
 
         // Act
-        final user = GoalsLoggedInUser.create(
+        final user = LoggedInUser.create(
           uid: tUid,
           role: tRole,
           email: dirtyEmailValue,
@@ -32,80 +37,59 @@ void main() {
     });
 
     group('Validation Failures', () {
-      test('should throw GoalsLoggedInUserFailure (emptyUid) when uid is empty',
-          () {
+      test('should throw LoggedInUserFailure (emptyUid) when uid is empty', () {
         expect(
-          () => GoalsLoggedInUser.create(
+          () => LoggedInUser.create(
             uid: '   ',
             role: tRole,
             email: tEmail,
             displayName: tDisplayName,
           ),
           throwsA(
-            isA<GoalsLoggedInUserFailure>().having(
+            isA<LoggedInUserFailure>().having(
               (e) => e.reason,
               'reason',
-              GoalsLoggedInUserFailureReason.emptyUid,
+              LoggedInUserFailureReason.emptyUid,
             ),
           ),
         );
       });
 
       test(
-          'should throw GoalsLoggedInUserFailure (invalidEmail) when email is malformed',
+          'should throw LoggedInUserFailure (invalidEmail) when email is malformed',
           () {
         expect(
-          () => GoalsLoggedInUser.create(
+          () => LoggedInUser.create(
             uid: tUid,
             role: tRole,
             email: 'invalid-email',
             displayName: tDisplayName,
           ),
           throwsA(
-            isA<GoalsLoggedInUserFailure>().having(
+            isA<LoggedInUserFailure>().having(
               (e) => e.reason,
               'reason',
-              GoalsLoggedInUserFailureReason.invalidEmail,
+              LoggedInUserFailureReason.invalidEmail,
             ),
           ),
         );
       });
 
       test(
-          'should throw GoalsLoggedInUserFailure (emptyRole) when role is empty',
+          'should throw LoggedInUserFailure (emptyDisplayName) when displayName is empty',
           () {
         expect(
-          () => GoalsLoggedInUser.create(
-            uid: tUid,
-            role: '',
-            email: tEmail,
-            displayName: tDisplayName,
-          ),
-          throwsA(
-            isA<GoalsLoggedInUserFailure>().having(
-              (e) => e.reason,
-              'reason',
-              GoalsLoggedInUserFailureReason.emptyRole,
-            ),
-          ),
-        );
-      });
-
-      test(
-          'should throw GoalsLoggedInUserFailure (emptyDisplayName) when displayName is empty',
-          () {
-        expect(
-          () => GoalsLoggedInUser.create(
+          () => LoggedInUser.create(
             uid: tUid,
             role: tRole,
             email: tEmail,
             displayName: ' \n ',
           ),
           throwsA(
-            isA<GoalsLoggedInUserFailure>().having(
+            isA<LoggedInUserFailure>().having(
               (e) => e.reason,
               'reason',
-              GoalsLoggedInUserFailureReason.emptyDisplayName,
+              LoggedInUserFailureReason.emptyDisplayName,
             ),
           ),
         );
@@ -115,7 +99,7 @@ void main() {
     group('Getters', () {
       test('should return correct values from getters', () {
         // Arrange
-        final user = GoalsLoggedInUser.create(
+        final user = LoggedInUser.create(
           uid: tUid,
           role: tRole,
           email: tEmail,
@@ -132,13 +116,13 @@ void main() {
 
     group('Equality and Value Object properties', () {
       test('should be equal when all properties are identical', () {
-        final user1 = GoalsLoggedInUser.create(
+        final user1 = LoggedInUser.create(
           uid: tUid,
           role: tRole,
           email: tEmail,
           displayName: tDisplayName,
         );
-        final user2 = GoalsLoggedInUser.create(
+        final user2 = LoggedInUser.create(
           uid: tUid,
           role: tRole,
           email: tEmail,
@@ -150,13 +134,13 @@ void main() {
       });
 
       test('should not be equal when one property differs', () {
-        final user1 = GoalsLoggedInUser.create(
+        final user1 = LoggedInUser.create(
           uid: tUid,
           role: tRole,
           email: tEmail,
           displayName: tDisplayName,
         );
-        final user2 = GoalsLoggedInUser.create(
+        final user2 = LoggedInUser.create(
           uid: 'different_uid',
           role: tRole,
           email: tEmail,
@@ -167,7 +151,7 @@ void main() {
       });
 
       test('stringify should be true for better debug logs', () {
-        final user = GoalsLoggedInUser.create(
+        final user = LoggedInUser.create(
           uid: tUid,
           role: tRole,
           email: tEmail,
