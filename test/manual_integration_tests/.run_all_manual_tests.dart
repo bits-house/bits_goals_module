@@ -18,7 +18,7 @@ void main() async {
 
   // List all files in the folder that match the prefix
   final files = currentDir
-      .listSync()
+      .listSync(recursive: true)
       .whereType<File>()
       .where((file) =>
               file.path
