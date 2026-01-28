@@ -1,15 +1,18 @@
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/domain/services/access_control_service.dart';
+import 'package:bits_goals_module/src/core/domain/services/interfaces/access_control_service.dart';
+import 'package:bits_goals_module/src/core/domain/services/interfaces/infra_metadata_collector.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/use_cases/use_case.dart';
+import 'package:bits_goals_module/src/core/domain/use_cases/params_use_case.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/goals_module_contract.dart';
+import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
 
 import 'package:dartz/dartz.dart';
 
@@ -29,6 +32,7 @@ import 'package:dartz/dartz.dart';
 /// * **Distribution:** The annual target is split across exactly 12 unique months.
 /// * **Financials:** All targets must be > 0. Sum of months == Annual Target.
 /// * **Permission:** User must have rights to create annual goals.
+/// * **Logging:** An ActionLog is created for auditing.
 ///
 /// **Error Scenarios:**
 /// * [CreateAnnualRevenueGoalFailureReason.pastYear] - Year is in the past.
@@ -37,11 +41,16 @@ import 'package:dartz/dartz.dart';
 /// * [CreateAnnualRevenueGoalFailureReason.permissionDenied] - User lacks rights.
 /// * Other unexpected and infrastructure errors.
 class CreateAnnualRevenueGoal
-    implements UseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
+    implements ParamsUseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
   final AccessControlService accessControl;
+  final InfraMetadataCollector metadataCollector;
 
-  CreateAnnualRevenueGoal(this.repository, this.accessControl);
+  CreateAnnualRevenueGoal({
+    required this.repository,
+    required this.accessControl,
+    required this.metadataCollector,
+  });
 
   @override
   GoalsModulePermission get requiredPermission =>
@@ -51,6 +60,8 @@ class CreateAnnualRevenueGoal
   Future<Either<Failure, AnnualRevenueGoal>> call(
     CreateAnnualRevenueGoalParams params,
   ) async {
+    const useCaseId = 'create_annual_revenue_goal';
+
     try {
       /// User must have permission to create annual revenue goals
       final hasPermission = accessControl.hasPermission(
@@ -93,13 +104,28 @@ class CreateAnnualRevenueGoal
 
       /// Create AnnualRevenueGoal aggregate
       /// (this will validate AnnualRevenueGoal invariants)
-      final annualGoal = AnnualRevenueGoal.create(
+      final annualGoal = AnnualRevenueGoal.build(
         year: params.year,
         monthlyGoals: monthlyGoals,
       );
 
+      /// Create ActionLog
+      final ActionLog creationLog = ActionLog.create(
+        actionType: ActionType.create,
+        useCaseId: useCaseId,
+        requiredPermission: requiredPermission,
+        newDataMapped: annualGoal.toMap(),
+        user: accessControl.loggedInUser,
+        appVersion: metadataCollector.appVersion,
+        userDeviceInfo: metadataCollector.userDeviceInfo,
+        userIpAddress: metadataCollector.userIpAddress,
+      );
+
       /// Persist atomically, ensuring rules are enforced
-      final savedGoal = await repository.create(annualGoal);
+      final savedGoal = await repository.create(
+        goal: annualGoal,
+        log: creationLog,
+      );
 
       return right(savedGoal);
     }

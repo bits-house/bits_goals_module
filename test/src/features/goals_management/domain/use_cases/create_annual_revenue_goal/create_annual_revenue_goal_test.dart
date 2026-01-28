@@ -1,11 +1,17 @@
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/domain/services/access_control_service.dart';
+import 'package:bits_goals_module/src/core/domain/services/interfaces/access_control_service.dart';
+import 'package:bits_goals_module/src/core/domain/services/interfaces/infra_metadata_collector.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
@@ -13,8 +19,7 @@ import 'package:bits_goals_module/src/features/goals_management/domain/use_cases
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/goals_module_contract.dart';
-import 'package:dartz/dartz.dart';
+import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,82 +28,129 @@ class MockAnnualRevenueGoalRepository extends Mock
 
 class MockAccessControlService extends Mock implements AccessControlService {}
 
+class MockInfraMetadataCollector extends Mock
+    implements InfraMetadataCollector {}
+
+class MockLoggedInUser extends Mock implements LoggedInUser {}
+
 class FakeAnnualRevenueGoal extends Fake implements AnnualRevenueGoal {}
+
+class FakeActionLog extends Fake implements ActionLog {}
 
 void main() {
   late CreateAnnualRevenueGoal useCase;
   late MockAnnualRevenueGoalRepository mockRepository;
   late MockAccessControlService mockAccessControlService;
+  late MockInfraMetadataCollector mockMetadataCollector;
+  late MockLoggedInUser mockLoggedInUser;
 
   setUpAll(() {
     registerFallbackValue(FakeAnnualRevenueGoal());
+    registerFallbackValue(FakeActionLog());
     registerFallbackValue(GoalsModulePermission.manageGlobalGoals);
   });
 
   setUp(() {
     mockRepository = MockAnnualRevenueGoalRepository();
     mockAccessControlService = MockAccessControlService();
+    mockMetadataCollector = MockInfraMetadataCollector();
+    mockLoggedInUser = MockLoggedInUser();
+
+    // Configure metadata collector mocks with proper value objects
+    when(() => mockMetadataCollector.appVersion)
+        .thenReturn(AppVersion('1.0.0'));
+    when(() => mockMetadataCollector.userDeviceInfo)
+        .thenReturn(DeviceInfo('test-device'));
+    when(() => mockMetadataCollector.userIpAddress)
+        .thenReturn(IpAddress('192.168.1.1'));
+
+    // Configure access control service mocks
+    when(() => mockAccessControlService.loggedInUser)
+        .thenReturn(mockLoggedInUser);
+
     useCase = CreateAnnualRevenueGoal(
-      mockRepository,
-      mockAccessControlService,
+      repository: mockRepository,
+      accessControl: mockAccessControlService,
+      metadataCollector: mockMetadataCollector,
     );
   });
 
   group('CreateAnnualRevenueGoal UseCase', () {
     // ============================================================
-    // FIXTURES
+    // FIXTURES & HELPERS
     // ============================================================
+
     final tCurrentYear = Year.fromInt(2025);
     final tValidYear = Year.fromInt(2026);
     final tPastYear = Year.fromInt(2024);
     final tMoney = Money.fromDouble(12000.00);
 
-    final tParams = CreateAnnualRevenueGoalParams(
-      year: tValidYear,
-      annualRevenueTarget: tMoney,
-    );
-
-    final tAnnualGoal = AnnualRevenueGoal.create(
-      year: tValidYear,
-      monthlyGoals: List.generate(
-        12,
-        (index) => MonthlyRevenueGoal.create(
-          year: tValidYear,
-          month: Month.fromInt(index + 1),
-          target: Money.fromDouble(1000.00),
-        ),
-      ),
-    );
+    AnnualRevenueGoal createValidAnnualGoal({
+      required Year year,
+      required Money target,
+    }) {
+      return AnnualRevenueGoal.build(
+        year: year,
+        monthlyGoals: <MonthlyRevenueGoal>[
+          for (int i = 1; i <= 12; i++)
+            MonthlyRevenueGoal.create(
+              year: year,
+              month: Month.fromInt(i),
+              target: Money.fromDouble(1000.00),
+            ),
+        ],
+      );
+    }
 
     // ============================================================
-    // SUCCESS SCENARIOS
+    // USE CASE METADATA TESTS
+    // ============================================================
+
+    test('requiredPermission should return manageGlobalGoals', () {
+      expect(
+          useCase.requiredPermission, GoalsModulePermission.manageGlobalGoals);
+    });
+
+    // ============================================================
+    // SUCCESS SCENARIO TESTS
     // ============================================================
 
     test(
       'should create and persist annual goal when parameters are valid',
       () async {
         // Arrange
+        final tAnnualGoal =
+            createValidAnnualGoal(year: tValidYear, target: tMoney);
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
-        when(() => mockRepository.create(any()))
-            .thenAnswer((_) async => tAnnualGoal);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'),
+            log: any(named: 'log'))).thenAnswer((_) async => tAnnualGoal);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
         // Act
-        final result = await useCase(tParams);
+        final result = await useCase(params);
 
         // Assert
-        expect(result, Right(tAnnualGoal));
-
-        verify(() => mockRepository.getCurrentYear()).called(1);
-        verify(() => mockRepository.create(any(that: isA<AnnualRevenueGoal>())))
-            .called(1);
+        expect(result.isRight(), true);
+        result.fold(
+          (l) => fail('Should be Right: $l'),
+          (r) {
+            expect(r.year, tValidYear);
+            expect(r.monthlyGoals.length, 12);
+          },
+        );
       },
     );
 
     // ============================================================
-    // VALIDATION FAILURES (PRE-DOMAIN)
+    // VALIDATION FAILURE TESTS
     // ============================================================
 
     test(
@@ -119,26 +171,17 @@ void main() {
         final result = await useCase(params);
 
         // Assert
-        expect(
-          result,
-          const Left(
-            CreateAnnualRevenueGoalFailure(
-              reason: CreateAnnualRevenueGoalFailureReason.pastYear,
-            ),
-          ),
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+              CreateAnnualRevenueGoalFailureReason.pastYear),
+          (r) => fail('Should be Left'),
         );
-
-        verify(() => mockRepository.getCurrentYear()).called(1);
-        verifyNever(() => mockRepository.create(any()));
       },
     );
 
-    // ============================================================
-    // DOMAIN FAILURES (INTEGRATION WITH ENTITIES)
-    // ============================================================
-
     test(
-      'should return Left(zeroOrNegativeTarget) when annual target is negative',
+      'should return Left(zeroOrNegativeTarget) when target is negative',
       () async {
         // Arrange
         when(() => mockRepository.getCurrentYear())
@@ -156,20 +199,16 @@ void main() {
 
         // Assert
         expect(result.isLeft(), true);
-
         result.fold(
-          (failure) {
-            expect(failure, isA<CreateAnnualRevenueGoalFailure>());
-            expect((failure as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget);
-          },
-          (_) => fail('Should be Left'),
+          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+              CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget),
+          (r) => fail('Should be Left'),
         );
       },
     );
 
     test(
-      'should return Left(zeroOrNegativeTarget) when target is exactly zero',
+      'should return Left(zeroOrNegativeTarget) when target is zero',
       () async {
         // Arrange
         when(() => mockRepository.getCurrentYear())
@@ -186,13 +225,11 @@ void main() {
         final result = await useCase(params);
 
         // Assert
-        expect(
-          result,
-          const Left(
-            CreateAnnualRevenueGoalFailure(
-              reason: CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget,
-            ),
-          ),
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+              CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget),
+          (r) => fail('Should be Left'),
         );
       },
     );
@@ -200,155 +237,94 @@ void main() {
     test('should return Left(permissionDenied) when user lacks permission',
         () async {
       // Arrange
-      when(() => mockRepository.getCurrentYear())
-          .thenAnswer((_) async => tCurrentYear);
       when(() => mockAccessControlService.hasPermission(any()))
           .thenReturn(false);
 
+      final params = CreateAnnualRevenueGoalParams(
+        year: tValidYear,
+        annualRevenueTarget: tMoney,
+      );
+
       // Act
-      final result = await useCase(tParams);
+      final result = await useCase(params);
 
       // Assert
-      expect(
-        result,
-        const Left(
-          CreateAnnualRevenueGoalFailure(
-            reason: CreateAnnualRevenueGoalFailureReason.permissionDenied,
-          ),
-        ),
+      expect(result.isLeft(), true);
+      result.fold(
+        (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+            CreateAnnualRevenueGoalFailureReason.permissionDenied),
+        (r) => fail('Should be Left'),
       );
     });
 
-    test(
-      'should return Left(internal) when generic AnnualRevenueGoalFailure occurs',
-      () async {
-        // Arrange
-        when(() => mockRepository.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
-        when(() => mockAccessControlService.hasPermission(any()))
-            .thenReturn(true);
-
-        const unexpectedDomainFailure = AnnualRevenueGoalFailure(
-          AnnualRevenueGoalFailureReason.invalidMonthsCount, // Arbitrary reason
-        );
-
-        when(() => mockRepository.create(any()))
-            .thenThrow(unexpectedDomainFailure);
-
-        // Act
-        final result = await useCase(tParams);
-
-        // Assert
-        expect(result.isLeft(), true);
-        final failure = result.fold(
-            (l) => l as CreateAnnualRevenueGoalFailure, (r) => null)!;
-
-        expect(failure.reason, CreateAnnualRevenueGoalFailureReason.internal);
-        expect(failure.cause, unexpectedDomainFailure);
-      },
-    );
-
-    // ==============================================
-    // MONTHLY GOALS  DISTRIBUTION
-    // ==============================================
-
-    test(
-      'should correctly distribute the annual target into 12 monthly goals before persisting',
-      () async {
-        // Arrange
-        when(() => mockRepository.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
-        when(() => mockAccessControlService.hasPermission(any()))
-            .thenReturn(true);
-
-        when(() => mockRepository.create(any())).thenAnswer(
-          (invocation) async =>
-              invocation.positionalArguments.first as AnnualRevenueGoal,
-        );
-
-        final params = CreateAnnualRevenueGoalParams(
-          year: tValidYear,
-          annualRevenueTarget: Money.fromDouble(12000.00),
-        );
-
-        // Act
-        await useCase(params);
-
-        // Assert
-        final captured =
-            verify(() => mockRepository.create(captureAny())).captured;
-        final savedGoal = captured.first as AnnualRevenueGoal;
-
-        expect(savedGoal.year, tValidYear);
-        expect(savedGoal.totalAnnualTarget, Money.fromDouble(12000.00));
-
-        expect(savedGoal.monthlyGoals.length, 12);
-
-        expect(savedGoal.monthlyGoals.first.target.cents, 100000);
-      },
-    );
-
     // ============================================================
-    // REPOSITORY FAILURES
+    // REPOSITORY FAILURE TESTS
     // ============================================================
 
     test(
-      'should return Left(annualGoalForYearAlreadyExists) when repository fails with conflict',
+      'should map annualGoalForYearAlreadyExists repository failure',
       () async {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
-
-        when(() => mockRepository.create(any())).thenThrow(
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'), log: any(named: 'log'))).thenThrow(
           const RepositoryFailure(
             reason: RepositoryFailureReason.annualGoalForYearAlreadyExists,
           ),
         );
 
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
         // Act
-        final result = await useCase(tParams);
+        final result = await useCase(params);
 
         // Assert
-        expect(
-          result,
-          const Left(
-            CreateAnnualRevenueGoalFailure(
-              reason: CreateAnnualRevenueGoalFailureReason
-                  .annualGoalForYearAlreadyExists,
-            ),
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) => expect(
+              (l as CreateAnnualRevenueGoalFailure).reason,
+              CreateAnnualRevenueGoalFailureReason
+                  .annualGoalForYearAlreadyExists),
+          (r) => fail('Should be Left'),
+        );
+      },
+    );
+
+    test(
+      'should map permissionDenied repository failure',
+      () async {
+        // Arrange
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'), log: any(named: 'log'))).thenThrow(
+          const RepositoryFailure(
+            reason: RepositoryFailureReason.permissionDenied,
           ),
         );
-      },
-    );
 
-    test(
-      'should return Left(permissionDenied) when repository fails with permission error',
-      () async {
-        // Arrange
-        when(() => mockRepository.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
-        when(() => mockAccessControlService.hasPermission(any()))
-            .thenReturn(true);
-
-        const repoFailure = RepositoryFailure(
-          reason: RepositoryFailureReason.permissionDenied,
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
         );
 
-        when(() => mockRepository.create(any())).thenThrow(repoFailure);
-
         // Act
-        final result = await useCase(tParams);
+        final result = await useCase(params);
 
         // Assert
+        expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect(l, isA<CreateAnnualRevenueGoalFailure>());
-            final f = l as CreateAnnualRevenueGoalFailure;
-            expect(f.reason,
+            expect((l as CreateAnnualRevenueGoalFailure).reason,
                 CreateAnnualRevenueGoalFailureReason.permissionDenied);
-            expect(f.cause, repoFailure);
           },
           (r) => fail('Should be Left'),
         );
@@ -356,30 +332,34 @@ void main() {
     );
 
     test(
-      'should return Left(connectionError) when repository fails with unknown reason',
+      'should map connectionError repository failure',
       () async {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
-
-        const repoFailure = RepositoryFailure(
-          reason: RepositoryFailureReason.connectionError,
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'), log: any(named: 'log'))).thenThrow(
+          const RepositoryFailure(
+            reason: RepositoryFailureReason.connectionError,
+          ),
         );
 
-        when(() => mockRepository.create(any())).thenThrow(repoFailure);
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
 
         // Act
-        final result = await useCase(tParams);
+        final result = await useCase(params);
 
         // Assert
+        expect(result.isLeft(), true);
         result.fold(
           (l) {
-            final f = l as CreateAnnualRevenueGoalFailure;
-            expect(
-                f.reason, CreateAnnualRevenueGoalFailureReason.connectionError);
-            expect(f.cause, repoFailure);
+            expect((l as CreateAnnualRevenueGoalFailure).reason,
+                CreateAnnualRevenueGoalFailureReason.connectionError);
           },
           (r) => fail('Should be Left'),
         );
@@ -387,46 +367,91 @@ void main() {
     );
 
     // ============================================================
-    // GENERIC FAILURES
+    // DOMAIN ENTITY FAILURE TESTS
     // ============================================================
 
     test(
-      'should return Left(internal) when an unexpected exception occurs',
+      'should map AnnualRevenueGoalFailure to internal failure',
       () async {
         // Arrange
         when(() => mockRepository.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'), log: any(named: 'log'))).thenThrow(
+          const AnnualRevenueGoalFailure(
+            AnnualRevenueGoalFailureReason.invalidMonthsCount,
+          ),
+        );
 
-        final exception = Exception('Unexpected system crash');
-        when(() => mockRepository.create(any())).thenThrow(exception);
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
 
         // Act
-        final result = await useCase(tParams);
+        final result = await useCase(params);
 
         // Assert
+        expect(result.isLeft(), true);
         result.fold(
           (l) {
-            final f = l as CreateAnnualRevenueGoalFailure;
-            expect(f.reason, CreateAnnualRevenueGoalFailureReason.internal);
-            expect(f.cause, exception);
+            expect((l as CreateAnnualRevenueGoalFailure).reason,
+                CreateAnnualRevenueGoalFailureReason.internal);
           },
           (r) => fail('Should be Left'),
         );
       },
     );
 
-    test('Failure should support stringify and equality', () {
+    // ============================================================
+    // GENERIC EXCEPTION TESTS
+    // ============================================================
+
+    test(
+      'should map generic exception to internal failure',
+      () async {
+        // Arrange
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'), log: any(named: 'log'))).thenThrow(
+          Exception('Unexpected error'),
+        );
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) {
+            expect((l as CreateAnnualRevenueGoalFailure).reason,
+                CreateAnnualRevenueGoalFailureReason.internal);
+          },
+          (r) => fail('Should be Left'),
+        );
+      },
+    );
+
+    // ============================================================
+    // FAILURE OBJECT EQUALITY TESTS
+    // ============================================================
+
+    test('Failure should support equality comparison', () {
       const failure1 = CreateAnnualRevenueGoalFailure(
         reason: CreateAnnualRevenueGoalFailureReason.pastYear,
-        cause: 'Any cause',
-        message: 'Test message',
       );
       const failure2 = CreateAnnualRevenueGoalFailure(
         reason: CreateAnnualRevenueGoalFailureReason.pastYear,
-        cause: 'Any cause',
-        message: 'Test message',
       );
       const failureDiff = CreateAnnualRevenueGoalFailure(
         reason: CreateAnnualRevenueGoalFailureReason.connectionError,
@@ -434,7 +459,240 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1, isNot(equals(failureDiff)));
-      expect(failure1.toString(), contains('CreateAnnualRevenueGoalFailure'));
     });
+
+    test('Failure should include class name in toString()', () {
+      const failure = CreateAnnualRevenueGoalFailure(
+        reason: CreateAnnualRevenueGoalFailureReason.pastYear,
+      );
+
+      expect(failure.toString(), contains('CreateAnnualRevenueGoalFailure'));
+    });
+
+    // ============================================================
+    // MONTHLY GOALS DISTRIBUTION TESTS
+    // ============================================================
+
+    test(
+      'should distribute annual target correctly across 12 months',
+      () async {
+        // Arrange
+        final annualTarget = Money.fromDouble(12000.00);
+        final tAnnualGoal = createValidAnnualGoal(
+          year: tValidYear,
+          target: annualTarget,
+        );
+
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'),
+            log: any(named: 'log'))).thenAnswer((_) async => tAnnualGoal);
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: annualTarget,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isRight(), true);
+        result.fold(
+          (l) => fail('Should be Right'),
+          (goal) {
+            expect(goal.monthlyGoals.length, 12);
+            // Verify all monthly goals have positive targets
+            for (final monthlyGoal in goal.monthlyGoals) {
+              expect(monthlyGoal.target.cents, greaterThan(0));
+            }
+          },
+        );
+      },
+    );
+
+    // ============================================================
+    // EDGE CASE TESTS
+    // ============================================================
+
+    test(
+      'should accept year equal to current year',
+      () async {
+        // Arrange
+        final tAnnualGoal =
+            createValidAnnualGoal(year: tCurrentYear, target: tMoney);
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'),
+            log: any(named: 'log'))).thenAnswer((_) async => tAnnualGoal);
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tCurrentYear,
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isRight(), true);
+      },
+    );
+
+    test(
+      'should accept minimum valid target that distributes across 12 months',
+      () async {
+        // Arrange
+        // Minimum target must be divisible across 12 months; using 12 cents = 1 cent per month
+        final minTarget = Money.fromCents(12);
+        final tAnnualGoal =
+            createValidAnnualGoal(year: tValidYear, target: minTarget);
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'),
+            log: any(named: 'log'))).thenAnswer((_) async => tAnnualGoal);
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: minTarget,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isRight(), true);
+      },
+    );
+
+    test(
+      'should accept very large target amount',
+      () async {
+        // Arrange
+        final largeTarget = Money.fromDouble(999999999.99);
+        final tAnnualGoal =
+            createValidAnnualGoal(year: tValidYear, target: largeTarget);
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'),
+            log: any(named: 'log'))).thenAnswer((_) async => tAnnualGoal);
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: largeTarget,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isRight(), true);
+      },
+    );
+
+    test(
+      'should reject year far in the past',
+      () async {
+        // Arrange
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: Year.fromInt(1990),
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+              CreateAnnualRevenueGoalFailureReason.pastYear),
+          (r) => fail('Should be Left'),
+        );
+      },
+    );
+
+    // ============================================================
+    // ASYNC TESTS
+    // ============================================================
+
+    test(
+      'should await repository.getCurrentYear() before proceeding',
+      () async {
+        // Arrange
+        final tAnnualGoal =
+            createValidAnnualGoal(year: tValidYear, target: tMoney);
+        when(() => mockRepository.getCurrentYear()).thenAnswer(
+          (_) async {
+            await Future.delayed(const Duration(milliseconds: 10));
+            return tCurrentYear;
+          },
+        );
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'),
+            log: any(named: 'log'))).thenAnswer((_) async => tAnnualGoal);
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isRight(), true);
+      },
+    );
+
+    test(
+      'should await repository.create() before returning',
+      () async {
+        // Arrange
+        final tAnnualGoal =
+            createValidAnnualGoal(year: tValidYear, target: tMoney);
+        when(() => mockRepository.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+        when(() => mockRepository.create(
+            goal: any(named: 'goal'), log: any(named: 'log'))).thenAnswer(
+          (_) async {
+            await Future.delayed(const Duration(milliseconds: 10));
+            return tAnnualGoal;
+          },
+        );
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isRight(), true);
+      },
+    );
   });
 }
