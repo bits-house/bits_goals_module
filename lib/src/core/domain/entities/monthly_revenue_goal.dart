@@ -41,25 +41,40 @@ class MonthlyRevenueGoal extends Equatable {
         _year = year,
         _id = id;
 
-  /// Factory constructor that validates all domain invariants
   factory MonthlyRevenueGoal.create({
     required Month month,
     required Year year,
     required Money target,
-    Money? progress,
-    IdUuidV7? id,
   }) {
-    final uid = id ?? IdUuidV7.generate();
+    final uid = IdUuidV7.generate();
+    final prog = Money.fromCents(0);
 
     _validateGoalTarget(target);
 
-    final prog = progress ?? Money.fromCents(0);
     return MonthlyRevenueGoal._(
       id: uid,
       month: month,
       year: year,
       target: target,
       progress: prog,
+    );
+  }
+
+  factory MonthlyRevenueGoal.reconstruct({
+    required IdUuidV7 id,
+    required Month month,
+    required Year year,
+    required Money target,
+    required Money progress,
+  }) {
+    _validateGoalTarget(target);
+
+    return MonthlyRevenueGoal._(
+      id: id,
+      month: month,
+      year: year,
+      target: target,
+      progress: progress,
     );
   }
 
