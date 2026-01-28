@@ -68,6 +68,18 @@ class AnnualRevenueGoal extends Equatable {
     return Money.fromCents(totalCents);
   }
 
+  // ========================
+  // Mapping
+  // ========================
+
+  Map<String, dynamic> toMap() {
+    return {
+      'year': _year.value,
+      'monthly_goals': _monthlyGoals.map((g) => g.toMap()).toList(),
+      'total_annual_target_cents': totalAnnualTarget.cents,
+    };
+  }
+
   // =========================
   // Domain Validations
   // =========================

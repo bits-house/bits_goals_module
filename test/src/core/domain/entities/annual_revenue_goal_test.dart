@@ -430,8 +430,168 @@ void main() {
       );
 
       // ============================================================
+      // MAPPING
+      // ============================================================
+
+      group('AnnualRevenueGoal.toMap |', () {
+        // HELPER: Factory to create valid AnnualRevenueGoal (Strict Invariants)
+        AnnualRevenueGoal createValidAnnualGoal({
+          int yearInt = 2026,
+          int monthlyTargetCents = 10000, // 100.00
+        }) {
+          final year = Year.fromInt(yearInt);
+          final List<MonthlyRevenueGoal> monthlyGoals = [];
+
+          for (int i = 1; i <= 12; i++) {
+            monthlyGoals.add(
+              MonthlyRevenueGoal.create(
+                id: IdUuidV7.generate(),
+                month: Month.fromInt(i),
+                year: year,
+                target: Money.fromCents(monthlyTargetCents),
+                progress: Money.fromCents(0),
+              ),
+            );
+          }
+
+          return AnnualRevenueGoal.create(
+            year: year,
+            monthlyGoals: monthlyGoals,
+          );
+        }
+
+        // TESTS
+        test('Should return a Map containing all required top-level keys', () {
+          // Arrange
+          final entity = createValidAnnualGoal();
+
+          // Act
+          final map = entity.toMap();
+
+          // Assert
+          expect(map.containsKey('year'), isTrue);
+          expect(map.containsKey('monthly_goals'), isTrue);
+          expect(map.containsKey('total_annual_target_cents'), isTrue);
+        });
+
+        test('Should correctly map primitive values (Year and Total Target)',
+            () {
+          // Arrange
+          const targetPerMonth = 5000; // 50.00
+          final entity = createValidAnnualGoal(
+            yearInt: 2025,
+            monthlyTargetCents: targetPerMonth,
+          );
+
+          // Act
+          final map = entity.toMap();
+
+          // Assert
+          expect(map['year'], equals(2025));
+          // Total = 5000 * 12 = 60000
+          expect(map['total_annual_target_cents'], equals(60000));
+        });
+
+        test(
+            'Should correctly map the List of MonthlyRevenueGoals (Recursive Mapping)',
+            () {
+          // Arrange
+          final entity = createValidAnnualGoal(yearInt: 2024);
+
+          // Act
+          final map = entity.toMap();
+          final monthlyGoalsList = map['monthly_goals'];
+
+          // Assert
+          expect(monthlyGoalsList, isA<List>());
+          expect(monthlyGoalsList, hasLength(12));
+
+          // Verify the structure of the first child item
+          final firstMonthMap = monthlyGoalsList.first as Map<String, dynamic>;
+
+          // These keys come from MonthlyRevenueGoal.toMap()
+          expect(firstMonthMap['month'], equals(1));
+          expect(firstMonthMap['year'], equals(2024));
+          expect(firstMonthMap.containsKey('target_cents'), isTrue);
+          expect(firstMonthMap.containsKey('progress_cents'), isTrue);
+          expect(firstMonthMap.containsKey('id'), isTrue);
+        });
+
+        test('Should ensure correct data types in the resulting Map structure',
+            () {
+          // Arrange
+          final entity = createValidAnnualGoal();
+
+          // Act
+          final map = entity.toMap();
+
+          // Assert
+          expect(map['year'], isA<int>());
+          expect(map['total_annual_target_cents'], isA<int>());
+          expect(map['monthly_goals'], isA<List<Map<String, dynamic>>>());
+        });
+
+        test(
+            'Should reflect changes in specific monthly targets in the total calculation',
+            () {
+          // Arrange
+          // We create the list manually here to have varied values
+          final year = Year.fromInt(2026);
+          final List<MonthlyRevenueGoal> variedGoals = [];
+
+          // 11 months with 1000 cents
+          for (int i = 1; i <= 11; i++) {
+            variedGoals.add(MonthlyRevenueGoal.create(
+                month: Month.fromInt(i),
+                year: year,
+                target: Money.fromCents(1000)));
+          }
+          // December with 2000 cents
+          variedGoals.add(MonthlyRevenueGoal.create(
+              month: Month.fromInt(12),
+              year: year,
+              target: Money.fromCents(2000)));
+
+          final entity =
+              AnnualRevenueGoal.create(year: year, monthlyGoals: variedGoals);
+
+          // Act
+          final map = entity.toMap();
+
+          // Assert
+          // Expected: (11 * 1000) + 2000 = 13000
+          expect(map['total_annual_target_cents'], equals(13000));
+
+          // Verify December specifically in the list
+          final goalsList = map['monthly_goals'] as List;
+          final decemberMap = goalsList.firstWhere((m) => m['month'] == 12);
+          expect(decemberMap['target_cents'], equals(2000));
+        });
+
+        test(
+            'Should maintain Immutability (Modifying the returned map does not affect Entity)',
+            () {
+          // Arrange
+          final entity = createValidAnnualGoal(yearInt: 2030);
+
+          // Act
+          final map = entity.toMap();
+          map['year'] = 1999; // Malicious modification of the map
+          (map['monthly_goals'] as List).clear(); // Malicious clearing of list
+
+          // Assert
+          // The entity should remain pristine
+          expect(entity.year.value, equals(2030));
+          expect(entity.monthlyGoals.length, equals(12));
+
+          // Verify a new toMap call produces the correct original data
+          expect(entity.toMap()['year'], equals(2030));
+        });
+      });
+
+      // ============================================================
       /// STRINGIFY
-      // ==========================================================
+      // ============================================================
 
       test(
           'toString() should return readable representation (Default Equatable)',
