@@ -1,5 +1,6 @@
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 
 /// Repository for managing [AnnualRevenueGoal] aggregates.
@@ -16,12 +17,16 @@ abstract class AnnualRevenueGoalRepository {
   ///
   /// Rules (for the implementer):
   /// - This operation MUST be atomic:
-  ///     either the entire aggregate (all monthly goals) is persisted,
+  ///     either the entire aggregate (all monthly goals) and logs are persisted,
   ///     or nothing is persisted at all.)
   /// - One year can have at most one annual revenue goal.
   ///     If an annual revenue goal for the specified year already exists,
   ///     a Failure MUST be thrown.
-  Future<AnnualRevenueGoal> create(AnnualRevenueGoal goal);
+  /// - MUST write logs using [ActionLog] provided.
+  Future<AnnualRevenueGoal> create({
+    required AnnualRevenueGoal goal,
+    required ActionLog log,
+  });
 
   /// Gets the current year, to not get year from local offline system clock.
   ///
