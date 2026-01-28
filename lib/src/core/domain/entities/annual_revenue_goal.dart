@@ -28,8 +28,8 @@ class AnnualRevenueGoal extends Equatable {
         _monthlyGoals = monthlyGoals;
 
   /// Factory constructor that validates all domain invariants
-  /// before creating an instance of [AnnualRevenueGoal].
-  factory AnnualRevenueGoal.create({
+  /// before building an instance of [AnnualRevenueGoal].
+  factory AnnualRevenueGoal.build({
     required Year year,
     required List<MonthlyRevenueGoal> monthlyGoals,
   }) {

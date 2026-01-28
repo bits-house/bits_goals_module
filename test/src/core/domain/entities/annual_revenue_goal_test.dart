@@ -44,7 +44,7 @@ void main() {
         () {
           final monthlyGoals = validMonthlyGoals();
 
-          final annualGoal = AnnualRevenueGoal.create(
+          final annualGoal = AnnualRevenueGoal.build(
             year: year2025,
             monthlyGoals: monthlyGoals,
           );
@@ -57,7 +57,7 @@ void main() {
       test('should ensure all months are unique within the annual goal', () {
         final monthlyGoals = validMonthlyGoals();
 
-        final annualGoal = AnnualRevenueGoal.create(
+        final annualGoal = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: monthlyGoals,
         );
@@ -72,7 +72,7 @@ void main() {
         () {
           final monthlyGoals = validMonthlyGoals();
 
-          final annualGoal = AnnualRevenueGoal.create(
+          final annualGoal = AnnualRevenueGoal.build(
             year: year2025,
             monthlyGoals: monthlyGoals,
           );
@@ -93,7 +93,7 @@ void main() {
           targetAmountPerMonth: 983.973,
         );
 
-        final annualGoal = AnnualRevenueGoal.create(
+        final annualGoal = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: monthlyGoals,
         );
@@ -107,7 +107,7 @@ void main() {
       test('should expose monthly goals ordered by month ascending', () {
         final monthlyGoals = validMonthlyGoals().reversed.toList();
 
-        final annualGoal = AnnualRevenueGoal.create(
+        final annualGoal = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: monthlyGoals,
         );
@@ -123,12 +123,12 @@ void main() {
       // ============================================================
 
       test('should behave as a value-based aggregate for equality', () {
-        final a = AnnualRevenueGoal.create(
+        final a = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: validMonthlyGoals(),
         );
 
-        final b = AnnualRevenueGoal.create(
+        final b = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: validMonthlyGoals(),
         );
@@ -146,12 +146,12 @@ void main() {
           target: Money.fromDouble(2000),
         );
 
-        final a = AnnualRevenueGoal.create(
+        final a = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: goalsA,
         );
 
-        final b = AnnualRevenueGoal.create(
+        final b = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: goalsB,
         );
@@ -164,7 +164,7 @@ void main() {
       // ============================================================
 
       test('annual goal should always contain exactly one goal per month', () {
-        final annualGoal = AnnualRevenueGoal.create(
+        final annualGoal = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: validMonthlyGoals(),
         );
@@ -187,7 +187,7 @@ void main() {
           final monthlyGoals = validMonthlyGoals().sublist(0, 11);
 
           expect(
-            () => AnnualRevenueGoal.create(
+            () => AnnualRevenueGoal.build(
               year: year2025,
               monthlyGoals: monthlyGoals,
             ),
@@ -216,7 +216,7 @@ void main() {
           ];
 
           expect(
-            () => AnnualRevenueGoal.create(
+            () => AnnualRevenueGoal.build(
               year: year2025,
               monthlyGoals: monthlyGoals,
             ),
@@ -245,7 +245,7 @@ void main() {
           );
 
           expect(
-            () => AnnualRevenueGoal.create(
+            () => AnnualRevenueGoal.build(
               year: year2025,
               monthlyGoals: monthlyGoals,
             ),
@@ -272,7 +272,7 @@ void main() {
           );
 
           expect(
-            () => AnnualRevenueGoal.create(
+            () => AnnualRevenueGoal.build(
               year: year2025,
               monthlyGoals: monthlyGoals,
             ),
@@ -307,7 +307,7 @@ void main() {
 
           // Act & Assert
           expect(
-            () => AnnualRevenueGoal.create(
+            () => AnnualRevenueGoal.build(
               year: year2025,
               monthlyGoals: goals,
             ),
@@ -343,7 +343,7 @@ void main() {
 
           // Act & Assert
           expect(
-            () => AnnualRevenueGoal.create(
+            () => AnnualRevenueGoal.build(
               year: year2025,
               monthlyGoals: goals,
             ),
@@ -369,7 +369,7 @@ void main() {
         final mutableSourceList = validMonthlyGoals();
         final originalFirstGoal = mutableSourceList.first;
 
-        final annualGoal = AnnualRevenueGoal.create(
+        final annualGoal = AnnualRevenueGoal.build(
           year: year2025,
           monthlyGoals: mutableSourceList,
         );
@@ -391,7 +391,7 @@ void main() {
         'should throw UnsupportedError when trying to modify the exposed list',
         () {
           // Arrange
-          final annualGoal = AnnualRevenueGoal.create(
+          final annualGoal = AnnualRevenueGoal.build(
             year: year2025,
             monthlyGoals: validMonthlyGoals(),
           );
@@ -454,7 +454,7 @@ void main() {
             );
           }
 
-          return AnnualRevenueGoal.create(
+          return AnnualRevenueGoal.build(
             year: year,
             monthlyGoals: monthlyGoals,
           );
@@ -553,7 +553,7 @@ void main() {
               target: Money.fromCents(2000)));
 
           final entity =
-              AnnualRevenueGoal.create(year: year, monthlyGoals: variedGoals);
+              AnnualRevenueGoal.build(year: year, monthlyGoals: variedGoals);
 
           // Act
           final map = entity.toMap();
@@ -608,7 +608,7 @@ void main() {
           ),
         );
 
-        final annualGoal = AnnualRevenueGoal.create(
+        final annualGoal = AnnualRevenueGoal.build(
           year: tYear,
           monthlyGoals: tMonthlyGoals,
         );
