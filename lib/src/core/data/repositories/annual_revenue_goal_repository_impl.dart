@@ -2,17 +2,19 @@ import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_
 import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
+import 'package:bits_goals_module/src/core/data/models/action_log/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/core/infra/platform/network_info.dart';
+import 'package:bits_goals_module/src/infra/platform/network_info.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
-  final RemoteTimeDataSource _realTimeSource;
+  final RemoteTimeDataSource _remoteTimeSource;
   final NetworkInfo _networkInfo;
 
   AnnualRevenueGoalRepositoryImpl({
@@ -21,10 +23,13 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
     required RemoteTimeDataSource remoteTimeDataSource,
   })  : _remoteDataSource = remoteDataSource,
         _networkInfo = networkInfo,
-        _realTimeSource = remoteTimeDataSource;
+        _remoteTimeSource = remoteTimeDataSource;
 
   @override
-  Future<AnnualRevenueGoal> create(AnnualRevenueGoal goal) async {
+  Future<AnnualRevenueGoal> create({
+    required AnnualRevenueGoal goal,
+    required ActionLog log,
+  }) async {
     try {
       if (!await _networkInfo.isConnected) {
         throw const RepositoryFailure(
@@ -36,9 +41,12 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
           .map((entity) => MonthlyRevenueGoalRemoteModel.fromEntity(entity))
           .toList();
 
+      final logModel = ActionLogModel.fromEntity(log);
+
       await _remoteDataSource.createMonthlyGoalsForYear(
         year: goal.year.value,
         goals: monthlyModels,
+        log: logModel,
       );
 
       return goal;
@@ -75,7 +83,7 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
           reason: RepositoryFailureReason.connectionError,
         );
       }
-      final yearInt = await _realTimeSource.getCurrentYear();
+      final yearInt = await _remoteTimeSource.getCurrentYear();
       return Year.fromInt(yearInt);
     } on RepositoryFailure {
       rethrow;

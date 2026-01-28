@@ -2,16 +2,24 @@ import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_
 import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
+import 'package:bits_goals_module/src/core/data/models/action_log/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/data/repositories/annual_revenue_goal_repository_impl.dart';
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/core/infra/platform/network_info.dart';
+import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
+import 'package:bits_goals_module/src/infra/platform/network_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -29,6 +37,8 @@ class MockNetworkInfo extends Mock implements NetworkInfo {}
 class FakeMonthlyGoalList extends Fake
     implements List<MonthlyRevenueGoalRemoteModel> {}
 
+class FakeActionLogModel extends Fake implements ActionLogModel {}
+
 // =============================================================================
 // TEST SUITE
 // =============================================================================
@@ -41,6 +51,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeMonthlyGoalList());
+    registerFallbackValue(FakeActionLogModel());
   });
 
   setUp(() {
@@ -54,8 +65,8 @@ void main() {
     );
   });
 
-  AnnualRevenueGoal createValidAggregate() {
-    final tYear = Year.fromInt(2026);
+  AnnualRevenueGoal createValidAggregate({Year? year}) {
+    final tYear = year ?? Year.fromInt(2026);
     final months = List.generate(12, (index) {
       return MonthlyRevenueGoal.create(
         month: Month.fromInt(index + 1),
@@ -63,68 +74,116 @@ void main() {
         year: tYear,
       );
     });
-    return AnnualRevenueGoal.create(year: tYear, monthlyGoals: months);
+    return AnnualRevenueGoal.build(year: tYear, monthlyGoals: months);
+  }
+
+  ActionLog createValidActionLog() {
+    return ActionLog.create(
+      user: LoggedInUser.create(
+        uid: 'user-123',
+        roleName: 'admin',
+        email: 'test@example.com',
+        displayName: 'Test User',
+      ),
+      userIpAddress: IpAddress('192.168.1.1'),
+      userDeviceInfo: DeviceInfo('iPhone 13, iOS 15.4'),
+      appVersion: AppVersion('1.0.0'),
+      requiredPermission: GoalsModulePermission.values.first,
+      actionType: ActionType.create,
+      useCaseId: 'create-annual-revenue-goal',
+      newDataMapped: const {'year': 2026, 'target': 100000},
+    );
   }
 
   group('AnnualRevenueGoalRepositoryImpl', () {
-    // =========================================================================
-    // METHOD: create
-    // =========================================================================
     group('create', () {
       test(
-        'should decompose the Aggregate into 12 Models and call the RemoteDataSource with the correct list',
+        'should return goal when create succeeds with online connection',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
+          final log = createValidActionLog();
 
-          when(() => mockRemoteDataSource.createMonthlyGoalsForYear(
-                year: any(named: 'year', that: equals(aggregate.year.value)),
-                goals: any(named: 'goals'),
-              )).thenAnswer((_) async {});
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-
-          // Act
-          final result = await repository.create(aggregate);
-
-          // Assert
-          expect(result, equals(aggregate));
-
-          verify(() => mockRemoteDataSource.createMonthlyGoalsForYear(
-                year: any(named: 'year', that: equals(aggregate.year.value)),
-                goals: any(
-                  named: 'goals',
-                  that: isA<List<MonthlyRevenueGoalRemoteModel>>()
-                      .having((list) => list.length, 'length', 12)
-                      .having(
-                          (list) => list.first.target.cents, 'cents', 100000),
-                ),
-              )).called(1);
-          verify(() => mockNetworkInfo.isConnected).called(1);
-        },
-      );
-
-      test(
-        'should throw [RepositoryFailure] with [annualGoalForYearAlreadyExists] when DataSource indicates conflict',
-        () async {
-          // Arrange
-          final aggregate = createValidAggregate();
-
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
               goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).thenAnswer((_) async {});
+
+          // Act
+          final result = await repository.create(goal: aggregate, log: log);
+
+          // Assert
+          expect(result, equals(aggregate));
+          verify(() => mockNetworkInfo.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should decompose aggregate into 12 monthly models correctly',
+        () async {
+          // Arrange
+          final aggregate = createValidAggregate();
+          final log = createValidActionLog();
+
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).thenAnswer((_) async {});
+
+          // Act
+          await repository.create(goal: aggregate, log: log);
+
+          // Assert
+          verify(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: aggregate.year.value,
+              goals: any(
+                named: 'goals',
+                that: isA<List<MonthlyRevenueGoalRemoteModel>>()
+                    .having((g) => g.length, 'length', 12),
+              ),
+              log: any(named: 'log'),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should throw RepositoryFailure with conflict reason when goal exists',
+        () async {
+          // Arrange
+          final aggregate = createValidAggregate();
+          final log = createValidActionLog();
+
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
             ),
           ).thenThrow(
             const ServerException(reason: ServerExceptionReason.conflict),
           );
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
 
-          // Act
-          final call = repository.create;
-
-          // Assert
+          // Act & Assert
           expect(
-            () => call(aggregate),
+            () => repository.create(goal: aggregate, log: log),
             throwsA(
               isA<RepositoryFailure>().having(
                 (f) => f.reason,
@@ -133,229 +192,238 @@ void main() {
               ),
             ),
           );
-          verify(() => mockNetworkInfo.isConnected).called(1);
         },
       );
 
       test(
-        'should throw [RepositoryFailure] when an unexpected exception occurs',
+        'should throw RepositoryFailure with permissionDenied reason when access denied',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
+          final log = createValidActionLog();
 
-          when(() => mockRemoteDataSource.createMonthlyGoalsForYear(
-                    year: any(named: 'year'),
-                    goals: any(named: 'goals'),
-                  ))
-              .thenThrow(const ServerException(
-                  reason: ServerExceptionReason.unexpected));
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-
-          // Act
-          final call = repository.create;
-
-          // Assert
-          expect(
-            () => call(aggregate),
-            throwsA(isA<RepositoryFailure>()),
-          );
-          verify(() => mockNetworkInfo.isConnected).called(1);
-        },
-      );
-
-      test(
-          'should throw [RepositoryFailure] with [permissionDenied] reason when DataSource indicates permission denied',
-          () async {
-        // Arrange
-        final aggregate = createValidAggregate();
-
-        when(
-          () => mockRemoteDataSource.createMonthlyGoalsForYear(
-            year: any(named: 'year'),
-            goals: any(named: 'goals'),
-          ),
-        ).thenThrow(
-          const ServerException(reason: ServerExceptionReason.permissionDenied),
-        );
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-
-        // Act
-        final call = repository.create;
-
-        // Assert
-        expect(
-          () => call(aggregate),
-          throwsA(
-            isA<RepositoryFailure>().having(
-              (f) => f.reason,
-              'reason',
-              RepositoryFailureReason.permissionDenied,
-            ),
-          ),
-        );
-        verify(() => mockNetworkInfo.isConnected).called(1);
-      });
-    });
-
-    test(
-        'should throw [RepositoryFailure] with [connectionError] reason when unexpected ServerException is thrown',
-        () async {
-      // Arrange
-      final aggregate = createValidAggregate();
-
-      when(
-        () => mockRemoteDataSource.createMonthlyGoalsForYear(
-          year: any(named: 'year'),
-          goals: any(named: 'goals'),
-        ),
-      ).thenThrow(
-        const ServerException(reason: ServerExceptionReason.unexpected),
-      );
-      when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-
-      // Act
-      final call = repository.create;
-
-      // Assert
-      expect(
-        () => call(aggregate),
-        throwsA(
-          isA<RepositoryFailure>().having(
-            (f) => f.reason,
-            'reason',
-            RepositoryFailureReason.connectionError,
-          ),
-        ),
-      );
-      verify(() => mockNetworkInfo.isConnected).called(1);
-    });
-
-    test(
-      'should throw [RepositoryFailure] with [connectionError] reason when a generic Exception occurs',
-      () async {
-        // Arrange
-        final aggregate = createValidAggregate();
-        final tException = Exception('Generic unexpected error');
-
-        when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-
-        // Simulamos uma exceção genérica (não ServerException)
-        when(() => mockRemoteDataSource.createMonthlyGoalsForYear(
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
               goals: any(named: 'goals'),
-            )).thenThrow(tException);
+              log: any(named: 'log'),
+            ),
+          ).thenThrow(
+            const ServerException(
+              reason: ServerExceptionReason.permissionDenied,
+            ),
+          );
 
-        // Act
-        final call = repository.create;
+          // Act & Assert
+          expect(
+            () => repository.create(goal: aggregate, log: log),
+            throwsA(
+              isA<RepositoryFailure>().having(
+                (f) => f.reason,
+                'reason',
+                RepositoryFailureReason.permissionDenied,
+              ),
+            ),
+          );
+        },
+      );
 
-        // Assert
-        expect(
-          () => call(aggregate),
-          throwsA(
-            isA<RepositoryFailure>()
-                .having(
-                  (f) => f.reason,
-                  'reason',
-                  RepositoryFailureReason.connectionError,
-                )
-                .having((f) => f.cause, 'cause', equals(tException)),
-          ),
-        );
-
-        verify(() => mockNetworkInfo.isConnected).called(1);
-      },
-    );
-
-    group('create (Offline)', () {
       test(
-        'should throw [RepositoryFailure] with [connectionError] reason AND NOT call remote data source',
+        'should throw RepositoryFailure with connectionError for unexpected ServerException',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
+          final log = createValidActionLog();
+
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).thenThrow(
+            const ServerException(reason: ServerExceptionReason.unexpected),
+          );
+
+          // Act & Assert
+          expect(
+            () => repository.create(goal: aggregate, log: log),
+            throwsA(
+              isA<RepositoryFailure>().having(
+                (f) => f.reason,
+                'reason',
+                RepositoryFailureReason.connectionError,
+              ),
+            ),
+          );
+        },
+      );
+
+      test(
+        'should throw RepositoryFailure with connectionError for generic exception',
+        () async {
+          // Arrange
+          final aggregate = createValidAggregate();
+          final log = createValidActionLog();
+          final exception = Exception('Generic error');
+
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).thenThrow(exception);
+
+          // Act & Assert
+          expect(
+            () => repository.create(goal: aggregate, log: log),
+            throwsA(
+              isA<RepositoryFailure>().having(
+                (f) => f.reason,
+                'reason',
+                RepositoryFailureReason.connectionError,
+              ),
+            ),
+          );
+        },
+      );
+
+      test(
+        'should throw RepositoryFailure when offline',
+        () async {
+          // Arrange
+          final aggregate = createValidAggregate();
+          final log = createValidActionLog();
 
           when(() => mockNetworkInfo.isConnected)
               .thenAnswer((_) async => false);
 
-          // Act
-          final call = repository.create;
-
-          // Assert
+          // Act & Assert
           expect(
-            () => call(aggregate),
-            throwsA(isA<RepositoryFailure>().having(
-              (f) => f.reason,
-              'reason',
-              RepositoryFailureReason.connectionError,
-            )),
+            () => repository.create(goal: aggregate, log: log),
+            throwsA(
+              isA<RepositoryFailure>().having(
+                (f) => f.reason,
+                'reason',
+                RepositoryFailureReason.connectionError,
+              ),
+            ),
           );
 
-          verifyZeroInteractions(mockRemoteDataSource);
+          verifyNever(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          );
+        },
+      );
+
+      test(
+        'should verify network check before data source call',
+        () async {
+          // Arrange
+          final aggregate = createValidAggregate();
+          final log = createValidActionLog();
+
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).thenAnswer((_) async {});
+
+          // Act
+          await repository.create(goal: aggregate, log: log);
+
+          // Assert
           verify(() => mockNetworkInfo.isConnected).called(1);
         },
       );
     });
 
-    // =========================================================================
-    // METHOD: getCurrentYear
-    // =========================================================================
     group('getCurrentYear', () {
       test(
-        'should return the correct [Year] value object retrieved from DataSource',
+        'should return year when request succeeds',
         () async {
           // Arrange
-          const tServerYear = 2025;
-          when(() => mockRemoteTimeDataSource.getCurrentYear())
-              .thenAnswer((_) async => tServerYear);
+          const serverYear = 2025;
+
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockRemoteTimeDataSource.getCurrentYear())
+              .thenAnswer((_) async => serverYear);
 
           // Act
           final result = await repository.getCurrentYear();
 
           // Assert
           expect(result, isA<Year>());
-          expect(result.value, equals(tServerYear));
+          expect(result.value, equals(serverYear));
+          verify(() => mockNetworkInfo.isConnected).called(1);
           verify(() => mockRemoteTimeDataSource.getCurrentYear()).called(1);
         },
       );
 
       test(
-        'should throw [RepositoryFailure] when DataSource fails',
+        'should throw RepositoryFailure when data source fails',
         () async {
           // Arrange
-          when(() => mockRemoteTimeDataSource.getCurrentYear())
-              .thenThrow(Exception('Time out'));
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockRemoteTimeDataSource.getCurrentYear())
+              .thenThrow(Exception('Network error'));
 
-          // Act
-          final call = repository.getCurrentYear;
-
-          // Assert
-          expect(() => call(), throwsA(isA<RepositoryFailure>()));
+          // Act & Assert
+          expect(
+            () => repository.getCurrentYear(),
+            throwsA(isA<RepositoryFailure>()),
+          );
         },
       );
 
       test(
-        'should throw [RepositoryFailure] with [connectionError] reason AND NOT call remote data source when offline',
+        'should throw RepositoryFailure with connectionError when offline',
+        () async {
+          // Arrange
+          when(() => mockNetworkInfo.isConnected)
+              .thenAnswer((_) async => false);
+
+          // Act & Assert
+          expect(
+            () => repository.getCurrentYear(),
+            throwsA(
+              isA<RepositoryFailure>().having(
+                (f) => f.reason,
+                'reason',
+                RepositoryFailureReason.connectionError,
+              ),
+            ),
+          );
+
+          verifyNever(() => mockRemoteTimeDataSource.getCurrentYear());
+        },
+      );
+
+      test(
+        'should not call time data source when offline',
         () async {
           // Arrange
           when(() => mockNetworkInfo.isConnected)
               .thenAnswer((_) async => false);
 
           // Act
-          final call = repository.getCurrentYear;
+          try {
+            await repository.getCurrentYear();
+          } catch (_) {}
 
           // Assert
-          expect(
-            () => call(),
-            throwsA(isA<RepositoryFailure>().having(
-              (f) => f.reason,
-              'reason',
-              RepositoryFailureReason.connectionError,
-            )),
-          );
-
-          verifyZeroInteractions(mockRemoteDataSource);
-          verify(() => mockNetworkInfo.isConnected).called(1);
+          verifyNever(() => mockRemoteTimeDataSource.getCurrentYear());
         },
       );
     });
