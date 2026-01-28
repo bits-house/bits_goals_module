@@ -150,6 +150,97 @@ void main() {
     });
 
     // ============================================================
+    // MAPPING
+    // ============================================================
+
+    group('MonthlyRevenueGoal.toMap |', () {
+      // Helper to create a valid entity for testing
+      MonthlyRevenueGoal createEntity({
+        String uuidV7 = '123e4567-e89b-12d3-a456-426614174000',
+        int month = 5,
+        int year = 2026,
+        int targetCents = 100000,
+        int progressCents = 50000,
+      }) {
+        return MonthlyRevenueGoal.create(
+          id: IdUuidV7.fromString(uuidV7),
+          month: Month.fromInt(month),
+          year: Year.fromInt(year),
+          target: Money.fromCents(targetCents),
+          progress: Money.fromCents(progressCents),
+        );
+      }
+
+      test('Should return a Map with all correct keys and values', () {
+        // Arrange
+        final entity = createEntity(
+          month: 12,
+          year: 2025,
+          targetCents: 5000,
+          progressCents: 2500,
+        );
+
+        // Act
+        final result = entity.toMap();
+
+        // Assert
+        expect(result, isA<Map<String, dynamic>>());
+        expect(result['id'], '123e4567-e89b-12d3-a456-426614174000');
+        expect(result['month'], 12);
+        expect(result['year'], 2025);
+        expect(result['target_cents'], 5000);
+        expect(result['progress_cents'], 2500);
+      });
+
+      test(
+          'Should ensure data types match database/infrastructure expectations',
+          () {
+        // Arrange
+        final entity = createEntity();
+
+        // Act
+        final result = entity.toMap();
+
+        // Assert
+        expect(result['id'], isA<String>());
+        expect(result['month'], isA<int>());
+        expect(result['year'], isA<int>());
+        expect(result['target_cents'], isA<int>());
+        expect(result['progress_cents'], isA<int>());
+      });
+
+      test(
+          'Should be a stable representation (calling it twice returns identical data)',
+          () {
+        // Arrange
+        final entity = createEntity();
+
+        // Act
+        final firstMap = entity.toMap();
+        final secondMap = entity.toMap();
+
+        // Assert
+        expect(firstMap, equals(secondMap));
+      });
+
+      test(
+          'Should ensure the returned Map is a new instance (Immutability check)',
+          () {
+        // Arrange
+        final entity = createEntity();
+
+        // Act
+        final map = entity.toMap();
+        map['id'] =
+            '123e4567-e89b-12d3-a456-426614174001'; // Attempt to modify the map
+
+        // Assert
+        // The internal state of the entity should NOT change
+        expect(entity.toMap()['id'], isNot('modified-id'));
+      });
+    });
+
+    // ============================================================
     /// STRINGIFY
     // ============================================================
 

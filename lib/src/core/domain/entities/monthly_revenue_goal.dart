@@ -78,6 +78,20 @@ class MonthlyRevenueGoal extends Equatable {
   Year get year => Year.fromInt(_year.value);
 
   // =========================
+  // Mapping
+  // =========================
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': _id.value,
+      'month': _month.value,
+      'year': _year.value,
+      'target_cents': _target.cents,
+      'progress_cents': _progress.cents,
+    };
+  }
+
+  // =========================
   // Domain Validations
   // =========================
 
