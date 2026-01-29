@@ -6,11 +6,11 @@ import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/infra/platform/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
