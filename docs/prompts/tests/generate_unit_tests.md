@@ -1,13 +1,48 @@
-# FLUTTER/DART UNIT TEST GENERATION PROMPT (v2.0)
+# FLUTTER/DART UNIT TEST GENERATION PROMPT (v2.1)
 
 **Prompt Metadata:**
-- Version: 2.0 (Improved with 19-phase framework)
+- Version: 2.1 (Improved with prompt improvement framework)
 - Domain: Flutter/Dart Testing (Clean Architecture + DDD)
 - Target AI: Claude Haiku 4.5
 - Production Maturity: Level 4 (>95% first-attempt success)
-- Last Updated: 2026-01-28
+- Last Updated: 2026-01-29
 - Sessions Integrated: 25+ production test generation cycles
 - Knowledge Base: 24+ production failures consolidated
+
+---
+
+## PHASE -1: QUICKSTART (COPY/PASTE)
+
+Fill this block FIRST. If any required field is missing, STOP and ask for it.
+
+```
+INPUT_FILE_PATH: [absolute path to .dart file under test]
+SOURCE_FILE_TYPE: [entity | use_case | repository | service | model | value_object]
+TARGET_SOURCE_COVERAGE_FILE: [workspace-relative path to the single file to hit 100% coverage]
+
+TEST_FILE_PATH: [where to write tests, or existing test file path]
+
+FACTORY_SIGNATURES: [paste exact signatures from source; required for any constructor/factory tests]
+DEPENDENCIES: [list interfaces to mock + methods used]
+VALUE_OBJECTS: [list value objects used + constructor patterns]
+VALIDATION_RULES: [business constraints to enforce]
+ENUM_VALUES: [paste enum definitions or list values]
+
+TEST_COUNT_TARGET: [number or range, e.g. 12-18]
+TEST_CATEGORY_SPLIT: [success X | validation Y | error Z | edge W]
+
+CAN_RUN_COMMANDS: [yes | no]
+OS_SHELL: [powershell | bash]
+```
+
+**Output Contract (FINAL RESPONSE):**
+- Output ONLY a single Dart test file (no Markdown fences, no prose).
+- Keep indentation at 2 spaces and line length ≤ 120.
+
+**Hard Stops (must STOP immediately):**
+- Missing/unclear `INPUT_FILE_PATH` or imports cannot be resolved.
+- Factory signatures/parameter names cannot be verified from source.
+- You cannot run commands (`CAN_RUN_COMMANDS: no`) and the user has not agreed to run verification steps and paste outputs.
 
 ---
 
@@ -28,7 +63,7 @@
 
 **Target Performance After Using Prompt:**
 - ✓ 90%+ tests passing on first execution
-- ✓ 100% coverage for target source file
+- ✓ 100% coverage for target source file (goal) / ≥95% minimum gate
 - ✓ 0 lint warnings (dart analyze --fatal-infos)
 - ✓ 0 compilation errors after fixes
 - ✓ All temporary files cleaned
@@ -51,7 +86,7 @@
 
 **Success Definition:**
 - All tests pass: ✓
-- Coverage ≥100% of target file: ✓
+- Coverage: 100% for target file (goal) / ≥95% minimum gate: ✓
 - Lint warnings: 0
 - Compilation errors: 0 (after documented fixes)
 - First-attempt success: 90%+
@@ -59,10 +94,19 @@
 
 ---
 
+## SECTION 1.1: EXECUTION PLATFORM NOTES (CRITICAL)
+
+This prompt must be runnable on Windows (PowerShell) and Unix shells.
+
+- PowerShell does not support `tail`; use `Select-Object -Last N`.
+- Some environments reject `flutter test --no-coverage`; by default, `flutter test <file>` runs without generating coverage.
+
+---
+
 ## SECTION 2: CRITICAL DIRECTIVES (NON-NEGOTIABLE)
 
 **Tier 1: MUST Rules** (execution blockers if violated)
-- [ ] Generate ONLY pure Dart code (no markdown, no explanatory comments)
+- [ ] FINAL RESPONSE must be pure Dart code only (no Markdown fences, no prose)
 - [ ] Optimize for first-attempt success (90%+ tests passing)
 - [ ] Guarantee ZERO linting warnings (strict Dart mode)
 - [ ] Automatically clean up all temporary files (coverage/, build/, .dart_tool/build/)
@@ -111,12 +155,32 @@ This prompt consolidates learnings from 25+ production test failures:
 
 ## SECTION 4: EXECUTION GUARDRAILS (HARD STOPS & SOFT STOPS)
 
+### STOP / CONTINUE DECISION (NON-NEGOTIABLE)
+
+STOP immediately and ask for clarification if:
+
+- The source file path is missing.
+- Imports cannot be resolved for the file under test.
+- Factory signatures/parameter names are not verifiable from source.
+
+STOP immediately and fix (then re-run) if:
+
+- `flutter test <file>` has any compilation/runtime error.
+- `dart analyze --fatal-infos <file>` reports any issue.
+- Coverage gate fails (target: 100% for the file under test; minimum: 95%).
+
+CONTINUE if:
+
+- Tests pass.
+- Lint passes.
+- Coverage is improving and no new errors are introduced.
+
 ### Hard Stops (MUST RESOLVE - Blocking Errors)
 
 | Condition | Error Type | Root Cause | Action | Success Criteria |
 |-----------|-----------|-----------|--------|------------------|
 | Compilation error on first `flutter test` | Dart syntax/import mismatch | Wrong parameter names, missing imports, type errors | Fix error, re-run `flutter test` | "All tests passed!" |
-| Coverage < 95% for target file | Untested code paths exist | Missing test cases for branches | Expand test suite by +2-3 tests per gap area | Coverage ≥100% |
+| Coverage < 95% for target file | Untested code paths exist | Missing test cases for branches | Expand test suite by +2-3 tests per gap area | 100% target / ≥95% minimum |
 | Lint warnings (dart analyze --fatal-infos) | Code quality violation | Unused imports, naming violations, null safety issues | `dart format` file, fix violations | "No issues found!" |
 | Test suite has flaky tests | Non-deterministic behavior | Race condition, mutable state, timing dependency | Mock time-dependent calls, remove async randomness | All tests pass 5x consecutive |
 | Mock methods defined but never called | Dead code/wrong fixture | Method signature doesn't match test usage | Remove unused mock or add test that calls it | 0 uncalled mocks |
@@ -218,7 +282,7 @@ CONSTRAINT: Const correctness (use const for immutables)
 - **First-Attempt Success Rate:** % of tests passing without revision
 - **Ambiguity Failures:** Which instructions were misinterpreted?
 - **Coverage Rate:** % of source file covered by tests
-- **Target Metrics:** ≥90% success, ≥100% coverage, 0 lint warnings
+- **Target Metrics:** ≥90% success, 100% target-file coverage (≥95% minimum gate), 0 lint warnings
 
 ---
 
@@ -245,7 +309,7 @@ CONSTRAINT: Const correctness (use const for immutables)
 
 ---
 
-## PHASE 1: CRITICAL INSTRUCTIONS - BEFORE WRITING TEST CODE
+## PHASE 1: SIGNATURE & INVARIANT VERIFICATION (REQUIRED)
 
 **ABSOLUTE REQUIREMENT: Verify all factory signatures from source file FIRST**
 
@@ -302,13 +366,7 @@ DO VERIFY:
 
 ---
 
-## PHASE 2: CRITICAL INSTRUCTION - BEFORE WRITING ANY TEST CODE
-
-*(This section is now integrated above in Phase 1-2)*
-
----
-
-## PHASE 1: PRE-GENERATION FACTORY INSPECTION (10 MINUTES MAX)
+## PHASE 2: PRE-GENERATION FACTORY INSPECTION (10 MINUTES MAX)
 
 Create a table for the entity/use case:
 
@@ -364,7 +422,7 @@ REQUIRED FIXTURES:
 
 ---
 
-## PHASE 2: CRITICAL PATTERNS TO AVOID (BASED ON PRODUCTION ERRORS)
+## PHASE 2B: CRITICAL PATTERNS TO AVOID (BASED ON PRODUCTION ERRORS)
 
 ### Mocktail-Specific Pitfalls
 
@@ -636,7 +694,7 @@ test('should throw when target is zero', () {
 ### Run & Fix
 ```bash
 # Execute immediately to capture 80% of errors
-flutter test test/file_test.dart --no-coverage 2>&1
+flutter test test/file_test.dart 2>&1
 
 # Fix compilation errors (usually import/typo issues)
 # Fix logic errors (wrong fixture, wrong exception type)
@@ -1058,15 +1116,62 @@ verifyNever(() => mock.method());
 **Execute in this exact order before returning test file:**
 
 ### Verification 1: Tests Execute (5 min)
+macOS/Linux/Git Bash:
+
 ```bash
-flutter test <test_file_path> --no-coverage 2>&1
-# Expected: "X test(s) passed, 0 failed"
+flutter test <test_file_path> 2>&1
+# Expected: "All tests passed!" (or equivalent summary)
+```
+
+Windows PowerShell:
+
+```powershell
+flutter test <test_file_path> 2>&1
+# Expected: "All tests passed!" (or equivalent summary)
 ```
 
 ### Verification 2: Coverage (3 min)
 ```bash
 flutter test <test_file_path> --coverage 2>&1
 # Expected: ≥95% coverage for target source file
+```
+
+Optional (recommended): compute coverage for a SINGLE target file.
+
+macOS/Linux/Git Bash:
+
+```bash
+# Replace with workspace-relative path used in lcov SF entries
+TARGET_SF="SF:lib/src/path/to/target.dart"
+awk -v target="$TARGET_SF" '
+  $0==target {infile=1; next}
+  /^SF:/ {infile=0}
+  infile && /^DA:/ {split(substr($0,4),a,","); total++; if (a[2]>0) hit++}
+  END {if (total==0) {print "Coverage: target file not found"} else {printf "Coverage: %d/%d (%.2f%%)\n", hit,total,(hit/total)*100}}
+' coverage/lcov.info
+```
+
+Windows PowerShell:
+
+```powershell
+# Replace with the exact SF path format in coverage/lcov.info (often uses backslashes)
+$targetSf = "SF:lib\\src\\path\\to\\target.dart"
+$lcovPath = Join-Path $PWD "coverage\\lcov.info"
+$inTarget = $false
+$total = 0
+$hit = 0
+foreach ($line in Get-Content $lcovPath) {
+  if ($line -eq $targetSf) { $inTarget = $true; continue }
+  if ($line -like "SF:*") { $inTarget = $false; continue }
+  if ($inTarget -and $line -like "DA:*") {
+    $parts = $line.Substring(3).Split(',')
+    if ($parts.Length -ge 2) { $total++; if ([int]$parts[1] -gt 0) { $hit++ } }
+  }
+}
+if ($total -eq 0) { "Coverage: target file not found" } else {
+  $pct = [math]::Round(($hit / $total) * 100, 2)
+  "Coverage: $hit/$total ($pct%)"
+}
 ```
 
 ### Verification 3: Linting (2 min)
@@ -1082,24 +1187,42 @@ dart format <test_file_path>
 ```
 
 ### Verification 5: Mandatory Cleanup (1 min)
+macOS/Linux/Git Bash:
+
 ```bash
-# Remove ALL temporary files
 rm -f coverage/lcov.* test_output.txt test_results.json 2>/dev/null
 rm -rf coverage/ .dart_tool/build* build/ 2>/dev/null
-# Verify cleanup
 [ ! -f coverage/lcov.info ] && echo "✓ Clean"
 ```
 
+Windows PowerShell:
+
+```powershell
+Remove-Item -Path "./coverage" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "./build/test_cache" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "./.dart_tool/build" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "./test_output.txt" -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "./test_results.json" -Force -ErrorAction SilentlyContinue
+if (-not (Test-Path "./coverage/lcov.info")) { "✓ Clean" }
+```
+
 ### Verification 6: Final Test (1 min)
+macOS/Linux/Git Bash:
+
 ```bash
-flutter test <test_file_path> --no-coverage 2>&1 | tail -3
-# Confirm tests still pass after cleanup
+flutter test <test_file_path> 2>&1 | tail -20
+```
+
+Windows PowerShell:
+
+```powershell
+flutter test <test_file_path> 2>&1 | Select-Object -Last 20
 ```
 
 ### Verification 7: Certification
 ```
 ✓ Tests passing: X/X
-✓ Coverage: ≥95%
+✓ Coverage: 100% target / ≥95% minimum
 ✓ Lint warnings: 0
 ✓ Artifacts cleaned: YES
 ✓ READY FOR SUBMISSION
@@ -1302,7 +1425,7 @@ class MockRepository extends Mock implements Repository {}
 **Critical Rules (YAML Format for Automation):**
 ```yaml
 prompt:
-  version: "2.0"
+  version: "2.1"
   domain: "flutter_testing"
   target_ai: "claude-haiku-4.5"
   success_rate_target: 0.95
@@ -1484,9 +1607,9 @@ Error Entropy:       1-2 types: Focused | 3-5: Broad | 6-10: Unfocused | > 10: I
 Before Considering Prompt Complete:
 
 **Phase: Verification (5 min)**
-- [ ] Tests execute: `flutter test --no-coverage` → X/X passed
-- [ ] Coverage: `flutter test --coverage` → ≥100% for target
-- [ ] Linting: `dart analyze --fatal-infos` → "No errors, warnings, or infos"
+- [ ] Tests execute: `flutter test <test_file_path>` → X/X passed
+- [ ] Coverage: `flutter test <test_file_path> --coverage` → 100% target / ≥95% minimum
+- [ ] Linting: `dart analyze --fatal-infos <test_file_path>` → "No issues found!"
 
 **Phase: Cleanup (2 min)**
 - [ ] Remove: coverage/, build/, .dart_tool/build/
@@ -1495,7 +1618,7 @@ Before Considering Prompt Complete:
 
 **Phase: Certification (1 min)**
 - [ ] Tests passing: X/X ✓
-- [ ] Coverage: ≥100% ✓
+- [ ] Coverage: 100% target / ≥95% minimum ✓
 - [ ] Lint warnings: 0 ✓
 - [ ] Artifacts cleaned: YES ✓
 - [ ] Status: **READY FOR SUBMISSION** ✓
