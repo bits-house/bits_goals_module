@@ -87,4 +87,7 @@ class Money extends Equatable {
 
   @override
   List<Object> get props => [_cents];
+
+  @override
+  bool? get stringify => true;
 }

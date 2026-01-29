@@ -27,4 +27,7 @@ class IdUuidV7 extends Equatable {
 
   @override
   List<Object?> get props => [_value];
+
+  @override
+  bool? get stringify => true;
 }

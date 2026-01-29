@@ -31,6 +31,11 @@ class Month extends Equatable {
     return Month._(value);
   }
 
+  /// Factory constructor to create a Month from a [MonthName]
+  factory Month.fromMonthName(MonthName monthName) {
+    return Month._(monthName.index + 1);
+  }
+
   /// Numeric value of the month (1 to 12)
   int get value => _value;
 
@@ -54,4 +59,7 @@ class Month extends Equatable {
 
   @override
   List<Object> get props => [_value];
+
+  @override
+  bool? get stringify => true;
 }
