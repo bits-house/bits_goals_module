@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:http/http.dart' as http;
 import 'package:ntp/ntp.dart';
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 
 /// For NTP.now function, to test fallback behavior.
 typedef NtpRunner = Future<DateTime> Function();
 
+/// Infra implementation of [RemoteTimeDataSource].
+///
+/// Lives in Infra because it performs real network I/O (NTP + HTTP).
 class RemoteTimeDataSourceImpl implements RemoteTimeDataSource {
   final http.Client client;
   final NtpRunner _ntpRunner;
@@ -26,7 +30,7 @@ class RemoteTimeDataSourceImpl implements RemoteTimeDataSource {
         const Duration(seconds: 3),
       );
       return ntpTime.toLocal().year;
-    } catch (e) {
+    } catch (_) {
       // 2. FALLBACK: HTTP API
       return _getFromBrasilApi();
     }
@@ -42,11 +46,11 @@ class RemoteTimeDataSourceImpl implements RemoteTimeDataSource {
       final serverTime = HttpDate.parse(dateHeader);
       final localDateTime = serverTime.toLocal();
       return localDateTime.year;
-    } else {
-      throw const ServerException(
-        reason: ServerExceptionReason.connectionError,
-        error: 'Brasil API did not return a Date header.',
-      );
     }
+
+    throw const ServerException(
+      reason: ServerExceptionReason.connectionError,
+      error: 'Brasil API did not return a Date header.',
+    );
   }
 }
