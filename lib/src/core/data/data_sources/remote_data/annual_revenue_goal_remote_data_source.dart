@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
-import 'package:bits_goals_module/src/core/data/models/action_log/action_log_model.dart';
+import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 
 /// Remote data source for managing annual revenue goals.

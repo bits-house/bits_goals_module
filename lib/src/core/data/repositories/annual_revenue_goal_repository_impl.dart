@@ -2,7 +2,7 @@ import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_
 import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
-import 'package:bits_goals_module/src/core/data/models/action_log/action_log_model.dart';
+import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
