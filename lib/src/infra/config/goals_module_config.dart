@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
-import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_src_config.dart';
+import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_source_config.dart';
 
 /// Configuration class for Goals Module access control.
 /// Defines roles and their associated permissions.
