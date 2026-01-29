@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/infra/platform/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
 
 /// Typedef to allow mocking the TCP check logic.
 /// Returns [true] if a TCP handshake to [host]:[port] succeeds.
