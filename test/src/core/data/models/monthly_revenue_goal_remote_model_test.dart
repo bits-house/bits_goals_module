@@ -23,7 +23,7 @@ void main() {
   final tTarget = Money.fromCents(tTargetCents);
   final tProgress = Money.fromCents(tProgressCents);
 
-  final tEntity = MonthlyRevenueGoal.create(
+  final tEntity = MonthlyRevenueGoal.reconstruct(
     id: tUuid,
     month: tMonth,
     year: tYear,
