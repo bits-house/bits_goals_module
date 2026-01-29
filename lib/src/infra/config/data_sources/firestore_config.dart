@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_src_config.dart';
+import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_source_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Configuration implementation for [RemoteDataSourceConfig] using Firebase Firestore.
