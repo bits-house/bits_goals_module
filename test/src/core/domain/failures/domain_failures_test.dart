@@ -18,8 +18,8 @@ import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_f
 import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_failure.dart';

@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source_impl.dart';
+import 'package:bits_goals_module/src/infra/data_sources/remote_time/remote_time_data_source_impl.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:ntp/ntp.dart';

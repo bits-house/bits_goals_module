@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/infra/config/data_sources/firestore_config.dart';
-import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_src_config.dart';
+import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_source_config.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -9,8 +9,8 @@ import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
@@ -19,7 +19,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
-import 'package:bits_goals_module/src/infra/platform/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -39,6 +39,8 @@ class FakeMonthlyGoalList extends Fake
 
 class FakeActionLogModel extends Fake implements ActionLogModel {}
 
+class FakeAnnualRevenueGoal extends Fake implements AnnualRevenueGoal {}
+
 // =============================================================================
 // TEST SUITE
 // =============================================================================
@@ -52,18 +54,40 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeMonthlyGoalList());
     registerFallbackValue(FakeActionLogModel());
+    registerFallbackValue(FakeAnnualRevenueGoal());
   });
 
   setUp(() {
     mockRemoteDataSource = MockRemoteDataSource();
     mockRemoteTimeDataSource = MockRemoteTimeDataSource();
     mockNetworkInfo = MockNetworkInfo();
+
     repository = AnnualRevenueGoalRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       networkInfo: mockNetworkInfo,
       remoteTimeDataSource: mockRemoteTimeDataSource,
     );
   });
+
+  ActionLog createValidLog({
+    required GoalsModulePermission requiredPermission,
+  }) {
+    return ActionLog.create(
+      user: LoggedInUser.create(
+        uid: 'user-123',
+        roleName: 'admin',
+        email: 'test@example.com',
+        displayName: 'Test User',
+      ),
+      userIpAddress: IpAddress('192.168.1.1'),
+      userDeviceInfo: DeviceInfo('iPhone 13, iOS 15.4'),
+      appVersion: AppVersion('1.0.0'),
+      requiredPermission: requiredPermission,
+      actionType: ActionType.create,
+      useCaseId: 'create_annual_revenue_goal',
+      newDataMapped: const {'snapshot': 'ok'},
+    );
+  }
 
   AnnualRevenueGoal createValidAggregate({Year? year}) {
     final tYear = year ?? Year.fromInt(2026);
@@ -77,24 +101,6 @@ void main() {
     return AnnualRevenueGoal.build(year: tYear, monthlyGoals: months);
   }
 
-  ActionLog createValidActionLog() {
-    return ActionLog.create(
-      user: LoggedInUser.create(
-        uid: 'user-123',
-        roleName: 'admin',
-        email: 'test@example.com',
-        displayName: 'Test User',
-      ),
-      userIpAddress: IpAddress('192.168.1.1'),
-      userDeviceInfo: DeviceInfo('iPhone 13, iOS 15.4'),
-      appVersion: AppVersion('1.0.0'),
-      requiredPermission: GoalsModulePermission.values.first,
-      actionType: ActionType.create,
-      useCaseId: 'create-annual-revenue-goal',
-      newDataMapped: const {'year': 2026, 'target': 100000},
-    );
-  }
-
   group('AnnualRevenueGoalRepositoryImpl', () {
     group('create', () {
       test(
@@ -102,7 +108,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
@@ -114,7 +122,10 @@ void main() {
           ).thenAnswer((_) async {});
 
           // Act
-          final result = await repository.create(goal: aggregate, log: log);
+          final result = await repository.create(
+            goal: aggregate,
+            log: log,
+          );
 
           // Assert
           expect(result, equals(aggregate));
@@ -134,7 +145,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
@@ -146,7 +159,10 @@ void main() {
           ).thenAnswer((_) async {});
 
           // Act
-          await repository.create(goal: aggregate, log: log);
+          await repository.create(
+            goal: aggregate,
+            log: log,
+          );
 
           // Assert
           verify(
@@ -168,7 +184,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
@@ -183,7 +201,10 @@ void main() {
 
           // Act & Assert
           expect(
-            () => repository.create(goal: aggregate, log: log),
+            () => repository.create(
+              goal: aggregate,
+              log: log,
+            ),
             throwsA(
               isA<RepositoryFailure>().having(
                 (f) => f.reason,
@@ -200,7 +221,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
@@ -217,7 +240,10 @@ void main() {
 
           // Act & Assert
           expect(
-            () => repository.create(goal: aggregate, log: log),
+            () => repository.create(
+              goal: aggregate,
+              log: log,
+            ),
             throwsA(
               isA<RepositoryFailure>().having(
                 (f) => f.reason,
@@ -234,7 +260,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
@@ -249,7 +277,10 @@ void main() {
 
           // Act & Assert
           expect(
-            () => repository.create(goal: aggregate, log: log),
+            () => repository.create(
+              goal: aggregate,
+              log: log,
+            ),
             throwsA(
               isA<RepositoryFailure>().having(
                 (f) => f.reason,
@@ -266,7 +297,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
           final exception = Exception('Generic error');
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
@@ -280,7 +313,10 @@ void main() {
 
           // Act & Assert
           expect(
-            () => repository.create(goal: aggregate, log: log),
+            () => repository.create(
+              goal: aggregate,
+              log: log,
+            ),
             throwsA(
               isA<RepositoryFailure>().having(
                 (f) => f.reason,
@@ -297,14 +333,19 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected)
               .thenAnswer((_) async => false);
 
           // Act & Assert
           expect(
-            () => repository.create(goal: aggregate, log: log),
+            () => repository.create(
+              goal: aggregate,
+              log: log,
+            ),
             throwsA(
               isA<RepositoryFailure>().having(
                 (f) => f.reason,
@@ -329,7 +370,9 @@ void main() {
         () async {
           // Arrange
           final aggregate = createValidAggregate();
-          final log = createValidActionLog();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
 
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
           when(
@@ -341,7 +384,10 @@ void main() {
           ).thenAnswer((_) async {});
 
           // Act
-          await repository.create(goal: aggregate, log: log);
+          await repository.create(
+            goal: aggregate,
+            log: log,
+          );
 
           // Assert
           verify(() => mockNetworkInfo.isConnected).called(1);

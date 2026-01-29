@@ -1,6 +1,7 @@
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
@@ -454,11 +455,12 @@ void main() {
     });
 
     // ============================================================
-    // MAPPING
+    // MAPPING / SERIALIZATION
+    //
+    // The domain entity does not serialize itself; remote models do.
     // ============================================================
 
-    group('Mapping (toMap) |', () {
-      // Helper to create a valid entity for testing
+    group('Mapping (MonthlyRevenueGoalRemoteModel.toMap) |', () {
       MonthlyRevenueGoal createEntityForMapping({
         String uuidV7 = '123e4567-e89b-12d3-a456-426614174000',
         int month = 5,
@@ -483,198 +485,236 @@ void main() {
           targetCents: 5000,
           progressCents: 2500,
         );
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(entity);
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
         expect(result, isA<Map<String, dynamic>>());
-        expect(result['id'], '123e4567-e89b-12d3-a456-426614174000');
-        expect(result['month'], 12);
-        expect(result['year'], 2025);
-        expect(result['target_cents'], 5000);
-        expect(result['progress_cents'], 2500);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
+            '123e4567-e89b-12d3-a456-426614174000');
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 12);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 2025);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 5000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 2500);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion], 1);
       });
 
-      test('should have exactly 5 keys in the map', () {
+      test('should have exactly 6 keys in the map', () {
         // Arrange
-        final entity = createEntityForMapping();
+        final model =
+            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result.length, 5);
+        expect(result.length, 6);
         expect(
-            result.keys,
-            containsAll(
-                ['id', 'month', 'year', 'target_cents', 'progress_cents']));
+          result.keys,
+          containsAll(
+            [
+              MonthlyRevenueGoalRemoteSchemaV1.uuidV7,
+              MonthlyRevenueGoalRemoteSchemaV1.month,
+              MonthlyRevenueGoalRemoteSchemaV1.year,
+              MonthlyRevenueGoalRemoteSchemaV1.targetCents,
+              MonthlyRevenueGoalRemoteSchemaV1.progressCents,
+              MonthlyRevenueGoalRemoteSchemaV1.schemaVersion,
+            ],
+          ),
+        );
       });
 
-      test(
-          'should ensure data types match database/infrastructure expectations',
-          () {
+      test('should ensure data types match infrastructure expectations', () {
         // Arrange
-        final entity = createEntityForMapping();
+        final model =
+            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['id'], isA<String>());
-        expect(result['month'], isA<int>());
-        expect(result['year'], isA<int>());
-        expect(result['target_cents'], isA<int>());
-        expect(result['progress_cents'], isA<int>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], isA<int>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], isA<int>());
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], isA<int>());
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], isA<int>());
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion], isA<int>());
       });
 
       test(
-          'should be a stable representation (calling it twice returns identical data)',
+          'should be a stable representation (calling twice returns same data)',
           () {
         // Arrange
-        final entity = createEntityForMapping();
+        final model =
+            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
 
         // Act
-        final firstMap = entity.toMap();
-        final secondMap = entity.toMap();
+        final firstMap = model.toMap();
+        final secondMap = model.toMap();
 
         // Assert
         expect(firstMap, equals(secondMap));
       });
 
-      test(
-          'should ensure the returned Map is a new instance (Immutability check)',
+      test('should ensure returned Map is a new instance (immutability check)',
           () {
         // Arrange
         final entity = createEntityForMapping();
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(entity);
 
         // Act
-        final map = entity.toMap();
-        map['id'] =
-            '123e4567-e89b-12d3-a456-426614174001'; // Attempt to modify the map
+        final map = model.toMap();
+        map[MonthlyRevenueGoalRemoteSchemaV1.uuidV7] =
+            '123e4567-e89b-12d3-a456-426614174001';
 
         // Assert
-        // The internal state of the entity should NOT change
-        expect(entity.toMap()['id'], isNot('modified-id'));
-        expect(entity.toMap()['id'],
+        expect(model.toMap()[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
             equals('123e4567-e89b-12d3-a456-426614174000'));
+        expect(entity.id.value, equals('123e4567-e89b-12d3-a456-426614174000'));
       });
 
       test('should preserve exact cents values in toMap', () {
         // Arrange
         const targetCents = 123456;
         const progressCents = 987654;
-        final entity = createEntityForMapping(
-          targetCents: targetCents,
-          progressCents: progressCents,
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: targetCents,
+            progressCents: progressCents,
+          ),
         );
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['target_cents'], equals(targetCents));
-        expect(result['progress_cents'], equals(progressCents));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+            equals(targetCents));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+            equals(progressCents));
       });
 
       test('should handle minimum valid values in toMap', () {
         // Arrange
-        final entity = createEntityForMapping(
-          month: 1,
-          year: 2000,
-          targetCents: 1,
-          progressCents: 0,
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            month: 1,
+            year: 2000,
+            targetCents: 1,
+            progressCents: 0,
+          ),
         );
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['month'], 1);
-        expect(result['year'], 2000);
-        expect(result['target_cents'], 1);
-        expect(result['progress_cents'], 0);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 1);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 2000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 1);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 0);
       });
 
       test('should handle maximum valid values in toMap', () {
         // Arrange
-        final entity = createEntityForMapping(
-          month: 12,
-          year: 9999,
-          targetCents: 999999999,
-          progressCents: 999999999,
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            month: 12,
+            year: 9999,
+            targetCents: 999999999,
+            progressCents: 999999999,
+          ),
         );
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['month'], 12);
-        expect(result['year'], 9999);
-        expect(result['target_cents'], 999999999);
-        expect(result['progress_cents'], 999999999);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 12);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 9999);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 999999999);
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 999999999);
       });
 
       test('should correctly map when progress exceeds target', () {
-        // Arrange - edge case where progress > target
-        final entity = createEntityForMapping(
-          targetCents: 5000,
-          progressCents: 10000,
+        // Arrange
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: 5000,
+            progressCents: 10000,
+          ),
         );
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['target_cents'], 5000);
-        expect(result['progress_cents'], 10000);
-        expect(result['progress_cents'], greaterThan(result['target_cents']));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 5000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 10000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+            greaterThan(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents]));
       });
 
       test('should correctly map when progress equals target', () {
         // Arrange
         const sameCents = 50000;
-        final entity = createEntityForMapping(
-          targetCents: sameCents,
-          progressCents: sameCents,
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: sameCents,
+            progressCents: sameCents,
+          ),
         );
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['target_cents'], equals(result['progress_cents']));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+            equals(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents]));
       });
 
       test('should handle UUID string format preservation in toMap', () {
         // Arrange
         const testUuidString = 'aaaabbbb-cccc-dddd-eeee-ffffffffffff';
-        final entity = createEntityForMapping(uuidV7: testUuidString);
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(uuidV7: testUuidString),
+        );
 
         // Act
-        final result = entity.toMap();
+        final result = model.toMap();
 
         // Assert
-        expect(result['id'], equals(testUuidString));
-        expect(result['id'], isA<String>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
+            equals(testUuidString));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
       });
 
       test('should not mutate internal state when Map is modified', () {
         // Arrange
-        final entity = createEntityForMapping(
-          targetCents: 5000,
-          progressCents: 2500,
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: 5000,
+            progressCents: 2500,
+          ),
         );
 
         // Act
-        final firstMap = entity.toMap();
-        firstMap['target_cents'] = 99999;
-        firstMap['progress_cents'] = 88888;
-        final secondMap = entity.toMap();
+        final firstMap = model.toMap();
+        firstMap[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = 99999;
+        firstMap[MonthlyRevenueGoalRemoteSchemaV1.progressCents] = 88888;
+        final secondMap = model.toMap();
 
         // Assert
-        expect(secondMap['target_cents'], equals(5000));
-        expect(secondMap['progress_cents'], equals(2500));
+        expect(secondMap[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+            equals(5000));
+        expect(secondMap[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+            equals(2500));
       });
     });
 
