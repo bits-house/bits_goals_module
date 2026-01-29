@@ -1,45 +1,25 @@
+import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_metadata_collector.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/domain/services/interfaces/access_control_service.dart';
-import 'package:bits_goals_module/src/core/domain/services/interfaces/infra_metadata_collector.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/use_cases/params_use_case.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/application/use_cases/params_use_case.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
 
 import 'package:dartz/dartz.dart';
 
 /// ## Use Case: Create Annual Revenue Goal
 ///
-/// **User Story:**
-/// As a sales manager, I want to create an annual revenue goal for a specific year,
-/// so that I can set clear sales targets for my team.
-///
-/// **Acceptance Criteria:**
-/// * Input: Target annual revenue amount and Year.
-/// * Output: A persisted Annual Goal containing 12 Monthly Goals.
-/// * Logic: Automatically splits the target into 12 unique months, handling cent remainders.
-///
-/// **Domain Invariants & Rules:**
-/// * **Year:** Must be >= current year and unique in the database.
-/// * **Distribution:** The annual target is split across exactly 12 unique months.
-/// * **Financials:** All targets must be > 0. Sum of months == Annual Target.
-/// * **Permission:** User must have rights to create annual goals.
-/// * **Logging:** An ActionLog is created for auditing.
-///
-/// **Error Scenarios:**
-/// * [CreateAnnualRevenueGoalFailureReason.pastYear] - Year is in the past.
-/// * [CreateAnnualRevenueGoalFailureReason.annualGoalForYearAlreadyExists] - Goal for year already exists.
-/// * [CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget] - Input or split resulted in <= 0 values.
-/// * [CreateAnnualRevenueGoalFailureReason.permissionDenied] - User lacks rights.
-/// * Other unexpected and infrastructure errors.
+/// Application layer orchestration: validates input, checks permission,
+/// calls domain services/entities, and persists through repository.
 class CreateAnnualRevenueGoal
     implements ParamsUseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;

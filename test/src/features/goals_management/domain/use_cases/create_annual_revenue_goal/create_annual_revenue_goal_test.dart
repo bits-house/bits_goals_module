@@ -6,8 +6,9 @@ import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/a
 import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/domain/services/interfaces/access_control_service.dart';
-import 'package:bits_goals_module/src/core/domain/services/interfaces/infra_metadata_collector.dart';
+import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_metadata_collector.dart';
+import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
@@ -15,11 +16,10 @@ import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.d
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
-import 'package:bits_goals_module/src/features/goals_management/domain/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

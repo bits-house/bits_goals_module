@@ -6,7 +6,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/email.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
-import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

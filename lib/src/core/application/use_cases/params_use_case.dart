@@ -1,5 +1,5 @@
+import 'package:bits_goals_module/src/core/application/use_cases/use_case_base.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/use_cases/use_case_base.dart';
 import 'package:dartz/dartz.dart';
 
 /// Interface for Use Cases that require parameters.

@@ -2,7 +2,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure_reason.dart';
-import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 
 void main() {
   group('UserRole Value Object Tests', () {

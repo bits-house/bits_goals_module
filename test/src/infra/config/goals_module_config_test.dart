@@ -2,7 +2,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.d
 import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
 import 'package:bits_goals_module/src/infra/config/data_sources/firestore_config.dart';
 import 'package:bits_goals_module/src/infra/config/goals_module_config.dart';
-import 'package:bits_goals_module/src/infra/config/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
