@@ -18,8 +18,29 @@ import 'package:dartz/dartz.dart';
 
 /// ## Use Case: Create Annual Revenue Goal
 ///
-/// Application layer orchestration: validates input, checks permission,
-/// calls domain services/entities, and persists through repository.
+/// **User Story:**
+/// As a sales manager, I want to create an annual revenue goal for a specific year,
+/// so that I can set clear sales targets for my team.
+///
+/// **Acceptance Criteria:**
+/// * Input: Target annual revenue amount and Year.
+/// * Output: A persisted Annual Goal containing 12 Monthly Goals.
+/// * Logic: Automatically splits the target into 12 unique months, handling cent remainders.
+///
+/// **Domain Invariants & Rules:**
+/// * **Year:** Must be >= current year and unique in the database.
+/// * **Distribution:** The annual target is split across exactly 12 unique months.
+/// * **Financials:** All targets must be > 0. Sum of months == Annual Target.
+/// * **Permission:** User must have rights to create annual goals.
+/// * **Logging:** An ActionLog is created for auditing.
+///
+/// **Error Scenarios:**
+/// * [CreateAnnualRevenueGoalFailureReason.pastYear] - Year is in the past.
+/// * [CreateAnnualRevenueGoalFailureReason.annualGoalForYearAlreadyExists] - Goal for year already exists.
+/// * [CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget] - Input or split resulted in <= 0 values.
+/// * [CreateAnnualRevenueGoalFailureReason.permissionDenied] - User lacks rights.
+/// * Other unexpected and infrastructure errors.
+
 class CreateAnnualRevenueGoal
     implements ParamsUseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
