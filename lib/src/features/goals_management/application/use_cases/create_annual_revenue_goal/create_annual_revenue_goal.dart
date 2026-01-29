@@ -1,11 +1,12 @@
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_metadata_collector.dart';
+import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
+import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_mapper.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/rep/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
@@ -45,12 +46,14 @@ class CreateAnnualRevenueGoal
     implements ParamsUseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
   final AccessControlService accessControl;
-  final InfraMetadataCollector metadataCollector;
+  final MetadataCollector metadataCollector;
+  final AnnualRevenueGoalMapper goalMapper;
 
   CreateAnnualRevenueGoal({
     required this.repository,
     required this.accessControl,
     required this.metadataCollector,
+    required this.goalMapper,
   });
 
   @override
@@ -62,7 +65,6 @@ class CreateAnnualRevenueGoal
     CreateAnnualRevenueGoalParams params,
   ) async {
     const useCaseId = 'create_annual_revenue_goal';
-
     try {
       /// User must have permission to create annual revenue goals
       final hasPermission = accessControl.hasPermission(
@@ -111,11 +113,11 @@ class CreateAnnualRevenueGoal
       );
 
       /// Create ActionLog
-      final ActionLog creationLog = ActionLog.create(
+      final log = ActionLog.create(
         actionType: ActionType.create,
         useCaseId: useCaseId,
         requiredPermission: requiredPermission,
-        newDataMapped: annualGoal.toMap(),
+        newDataMapped: goalMapper.map(annualGoal),
         user: accessControl.loggedInUser,
         appVersion: metadataCollector.appVersion,
         userDeviceInfo: metadataCollector.userDeviceInfo,
@@ -125,7 +127,7 @@ class CreateAnnualRevenueGoal
       /// Persist atomically, ensuring rules are enforced
       final savedGoal = await repository.create(
         goal: annualGoal,
-        log: creationLog,
+        log: log,
       );
 
       return right(savedGoal);
