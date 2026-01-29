@@ -33,8 +33,8 @@ class AnnualRevenueGoalFirestoreDataSource
     required List<MonthlyRevenueGoalRemoteModel> goals,
     required ActionLogModel log,
   }) async {
-    // TODO: Debounce
     try {
+      // TODO: Aplly rate limiting
       // Use transaction to ensure atomicity.
       await _firestore.runTransaction((transaction) async {
         final metaRef = _firestore.collection(_annualMeta).doc(year.toString());
