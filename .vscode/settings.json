@@ -39,5 +39,9 @@
     "uuid",
     "uuids",
     "worldtimeapi"
-  ]
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "flutter": true,
+    "Test-Path": true
+  }
 }

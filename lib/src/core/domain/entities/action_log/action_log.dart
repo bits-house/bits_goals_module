@@ -78,7 +78,6 @@ class ActionLog extends Equatable {
     required Map<String, dynamic> newDataMapped,
     Map<String, dynamic>? oldDataMapped,
   }) {
-    // Ensure maps are unmodifiable if provided
     final safeOldData = oldDataMapped != null
         ? Map<String, dynamic>.unmodifiable(oldDataMapped)
         : null;
@@ -111,7 +110,6 @@ class ActionLog extends Equatable {
     required Map<String, dynamic> newDataMapped,
     required Map<String, dynamic> oldDataMapped,
   }) {
-    // Ensure maps are unmodifiable
     final safeOldData = Map<String, dynamic>.unmodifiable(oldDataMapped);
     final safeNewData = Map<String, dynamic>.unmodifiable(newDataMapped);
 
@@ -159,7 +157,6 @@ class ActionLog extends Equatable {
 
   String get useCaseId => _useCaseId.toString();
 
-  /// Returns a safe copy of the map to prevent external mutation
   Map<String, dynamic>? get oldDataMapped =>
       _oldDataMapped != null ? Map.unmodifiable(_oldDataMapped) : null;
 

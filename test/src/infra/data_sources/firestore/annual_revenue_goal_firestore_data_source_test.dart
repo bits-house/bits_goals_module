@@ -52,7 +52,7 @@ void main() {
   // Reusable test models
   final tLogModel = ActionLogModel.fromEntity(
     ActionLog.create(
-      actionType: ActionType.initModule,
+      actionType: ActionType.update,
       useCaseId: 'setup_2026_goals',
       requiredPermission: GoalsModulePermission.manageGlobalGoals,
       newDataMapped: const {'year': tYear},

@@ -38,7 +38,6 @@ class AnnualRevenueGoal extends Equatable {
     _validateMonthsCount(goals);
     _validateUniqueMonths(goals);
     _validateYearsConsistency(goals, year);
-    _validateGoalTargets(goals);
 
     goals.sort(
       (a, b) => a.month.value.compareTo(b.month.value),
@@ -100,27 +99,6 @@ class AnnualRevenueGoal extends Equatable {
     if (hasInvalidYear) {
       throw const AnnualRevenueGoalFailure(
         AnnualRevenueGoalFailureReason.yearMismatch,
-      );
-    }
-  }
-
-  static void _validateGoalTargets(List<MonthlyRevenueGoal> goals) {
-    /// Negative or zero monthly goals are not allowed
-    final hasInvalidMonthlyGoal = goals.any((g) => g.target.cents <= 0);
-
-    if (hasInvalidMonthlyGoal) {
-      throw const AnnualRevenueGoalFailure(
-        AnnualRevenueGoalFailureReason.invalidMonthlyRevenueGoal,
-      );
-    }
-
-    final totalAnnualTargetCents = goals
-        .map((g) => g.target.cents)
-        .reduce((value, element) => value + element);
-
-    if (totalAnnualTargetCents <= 0) {
-      throw const AnnualRevenueGoalFailure(
-        AnnualRevenueGoalFailureReason.zeroOrNegativeAnnualGoal,
       );
     }
   }

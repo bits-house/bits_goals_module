@@ -299,6 +299,73 @@ void main() {
         // Assert
         expect(goal.target, equals(fractionalTarget));
       });
+      group('MonthlyRevenueGoal.reconstruct | _validateProgress', () {
+        // defined helper values to keep tests clean
+        final validId = IdUuidV7.generate();
+        final validMonth = Month.fromInt(1);
+        final validYear = Year.fromInt(2024);
+        final validTarget = Money.fromCents(10000); // 100.00
+
+        test('should successfully reconstruct when progress is Zero (0)', () {
+          // Arrange
+          final zeroProgress = Money.fromCents(0);
+
+          // Act
+          final goal = MonthlyRevenueGoal.reconstruct(
+            id: validId,
+            month: validMonth,
+            year: validYear,
+            target: validTarget,
+            progress: zeroProgress,
+          );
+
+          // Assert
+          expect(goal.progress, equals(zeroProgress));
+        });
+
+        test('should successfully reconstruct when progress is Positive (> 0)',
+            () {
+          // Arrange
+          final positiveProgress = Money.fromCents(5000); // 50.00
+
+          // Act
+          final goal = MonthlyRevenueGoal.reconstruct(
+            id: validId,
+            month: validMonth,
+            year: validYear,
+            target: validTarget,
+            progress: positiveProgress,
+          );
+
+          // Assert
+          expect(goal.progress, equals(positiveProgress));
+        });
+
+        test(
+            'should throw MonthlyRevenueGoalFailure when progress is Negative (< 0)',
+            () {
+          // Arrange
+          final negativeProgress = Money.fromCents(-100); // -1.00
+
+          // Act & Assert
+          expect(
+            () => MonthlyRevenueGoal.reconstruct(
+              id: validId,
+              month: validMonth,
+              year: validYear,
+              target: validTarget,
+              progress: negativeProgress,
+            ),
+            throwsA(
+              isA<MonthlyRevenueGoalFailure>().having(
+                (failure) => failure.reason,
+                'reason',
+                MonthlyRevenueGoalFailureReason.negativeProgress,
+              ),
+            ),
+          );
+        });
+      });
     });
 
     // ============================================================

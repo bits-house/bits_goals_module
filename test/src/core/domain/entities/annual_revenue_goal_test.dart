@@ -407,7 +407,7 @@ void main() {
       test('two equal objects should have identical toString() output', () {
         // Arrange: Create same data to ensure equal objects
         final year = Year.fromInt(2026);
-        final baseUuid = '019c0668-b509-7335-b91a-45de78e0fd74';
+        const baseUuid = '019c0668-b509-7335-b91a-45de78e0fd74';
         final goalsA = List.generate(
           12,
           (index) => MonthlyRevenueGoal.reconstruct(

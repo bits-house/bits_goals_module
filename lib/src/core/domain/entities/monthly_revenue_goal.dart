@@ -68,6 +68,7 @@ class MonthlyRevenueGoal extends Equatable {
     required Money progress,
   }) {
     _validateGoalTarget(target);
+    _validateProgress(progress);
 
     return MonthlyRevenueGoal._(
       id: id,
@@ -102,6 +103,16 @@ class MonthlyRevenueGoal extends Equatable {
     if (isZeroOrNegativeTarget) {
       throw const MonthlyRevenueGoalFailure(
         MonthlyRevenueGoalFailureReason.zeroOrNegativeTarget,
+      );
+    }
+  }
+
+  static void _validateProgress(Money progress) {
+    final bool isNegativeProgress = progress.cents < 0;
+
+    if (isNegativeProgress) {
+      throw const MonthlyRevenueGoalFailure(
+        MonthlyRevenueGoalFailureReason.negativeProgress,
       );
     }
   }

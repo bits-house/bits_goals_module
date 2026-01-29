@@ -1135,7 +1135,7 @@ void main() {
             actionType: mockActionType,
             useCaseId: 'test',
             newDataMapped: testNewData,
-            oldDataMapped: {}, // Cannot be null in reconstruct
+            oldDataMapped: const {}, // Cannot be null in reconstruct
           ),
           isNotNull,
         );
@@ -1165,7 +1165,7 @@ void main() {
           actionType: mockActionType,
           useCaseId: 'use-case-1',
           newDataMapped: testNewData,
-          oldDataMapped: {}, // Empty oldDataMapped
+          oldDataMapped: const {}, // Empty oldDataMapped
         );
 
         final log2 = ActionLog.reconstruct(
@@ -1179,7 +1179,7 @@ void main() {
           actionType: mockActionType,
           useCaseId: 'use-case-1',
           newDataMapped: testNewData,
-          oldDataMapped: {}, // Same empty oldDataMapped
+          oldDataMapped: const {}, // Same empty oldDataMapped
         );
 
         // Assert - These should be equal
@@ -1243,7 +1243,7 @@ void main() {
             actionType: mockActionType,
             useCaseId: 'test',
             newDataMapped: testNewData,
-            oldDataMapped: {},
+            oldDataMapped: const <String, dynamic>{},
           ),
           isNotNull,
         );
@@ -1505,7 +1505,7 @@ void main() {
       test('toString with special characters in strings should work', () {
         // Arrange
         final specialData = {
-          'unicode': '你好 مرحبا שלום',
+          'unicode': '你好 مر שלם',
           'emoji': '🚀 🎯 ✅',
           'special': '!@#^&*()',
         };
