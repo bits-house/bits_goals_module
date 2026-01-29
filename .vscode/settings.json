@@ -1,11 +1,16 @@
 {
   "dart.flutterSdkPath": ".fvm/versions/3.32.7",
   "cSpell.words": [
+    "antipattern",
     "april",
+    "claude",
     "cloudflare",
+    "cooldown",
+    "cooldowns",
     "cupertino",
     "dartz",
     "dbus",
+    "debouncer",
     "december",
     "february",
     "Financials",
@@ -17,15 +22,21 @@
     "july",
     "june",
     "mitest",
+    "mockito",
     "mocktail",
     "MVVM",
     "november",
+    "nullable",
     "october",
     "parseable",
+    "pasteable",
     "petitparser",
     "Schyler",
     "september",
+    "stringfy",
+    "unicode",
     "uuid",
+    "uuids",
     "worldtimeapi"
   ]
 }
