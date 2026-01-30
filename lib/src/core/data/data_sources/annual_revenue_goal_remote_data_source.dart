@@ -18,7 +18,8 @@ abstract class AnnualRevenueGoalRemoteDataSource {
   ///     or nothing is persisted at all.
   /// - MUST validate if monthly goals for the specified year already exist atomically,
   ///     with the write operation (it cannot be a separate read operation).
-  /// - MUST write logs using the [ActionLogModel] provided.
+  /// - MUST write logs using the [ActionLogModel] provided with the operation.
+  /// - MUST enforce rate limiting to avoid abuse/bugs that could cause excessive writes.
   Future<void> createMonthlyGoalsForYear({
     required int year,
     required List<MonthlyRevenueGoalRemoteModel> goals,

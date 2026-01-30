@@ -6,7 +6,6 @@ import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart'
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/core/data/mappers/annual_revenue_goal_mapper_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -451,98 +450,6 @@ void main() {
 
         // Assert
         expect(stringA, isNot(equals(stringB)));
-      });
-    });
-
-    // ============================================================
-    /// MAPPING / SERIALIZATION
-    ///
-    /// The domain entity intentionally does not expose serialization methods.
-    /// Mapping is handled by application/data layer mappers.
-    // ============================================================
-
-    group('Mapping - AnnualRevenueGoalMapperImpl |', () {
-      const mapper = AnnualRevenueGoalMapperImpl();
-
-      test('should return Map with all required top-level keys', () {
-        // Arrange
-        final entity = createValidAnnualGoal();
-
-        // Act
-        final map = mapper.map(entity);
-
-        // Assert
-        expect(map.containsKey('year'), isTrue);
-        expect(map.containsKey('monthly_goals'), isTrue);
-        expect(map.containsKey('total_annual_target_cents'), isTrue);
-      });
-
-      test('should map primitive values correctly (year and total target)', () {
-        // Arrange
-        const monthlyTargetCents = 5000;
-        final entity = createValidAnnualGoal(
-          yearValue: 2025,
-          monthlyTargetCents: monthlyTargetCents,
-        );
-
-        // Act
-        final map = mapper.map(entity);
-
-        // Assert
-        expect(map['year'], equals(2025));
-        expect(
-            map['total_annual_target_cents'], equals(monthlyTargetCents * 12));
-      });
-
-      test('should recursively map all MonthlyRevenueGoals', () {
-        // Arrange
-        final entity = createValidAnnualGoal();
-
-        // Act
-        final map = mapper.map(entity);
-        final goalsList = map['monthly_goals'] as List;
-
-        // Assert
-        expect(goalsList.length, equals(12));
-        for (int i = 0; i < 12; i++) {
-          final goalMap = goalsList[i] as Map<String, dynamic>;
-          expect(goalMap['month'], equals(i + 1));
-        }
-      });
-
-      test('should maintain correct data types in Map structure', () {
-        // Arrange
-        final entity = createValidAnnualGoal();
-
-        // Act
-        final map = mapper.map(entity);
-
-        // Assert
-        expect(map['year'], isA<int>());
-        expect(map['total_annual_target_cents'], isA<int>());
-        expect(map['monthly_goals'], isA<List>());
-
-        final firstGoal = (map['monthly_goals'] as List).first as Map;
-        expect(firstGoal['id'], isA<String>());
-        expect(firstGoal['month'], isA<int>());
-        expect(firstGoal['year'], isA<int>());
-        expect(firstGoal['target_cents'], isA<int>());
-        expect(firstGoal['progress_cents'], isA<int>());
-      });
-
-      test('should be immutable (modifications do not affect entity)', () {
-        // Arrange
-        final entity = createValidAnnualGoal(yearValue: 2030);
-
-        // Act
-        final map = mapper.map(entity);
-        map['year'] = 1999; // Malicious modification
-        map['monthly_goals'] = <dynamic>[]; // Malicious overwrite
-
-        // Assert
-        expect(entity.year.value, equals(2030));
-        expect(entity.monthlyGoals.length, equals(12));
-        expect(mapper.map(entity)['year'], equals(2030));
       });
     });
 

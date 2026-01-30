@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_revenue_goal_remote_data_source.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
@@ -48,7 +48,7 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
         }
 
         // Write the year metadata document.
-        final metaModel = AnnualRevenueGoalMetaRemoteModel(year: year);
+        final metaModel = AnnualRevenueGoalMetaRemoteModel.fromYear(year);
         transaction.set(metaRef, metaModel.toMap());
 
         // Write all monthly goals.

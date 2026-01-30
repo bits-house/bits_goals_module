@@ -9,7 +9,7 @@ import 'package:bits_goals_module/src/core/application/ports/access_control_serv
 import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
-import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_mapper.dart';
+import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_action_log_mapper.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
@@ -31,8 +31,8 @@ class MockAccessControlService extends Mock implements AccessControlService {}
 
 class MockMetadataCollector extends Mock implements MetadataCollector {}
 
-class MockAnnualRevenueGoalMapper extends Mock
-    implements AnnualRevenueGoalMapper {}
+class MockAnnualRevenueGoalActionLogMapper extends Mock
+    implements AnnualRevenueGoalActionLogMapper {}
 
 class FakeAnnualRevenueGoal extends Fake implements AnnualRevenueGoal {}
 
@@ -43,7 +43,7 @@ void main() {
   late MockAnnualRevenueGoalRepository mockRepository;
   late MockAccessControlService mockAccessControlService;
   late MockMetadataCollector mockMetadataCollector;
-  late MockAnnualRevenueGoalMapper mockMapper;
+  late MockAnnualRevenueGoalActionLogMapper mockMapper;
 
   setUpAll(() {
     registerFallbackValue(FakeAnnualRevenueGoal());
@@ -55,7 +55,7 @@ void main() {
     mockRepository = MockAnnualRevenueGoalRepository();
     mockAccessControlService = MockAccessControlService();
     mockMetadataCollector = MockMetadataCollector();
-    mockMapper = MockAnnualRevenueGoalMapper();
+    mockMapper = MockAnnualRevenueGoalActionLogMapper();
 
     when(() => mockAccessControlService.loggedInUser).thenReturn(
       LoggedInUser.create(

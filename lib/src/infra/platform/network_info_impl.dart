@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 
 /// Typedef to allow mocking the TCP check logic.
 /// Returns [true] if a TCP handshake to [host]:[port] succeeds.
@@ -143,4 +144,8 @@ class NetworkInfoImpl implements NetworkInfo {
     _cacheStatus = status;
     _lastCheckTime = DateTime.now();
   }
+
+  @override
+  // TODO: implement ipAddress
+  Future<IpAddress> get ipAddress => throw UnimplementedError();
 }

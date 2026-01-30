@@ -3,7 +3,7 @@ import 'package:bits_goals_module/src/core/application/ports/metadata_collector.
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_mapper.dart';
+import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_action_log_mapper.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
@@ -47,7 +47,7 @@ class CreateAnnualRevenueGoal
   final AnnualRevenueGoalRepository repository;
   final AccessControlService accessControl;
   final MetadataCollector metadataCollector;
-  final AnnualRevenueGoalMapper goalMapper;
+  final AnnualRevenueGoalActionLogMapper goalMapper;
 
   CreateAnnualRevenueGoal({
     required this.repository,

@@ -2,6 +2,8 @@
 ///
 /// This is a technical mechanism (not domain). Implementations live in Infra.
 abstract class RateLimiterService {
+  // TODO: Create implementation
+
   Future<T> run<T>({
     required String key,
     required Future<T> Function() action,

@@ -1,4 +1,6 @@
-import 'package:bits_goals_module/src/core/data/mappers/annual_revenue_goal_mapper_impl.dart';
+import 'package:bits_goals_module/src/core/data/mappers/annual_revenue_goal_action_log_mapper_impl.dart';
+import 'package:bits_goals_module/src/core/data/models/annual_revenue_goal_meta_remote_model.dart';
+import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
@@ -8,7 +10,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const mapper = AnnualRevenueGoalMapperImpl();
+  const mapper = AnnualRevenueGoalActionLogMapperImpl();
 
   AnnualRevenueGoal createValidAnnualGoal({
     int yearValue = 2030,
@@ -29,18 +31,20 @@ void main() {
     return AnnualRevenueGoal.build(year: year, monthlyGoals: goals);
   }
 
-  group('AnnualRevenueGoalMapperImpl |', () {
+  group('AnnualRevenueGoalActionLogMapperImpl |', () {
     test('should map all required top-level keys', () {
       final entity = createValidAnnualGoal();
 
       final map = mapper.map(entity);
 
-      expect(map.containsKey('year'), isTrue);
+      expect(
+        map.containsKey(AnnualRevenueGoalMetaRemoteSchemaV1.year),
+        isTrue,
+      );
       expect(map.containsKey('monthly_goals'), isTrue);
-      expect(map.containsKey('total_annual_target_cents'), isTrue);
     });
 
-    test('should map primitive values correctly (year and total target)', () {
+    test('should map primitive values correctly (year)', () {
       const monthlyTargetCents = 5000;
       final entity = createValidAnnualGoal(
         yearValue: 2025,
@@ -49,8 +53,7 @@ void main() {
 
       final map = mapper.map(entity);
 
-      expect(map['year'], equals(2025));
-      expect(map['total_annual_target_cents'], equals(monthlyTargetCents * 12));
+      expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.year], equals(2025));
     });
 
     test('should recursively map all MonthlyRevenueGoals', () {
@@ -62,8 +65,27 @@ void main() {
       expect(goalsList.length, equals(12));
       for (int i = 0; i < 12; i++) {
         final goalMap = goalsList[i] as Map<String, dynamic>;
-        expect(goalMap['month'], equals(i + 1));
+        expect(
+          goalMap[MonthlyRevenueGoalRemoteSchemaV1.month],
+          equals(i + 1),
+        );
+        expect(
+          goalMap[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion],
+          equals(1),
+        );
       }
+    });
+
+    test('should include schema version for monthly goals', () {
+      final entity = createValidAnnualGoal();
+
+      final map = mapper.map(entity);
+      final firstGoal = (map['monthly_goals'] as List).first as Map;
+
+      expect(
+        firstGoal[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion],
+        equals(1),
+      );
     });
 
     test('should maintain correct data types in Map structure', () {
@@ -71,26 +93,35 @@ void main() {
 
       final map = mapper.map(entity);
 
-      expect(map['year'], isA<int>());
-      expect(map['total_annual_target_cents'], isA<int>());
+      expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.year], isA<int>());
       expect(map['monthly_goals'], isA<List>());
 
       final firstGoal = (map['monthly_goals'] as List).first as Map;
-      expect(firstGoal['id'], isA<String>());
-      expect(firstGoal['month'], isA<int>());
-      expect(firstGoal['year'], isA<int>());
-      expect(firstGoal['target_cents'], isA<int>());
-      expect(firstGoal['progress_cents'], isA<int>());
+      expect(firstGoal[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
+      expect(firstGoal[MonthlyRevenueGoalRemoteSchemaV1.month], isA<int>());
+      expect(firstGoal[MonthlyRevenueGoalRemoteSchemaV1.year], isA<int>());
+      expect(
+        firstGoal[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+        isA<int>(),
+      );
+      expect(
+        firstGoal[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+        isA<int>(),
+      );
+      expect(
+        firstGoal[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion],
+        isA<int>(),
+      );
     });
 
     test('should be immutable (modifications do not affect entity)', () {
       final entity = createValidAnnualGoal(yearValue: 2030);
 
       final map = mapper.map(entity);
-      map['year'] = 1999;
+      map[AnnualRevenueGoalMetaRemoteSchemaV1.year] = 1999;
       final goals = map['monthly_goals'] as List;
       final firstGoal = goals.first as Map<String, dynamic>;
-      firstGoal['month'] = 99;
+      firstGoal[MonthlyRevenueGoalRemoteSchemaV1.month] = 99;
 
       expect(entity.year.value, equals(2030));
       expect(entity.monthlyGoals.length, equals(12));

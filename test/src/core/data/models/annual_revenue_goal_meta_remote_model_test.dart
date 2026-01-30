@@ -1,108 +1,239 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bits_goals_module/src/core/data/models/annual_revenue_goal_meta_remote_model.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const tYear = 2026;
-  const tAnnualRevenueGoalMetaRemoteModel =
-      AnnualRevenueGoalMetaRemoteModel(year: tYear);
+  group('AnnualRevenueGoalMetaRemoteModel |', () {
+    group('fromYear factory', () {
+      test('should create instance with year and schemaVersion=1', () {
+        const testYear = 2024;
 
-  group('AnnualRevenueGoalMetaRemoteModel', () {
-    // =========================================================================
-    // INSTANTIATION & EQUALITY
-    // =========================================================================
-    test('should be a subclass of Equatable', () {
-      expect(tAnnualRevenueGoalMetaRemoteModel, isA<Equatable>());
-    });
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(testYear);
 
-    test('should compare equality based on props (year)', () {
-      const model1 = AnnualRevenueGoalMetaRemoteModel(year: 2025);
-      const model2 = AnnualRevenueGoalMetaRemoteModel(year: 2025);
-      const model3 = AnnualRevenueGoalMetaRemoteModel(year: 2026);
-
-      expect(model1, equals(model2));
-      expect(model1, isNot(equals(model3)));
-    });
-
-    test('stringify should be enabled', () {
-      expect(tAnnualRevenueGoalMetaRemoteModel.stringify, isTrue);
-      expect(
-        tAnnualRevenueGoalMetaRemoteModel.toString(),
-        contains('AnnualRevenueGoalMetaRemoteModel'),
-      );
-      expect(tAnnualRevenueGoalMetaRemoteModel.toString(), contains('2026'));
-    });
-
-    // =========================================================================
-    // FROM MAP
-    // =========================================================================
-    group('fromMap', () {
-      test('should return a valid model when the Map contains correct data',
-          () {
-        // Arrange
-        final Map<String, dynamic> jsonMap = {
-          'year': 2026,
-        };
-
-        // Act
-        final result = AnnualRevenueGoalMetaRemoteModel.fromMap(jsonMap);
-
-        // Assert
-        expect(result, equals(tAnnualRevenueGoalMetaRemoteModel));
+        expect(model.year, equals(testYear));
+        expect(model.schemaVersion, equals(1));
       });
 
-      test('should throw [FormatException] when the "year" key is missing', () {
-        // Arrange
-        final Map<String, dynamic> jsonMap = {
-          'other_key': 123,
+      test('should create instance with future year', () {
+        const testYear = 2099;
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(testYear);
+
+        expect(model.year, equals(testYear));
+        expect(model.schemaVersion, equals(1));
+      });
+
+      test('should create instance with past year', () {
+        const testYear = 2000;
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(testYear);
+
+        expect(model.year, equals(testYear));
+        expect(model.schemaVersion, equals(1));
+      });
+
+      test('should create instance with large year value', () {
+        const testYear = 9999;
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(testYear);
+
+        expect(model.year, equals(testYear));
+        expect(model.schemaVersion, equals(1));
+      });
+    });
+
+    group('fromMap factory', () {
+      test('should parse valid map with all fields', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2024,
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
         };
 
-        // Act
+        final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
+
+        expect(model.year, equals(2024));
+        expect(model.schemaVersion, equals(1));
+      });
+
+      test('should parse map with different version values', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2025,
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 5,
+        };
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
+
+        expect(model.schemaVersion, equals(5));
+      });
+
+      test('should throw FormatException when year key missing', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+        };
+
         expect(
-          () => AnnualRevenueGoalMetaRemoteModel.fromMap(jsonMap),
-          throwsA(
-            isA<FormatException>().having(
-              (e) => e.message,
-              'message',
-              'Invalid AnnualRevenueGoalMetaRemoteModel',
-            ),
-          ),
+          () => AnnualRevenueGoalMetaRemoteModel.fromMap(map),
+          throwsFormatException,
         );
       });
 
-      test('should throw [FormatException] when "year" is of invalid type', () {
-        // Arrange
-        final Map<String, dynamic> jsonMap = {
-          'year': 'not_an_integer',
+      test('should throw FormatException when version key missing', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2024,
         };
 
-        // Act
         expect(
-          () => AnnualRevenueGoalMetaRemoteModel.fromMap(jsonMap),
-          throwsA(
-            isA<FormatException>().having(
-              (e) => e.message,
-              'message',
-              'Invalid AnnualRevenueGoalMetaRemoteModel',
-            ),
-          ),
+          () => AnnualRevenueGoalMetaRemoteModel.fromMap(map),
+          throwsFormatException,
+        );
+      });
+
+      test('should throw FormatException when map is empty', () {
+        final map = <String, dynamic>{};
+
+        expect(
+          () => AnnualRevenueGoalMetaRemoteModel.fromMap(map),
+          throwsFormatException,
+        );
+      });
+
+      test('should throw FormatException when year is null', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: null,
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+        };
+
+        expect(
+          () => AnnualRevenueGoalMetaRemoteModel.fromMap(map),
+          throwsFormatException,
+        );
+      });
+
+      test('should throw FormatException when year is non-numeric string', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: 'not_a_number',
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+        };
+
+        expect(
+          () => AnnualRevenueGoalMetaRemoteModel.fromMap(map),
+          throwsFormatException,
         );
       });
     });
 
-    // =========================================================================
-    // TO MAP
-    // =========================================================================
-    group('toMap', () {
-      test('should return a Map containing the proper data', () {
-        // Act
-        final result = tAnnualRevenueGoalMetaRemoteModel.toMap();
+    group('toMap method', () {
+      test('should convert to map with correct keys', () {
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
 
-        // Assert
-        final expectedMap = {
-          'year': 2026,
+        final map = model.toMap();
+
+        expect(
+            map.containsKey(AnnualRevenueGoalMetaRemoteSchemaV1.year), isTrue);
+        expect(
+          map.containsKey(AnnualRevenueGoalMetaRemoteSchemaV1.version),
+          isTrue,
+        );
+      });
+
+      test('should serialize year and schemaVersion correctly', () {
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+
+        final map = model.toMap();
+
+        expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.year], equals(2024));
+        expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.version], equals(1));
+      });
+
+      test('should preserve values in round-trip conversion', () {
+        final original = AnnualRevenueGoalMetaRemoteModel.fromYear(2025);
+
+        final map = original.toMap();
+        final restored = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
+
+        expect(restored.year, equals(original.year));
+        expect(restored.schemaVersion, equals(original.schemaVersion));
+      });
+    });
+
+    group('Equatable', () {
+      test('should be equal when same values', () {
+        final model1 = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+        final model2 = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+
+        expect(model1, equals(model2));
+      });
+
+      test('should not be equal when year differs', () {
+        final model1 = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+        final model2 = AnnualRevenueGoalMetaRemoteModel.fromYear(2025);
+
+        expect(model1, isNot(equals(model2)));
+      });
+
+      test('should include correct properties in props list', () {
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+
+        final props = model.props;
+
+        expect(props.length, equals(2));
+        expect(props[0], equals(2024));
+        expect(props[1], equals(1));
+      });
+
+      test('should have stringify enabled', () {
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+
+        expect(model.stringify, isTrue);
+      });
+
+      test('should generate string representation', () {
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(2024);
+
+        final toString = model.toString();
+
+        expect(toString.contains('AnnualRevenueGoalMetaRemoteModel'), isTrue);
+        expect(toString.contains('2024'), isTrue);
+        expect(toString.contains('1'), isTrue);
+      });
+    });
+
+    group('Edge Cases', () {
+      test('should handle minimum year value', () {
+        const minYear = 0;
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(minYear);
+
+        expect(model.year, equals(minYear));
+      });
+
+      test('should handle large year values', () {
+        const largeYear = 9999;
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromYear(largeYear);
+
+        expect(model.year, equals(largeYear));
+      });
+
+      test('should preserve numeric string years from map', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: '2024',
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
         };
-        expect(result, equals(expectedMap));
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
+
+        expect(model.year, equals(2024));
+      });
+
+      test('should handle floating point years by truncating', () {
+        final map = {
+          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2024.9,
+          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+        };
+
+        final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
+
+        expect(model.year, equals(2024));
       });
     });
   });

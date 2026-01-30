@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:http/http.dart' as http;
