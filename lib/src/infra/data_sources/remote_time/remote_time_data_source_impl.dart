@@ -11,8 +11,6 @@ import 'package:ntp/ntp.dart';
 typedef NtpRunner = Future<DateTime> Function();
 
 /// Infra implementation of [RemoteTimeDataSource].
-///
-/// Lives in Infra because it performs real network I/O (NTP + HTTP).
 class RemoteTimeDataSourceImpl implements RemoteTimeDataSource {
   final http.Client client;
   final NtpRunner _ntpRunner;

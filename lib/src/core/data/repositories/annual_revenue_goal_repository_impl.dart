@@ -41,7 +41,7 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
           .map((entity) => MonthlyRevenueGoalRemoteModel.fromEntity(entity))
           .toList();
 
-      final logModel = ActionLogModel.fromEntity(log);
+      final logModel = ActionLogModel.create(log);
 
       await _remoteDataSource.createMonthlyGoalsForYear(
         year: goal.year.value,

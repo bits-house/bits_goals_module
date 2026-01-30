@@ -81,7 +81,7 @@ void main() {
 
     /// Helper to create an ActionLog with custom parameters
     ActionLog createTestLog({
-      IdUuidV7? id,
+      IdUuidV7? uuidV7,
       DateTime? occurredAt,
       LoggedInUser? user,
       IpAddress? userIpAddress,
@@ -94,7 +94,7 @@ void main() {
       Map<String, dynamic>? oldDataMapped,
     }) {
       return ActionLog.reconstruct(
-        id: id ?? testUuid,
+        uuidV7: uuidV7 ?? testUuid,
         occurredAt: occurredAt ?? testDateTime,
         user: user ?? mockUser,
         userIpAddress: userIpAddress ?? mockIpAddress,
@@ -149,7 +149,7 @@ void main() {
 
         // Assert
         expect(log, isNotNull);
-        expect(log.id, equals(testUuid));
+        expect(log.uuidV7, equals(testUuid));
         expect(log.occurredAt, equals(testDateTime));
       });
 
@@ -160,7 +160,7 @@ void main() {
         // Assert
         expect(log, isNotNull);
         expect(log.occurredAt, isNull);
-        expect(log.id, isNotNull);
+        expect(log.uuidV7, isNotNull);
       });
 
       test('should generate unique IDs via create factory', () {
@@ -169,7 +169,7 @@ void main() {
         final log2 = createViaFactory();
 
         // Assert
-        expect(log1.id, isNot(equals(log2.id)));
+        expect(log1.uuidV7, isNot(equals(log2.uuidV7)));
       });
 
       test('should support value equality with same properties', () {
@@ -188,7 +188,7 @@ void main() {
 
         // Act
         final log1 = createTestLog();
-        final log2 = createTestLog(id: differentId);
+        final log2 = createTestLog(uuidV7: differentId);
 
         // Assert
         expect(log1, isNot(equals(log2)));
@@ -297,7 +297,7 @@ void main() {
         final log = createTestLog();
 
         // Act
-        final result = log.id;
+        final result = log.uuidV7;
 
         // Assert
         expect(result, equals(testUuid));
@@ -463,8 +463,8 @@ void main() {
         final log = createTestLog();
 
         // Act
-        final first = log.id;
-        final second = log.id;
+        final first = log.uuidV7;
+        final second = log.uuidV7;
 
         // Assert
         expect(first, equals(second));
@@ -643,7 +643,7 @@ void main() {
 
         // Act
         final log = ActionLog.reconstruct(
-          id: testUuid,
+          uuidV7: testUuid,
           occurredAt: testDateTime,
           user: mockUser,
           userIpAddress: mockIpAddress,
@@ -670,7 +670,7 @@ void main() {
         final log = createTestLog();
 
         // Act - Call multiple getters
-        log.id;
+        log.uuidV7;
         log.occurredAt;
         log.user;
         log.userIpAddress;
@@ -680,7 +680,7 @@ void main() {
         log.oldDataMapped;
 
         // Assert - State unchanged
-        expect(log.id, equals(testUuid));
+        expect(log.uuidV7, equals(testUuid));
         expect(log.newDataMapped['count'], equals(42));
         expect(log.oldDataMapped?['count'], equals(40));
       });
@@ -1031,7 +1031,7 @@ void main() {
         final log = createTestLog();
 
         // Assert
-        expect(log.id, isA<IdUuidV7>());
+        expect(log.uuidV7, isA<IdUuidV7>());
         expect(log.occurredAt, isA<DateTime?>());
         expect(log.user, isA<LoggedInUser>());
         expect(log.userIpAddress, isA<IpAddress>());
@@ -1125,7 +1125,7 @@ void main() {
         // Act & Assert
         expect(
           () => ActionLog.reconstruct(
-            id: testUuid,
+            uuidV7: testUuid,
             occurredAt: testDateTime,
             user: mockUser,
             userIpAddress: mockIpAddress,
@@ -1155,7 +1155,7 @@ void main() {
         final dateTime = DateTime(2026, 1, 28, 12, 0, 0);
 
         final log1 = ActionLog.reconstruct(
-          id: id,
+          uuidV7: id,
           occurredAt: dateTime,
           user: mockUser,
           userIpAddress: mockIpAddress,
@@ -1169,7 +1169,7 @@ void main() {
         );
 
         final log2 = ActionLog.reconstruct(
-          id: id,
+          uuidV7: id,
           occurredAt: dateTime,
           user: mockUser,
           userIpAddress: mockIpAddress,
@@ -1208,9 +1208,9 @@ void main() {
         final log3 = createViaFactory();
 
         // Assert
-        expect(log1.id, isNot(equals(log2.id)));
-        expect(log2.id, isNot(equals(log3.id)));
-        expect(log1.id, isNot(equals(log3.id)));
+        expect(log1.uuidV7, isNot(equals(log2.uuidV7)));
+        expect(log2.uuidV7, isNot(equals(log3.uuidV7)));
+        expect(log1.uuidV7, isNot(equals(log3.uuidV7)));
       });
 
       test('create leaves occurredAt as null', () {
@@ -1223,17 +1223,17 @@ void main() {
 
       test('reconstruct preserves exact ID', () {
         // Act
-        final log = createTestLog(id: testUuid);
+        final log = createTestLog(uuidV7: testUuid);
 
         // Assert
-        expect(log.id, equals(testUuid));
+        expect(log.uuidV7, equals(testUuid));
       });
 
       test('reconstruct requires occurredAt', () {
         // Assert - reconstruct requires occurredAt param
         expect(
           () => ActionLog.reconstruct(
-            id: testUuid,
+            uuidV7: testUuid,
             occurredAt: testDateTime,
             user: mockUser,
             userIpAddress: mockIpAddress,
@@ -1363,8 +1363,8 @@ void main() {
 
         // Assert
         expect(logs.length, equals(5));
-        expect(logs[0].id, isNot(equals(logs[1].id)));
-        expect(logs.every((log) => log.id.value.isNotEmpty), isTrue);
+        expect(logs[0].uuidV7, isNot(equals(logs[1].uuidV7)));
+        expect(logs.every((log) => log.uuidV7.value.isNotEmpty), isTrue);
       });
 
       test('should handle logs in collections', () {
@@ -1372,7 +1372,8 @@ void main() {
         final log1 = createTestLog();
         final log2 = createTestLog(useCaseId: 'different-use-case');
         final log3 = createTestLog(
-            id: IdUuidV7.fromString('223e4567-e89b-12d3-a456-426614174000'));
+            uuidV7:
+                IdUuidV7.fromString('223e4567-e89b-12d3-a456-426614174000'));
 
         // Act
         final logSet = {log1, log2, log3};
@@ -1459,8 +1460,8 @@ void main() {
         final log = createTestLog();
 
         // Act
-        final id1 = log.id;
-        final id2 = log.id;
+        final id1 = log.uuidV7;
+        final id2 = log.uuidV7;
 
         // Assert - different objects but equal values
         expect(id1, equals(id2));

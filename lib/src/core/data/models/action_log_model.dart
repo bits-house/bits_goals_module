@@ -36,7 +36,7 @@ class ActionLogModel extends Equatable {
   // ===========================
 
   /// Unique identifier for this audit log entry (UUID v7).
-  final IdUuidV7 id;
+  final IdUuidV7 uuidV7;
 
   /// Timestamp when the action occurred (milliseconds since epoch).
   /// Nullable because backend generates this value server-side.
@@ -104,7 +104,7 @@ class ActionLogModel extends Equatable {
   // ===========================
 
   const ActionLogModel._({
-    required this.id,
+    required this.uuidV7,
     required this.occurredAtMillis,
     required this.userId,
     required this.userEmail,
@@ -131,11 +131,10 @@ class ActionLogModel extends Equatable {
   /// - LoggedInUser → uid, email.value, displayName, roleName
   /// - IpAddress, DeviceInfo, AppVersion → .value properties
   /// - GoalsModulePermission, ActionType → .name (enum name)
-  /// - DateTime → millisecondsSinceEpoch (nullable)
-  factory ActionLogModel.fromEntity(ActionLog entity) {
+  factory ActionLogModel.create(ActionLog entity) {
     return ActionLogModel._(
-      id: entity.id,
-      occurredAtMillis: entity.occurredAt?.millisecondsSinceEpoch,
+      uuidV7: entity.uuidV7,
+      occurredAtMillis: null,
       userId: entity.user.uid,
       userEmail: entity.user.email.value,
       userDisplayName: entity.user.displayName,
@@ -164,7 +163,7 @@ class ActionLogModel extends Equatable {
   /// Throws FormatException on parsing errors with detailed context.
   factory ActionLogModel.fromMap(Map<String, dynamic> map) {
     try {
-      final idString = map.getString(
+      final uuidV7String = map.getString(
         key: ActionLogRemoteSchemaV1.id,
       );
 
@@ -231,7 +230,7 @@ class ActionLogModel extends Equatable {
       );
 
       return ActionLogModel._(
-        id: IdUuidV7.fromString(idString),
+        uuidV7: IdUuidV7.fromString(uuidV7String),
         occurredAtMillis: occurredAtMillis,
         userId: userId,
         userEmail: userEmail,
@@ -260,7 +259,7 @@ class ActionLogModel extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      ActionLogRemoteSchemaV1.id: id.value,
+      ActionLogRemoteSchemaV1.id: uuidV7.value,
       ActionLogRemoteSchemaV1.occurredAt: occurredAtMillis,
       ActionLogRemoteSchemaV1.userId: userId,
       ActionLogRemoteSchemaV1.userEmail: userEmail,
@@ -284,7 +283,7 @@ class ActionLogModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
+        uuidV7,
         occurredAtMillis,
         userId,
         userEmail,

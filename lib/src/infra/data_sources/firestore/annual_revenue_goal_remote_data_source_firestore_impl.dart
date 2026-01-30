@@ -34,7 +34,8 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
     required ActionLogModel log,
   }) async {
     try {
-      // TODO: Aplly rate limiting
+      // TODO: Apply rate limiting
+
       // Use transaction to ensure atomicity.
       await _firestore.runTransaction((transaction) async {
         final metaRef = _firestore.collection(_annualMeta).doc(year.toString());
@@ -59,11 +60,14 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
         }
 
         // Log the action.
-        final logRef = _firestore.collection(_logsCollection).doc();
+        final logRef = _firestore.collection(_logsCollection).doc(
+              log.uuidV7.value,
+            );
         transaction.set(logRef, log.toMap());
       });
     } catch (e) {
       // Exceptions caught during the transaction.
+      // Rethrow ServerException.
       if (e is ServerException) {
         rethrow;
       }

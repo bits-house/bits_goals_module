@@ -34,7 +34,6 @@ class AccessControlServiceImpl implements AccessControlService {
   @override
   LoggedInUser get loggedInUser => _config.getCurrentUser();
 
-  /// Creates a safe fallback role with minimum privileges.
   UserRole _getFallbackRole() {
     return UserRole(
       roleName: 'undefined_fallback',

@@ -14,7 +14,7 @@ class GoalsModuleConfig {
   ///     UserRole(
   ///       roleName: 'admin',
   ///       rolePermissions: [
-  ///         GoalsModulePermission.createGoal,
+  ///         GoalsModulePermission.manageGlobalGoals,
   ///       ],
   ///     ),
   ///     UserRole(
