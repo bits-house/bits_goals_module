@@ -8,17 +8,13 @@ enum CreateAnnualRevenueGoalFailureReason {
   /// year that is in the past
   pastYear,
 
-  /// General failure (not user input or infrastructure related)
-  /// do not expose to users
-  internal,
-
-  /// Thrown when there is a connection error
-  /// with the repository
-  connectionError,
-
   zeroOrNegativeTarget,
 
   annualGoalForYearAlreadyExists,
 
   permissionDenied,
+
+  unexpected,
+
+  connectionError,
 }

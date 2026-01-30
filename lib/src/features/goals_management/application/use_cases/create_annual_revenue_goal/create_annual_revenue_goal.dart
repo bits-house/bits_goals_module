@@ -124,7 +124,7 @@ class CreateAnnualRevenueGoal
         userIpAddress: metadataCollector.userIpAddress,
       );
 
-      /// Persist atomically, ensuring rules are enforced
+      /// Persist atomically
       final savedGoal = await repository.create(
         goal: annualGoal,
         log: log,
@@ -165,7 +165,7 @@ class CreateAnnualRevenueGoal
     } catch (e) {
       return left(
         CreateAnnualRevenueGoalFailure(
-          reason: CreateAnnualRevenueGoalFailureReason.internal,
+          reason: CreateAnnualRevenueGoalFailureReason.unexpected,
           cause: e,
         ),
       );

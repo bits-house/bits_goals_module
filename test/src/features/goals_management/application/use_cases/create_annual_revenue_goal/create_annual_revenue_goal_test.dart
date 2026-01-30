@@ -417,7 +417,7 @@ void main() {
         result.fold(
           (l) {
             expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.internal);
+                CreateAnnualRevenueGoalFailureReason.unexpected);
           },
           (r) => fail('Should be Left'),
         );
@@ -456,7 +456,7 @@ void main() {
         result.fold(
           (l) {
             expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.internal);
+                CreateAnnualRevenueGoalFailureReason.unexpected);
           },
           (r) => fail('Should be Left'),
         );
