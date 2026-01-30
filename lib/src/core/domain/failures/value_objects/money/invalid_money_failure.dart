@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/money/invalid_money_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_reason.dart';
 
 class InvalidMoneyFailure extends Failure {
   final InvalidMoneyReason reason;

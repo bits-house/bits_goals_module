@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:equatable/equatable.dart';

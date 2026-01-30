@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/user_role/user_role_failure_reason.dart';
 
 class UserRoleFailure extends Failure {
   final UserRoleFailureReason reason;

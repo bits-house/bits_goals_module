@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/logged_in_user/logged_in_user_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/logged_in_user/logged_in_user_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/logged_in_user/logged_in_user_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
 import 'package:flutter_test/flutter_test.dart';
 

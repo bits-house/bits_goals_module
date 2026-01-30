@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_reason.dart';
 import 'package:equatable/equatable.dart';
 import 'month_name.dart';
 

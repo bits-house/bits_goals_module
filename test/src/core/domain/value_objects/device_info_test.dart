@@ -1,7 +1,7 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bits_goals_module/src/core/domain/failures/device_info/device_info_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/device_info/device_info_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure_reason.dart';
 
 void main() {
   group('DeviceInfo Value Object Tests', () {

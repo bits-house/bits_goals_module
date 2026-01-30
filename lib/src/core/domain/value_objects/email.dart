@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/email/email_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/email/email_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/email/email_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/email/email_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/utils/string_utils.dart';
 import 'package:equatable/equatable.dart';
 

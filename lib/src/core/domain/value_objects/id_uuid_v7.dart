@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/id_uuid_v7/id_uuid_v7_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/id_uuid_v7/id_uuid_v7_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/id_uuid_v7/id_uuid_v7_failure_reason.dart';
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 

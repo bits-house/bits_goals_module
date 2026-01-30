@@ -1,9 +1,9 @@
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';

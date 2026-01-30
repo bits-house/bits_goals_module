@@ -1,7 +1,7 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure_reason.dart';
 
 void main() {
   group('AppVersion Value Object Tests', () {

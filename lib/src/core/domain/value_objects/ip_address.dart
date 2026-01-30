@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/ip_address/ip_address_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/ip_address/ip_address_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/ip_address/ip_address_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/ip_address/ip_address_failure_reason.dart';
 import 'package:equatable/equatable.dart';
 
 class IpAddress extends Equatable {

@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/app_version/app_version_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure_reason.dart';
 import 'package:equatable/equatable.dart';
 
 /// Value Object representing a Semantic Version (SemVer).

@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/user_role/user_role_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/user_role/user_role_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/user_role/user_role_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:equatable/equatable.dart';
 

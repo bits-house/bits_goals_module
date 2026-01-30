@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/year/invalid_year_reason.dart';
 
 class InvalidYearFailure extends Failure {
   final InvalidYearReason reason;

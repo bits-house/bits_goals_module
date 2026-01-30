@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/domain/failures/money/invalid_money_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_failure.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -402,6 +402,17 @@ void main() {
         expect(
           splits.map((m) => m.cents),
           [1, 0, 0],
+        );
+      });
+
+      test('should handle when money value is zero', () {
+        final money = Money.fromCents(0);
+
+        final splits = money.split(4);
+
+        expect(
+          splits.map((m) => m.cents),
+          [0, 0, 0, 0],
         );
       });
 

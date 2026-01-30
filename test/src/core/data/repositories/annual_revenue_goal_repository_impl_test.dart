@@ -9,8 +9,8 @@ import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';

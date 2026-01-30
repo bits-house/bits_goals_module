@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/domain/failures/device_info/device_info_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 
 class DeviceInfoFailure extends Failure {

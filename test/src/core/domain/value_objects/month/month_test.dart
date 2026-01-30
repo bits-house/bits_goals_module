@@ -1,8 +1,8 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month_name.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/month/invalid_month_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_reason.dart';
 
 void main() {
   group('Month Value Object', () {

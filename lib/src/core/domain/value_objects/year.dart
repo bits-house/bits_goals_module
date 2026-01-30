@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/year/invalid_year_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/year/invalid_year_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/year/invalid_year_reason.dart';
 import 'package:equatable/equatable.dart';
 
 /// Year Value Object

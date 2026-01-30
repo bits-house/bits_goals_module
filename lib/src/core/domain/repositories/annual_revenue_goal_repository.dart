@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repository/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 
 /// Repository for managing [AnnualRevenueGoal] aggregates.
