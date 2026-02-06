@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 
 /// Repository for managing [AnnualRevenueGoal] aggregates.
@@ -10,7 +10,7 @@ abstract class AnnualRevenueGoalRepository {
   /// Persists a new [AnnualRevenueGoal] aggregate.
   ///
   /// Throws:
-  /// - [RepositoryFailure] for persistence errors
+  /// - [AnnualRevenueGoalRepFailure] for persistence errors
   ///
   /// Returns:
   /// - The persisted [AnnualRevenueGoal] aggregate

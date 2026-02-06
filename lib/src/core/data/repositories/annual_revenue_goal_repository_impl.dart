@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
@@ -6,8 +7,8 @@ import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
@@ -32,8 +33,8 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   }) async {
     try {
       if (!await _networkInfo.isConnected) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.connectionError,
+        throw const AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.connectionError,
         );
       }
 
@@ -50,46 +51,53 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
       );
 
       return goal;
-    } on RepositoryFailure {
+    } on AnnualRevenueGoalRepFailure {
       rethrow;
+    } on RateLimiterException catch (e) {
+      // TODO: Add tests for this
+      throw AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
+          rateLimitRemainingDuration: e.remainingDuration);
     } on ServerException catch (e) {
       if (e.reason == ServerExceptionReason.conflict) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.annualGoalForYearAlreadyExists,
+        throw const AnnualRevenueGoalRepFailure(
+          reason:
+              AnnualRevenueGoalRepFailureReason.annualGoalForYearAlreadyExists,
         );
       } else if (e.reason == ServerExceptionReason.permissionDenied) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.permissionDenied,
+        throw const AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.permissionDenied,
         );
       }
 
-      throw RepositoryFailure(
-        reason: RepositoryFailureReason.connectionError,
+      throw AnnualRevenueGoalRepFailure(
+        reason: AnnualRevenueGoalRepFailureReason.connectionError,
         cause: e,
       );
     } catch (e) {
-      throw RepositoryFailure(
-        reason: RepositoryFailureReason.connectionError,
+      throw AnnualRevenueGoalRepFailure(
+        reason: AnnualRevenueGoalRepFailureReason.connectionError,
         cause: e,
       );
     }
   }
 
+  // TODO: Refactor to use its own repository
   @override
   Future<Year> getCurrentYear() async {
     try {
       if (!await _networkInfo.isConnected) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.connectionError,
+        throw const AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.connectionError,
         );
       }
       final yearInt = await _remoteTimeSource.getCurrentYear();
       return Year.fromInt(yearInt);
-    } on RepositoryFailure {
+    } on AnnualRevenueGoalRepFailure {
       rethrow;
     } catch (e) {
-      throw RepositoryFailure(
-        reason: RepositoryFailureReason.connectionError,
+      throw AnnualRevenueGoalRepFailure(
+        reason: AnnualRevenueGoalRepFailureReason.connectionError,
         cause: e,
       );
     }

@@ -2,8 +2,8 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
@@ -284,8 +284,9 @@ void main() {
               goal: any(named: 'goal'),
               log: any(named: 'log'),
             )).thenThrow(
-          const RepositoryFailure(
-            reason: RepositoryFailureReason.annualGoalForYearAlreadyExists,
+          const AnnualRevenueGoalRepFailure(
+            reason: AnnualRevenueGoalRepFailureReason
+                .annualGoalForYearAlreadyExists,
           ),
         );
 
@@ -321,8 +322,8 @@ void main() {
               goal: any(named: 'goal'),
               log: any(named: 'log'),
             )).thenThrow(
-          const RepositoryFailure(
-            reason: RepositoryFailureReason.permissionDenied,
+          const AnnualRevenueGoalRepFailure(
+            reason: AnnualRevenueGoalRepFailureReason.permissionDenied,
           ),
         );
 
@@ -358,8 +359,8 @@ void main() {
               goal: any(named: 'goal'),
               log: any(named: 'log'),
             )).thenThrow(
-          const RepositoryFailure(
-            reason: RepositoryFailureReason.connectionError,
+          const AnnualRevenueGoalRepFailure(
+            reason: AnnualRevenueGoalRepFailureReason.connectionError,
           ),
         );
 

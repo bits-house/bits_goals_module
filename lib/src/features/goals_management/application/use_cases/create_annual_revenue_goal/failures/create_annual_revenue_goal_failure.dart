@@ -6,9 +6,13 @@ class CreateAnnualRevenueGoalFailure extends Failure with EquatableMixin {
   final CreateAnnualRevenueGoalFailureReason reason;
   final Object? cause;
 
+  /// Optional: when the failure is due to rate limiting
+  final Duration? retryAfter;
+
   const CreateAnnualRevenueGoalFailure({
     super.message,
     required this.reason,
+    this.retryAfter,
     this.cause,
   });
 
@@ -16,6 +20,7 @@ class CreateAnnualRevenueGoalFailure extends Failure with EquatableMixin {
   List<Object?> get props => [
         message,
         reason,
+        retryAfter,
         cause,
       ];
 

@@ -5,8 +5,8 @@ import 'package:bits_goals_module/src/core/domain/entities/action_log/action_typ
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_action_log_mapper.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
@@ -138,20 +138,28 @@ class CreateAnnualRevenueGoal
     /// =============================
 
     /// RepositoryFailure
-    on RepositoryFailure catch (repositoryFailure) {
+    on AnnualRevenueGoalRepFailure catch (repositoryFailure) {
       switch (repositoryFailure.reason) {
-        case RepositoryFailureReason.annualGoalForYearAlreadyExists:
+        case AnnualRevenueGoalRepFailureReason.annualGoalForYearAlreadyExists:
           return left(
             const CreateAnnualRevenueGoalFailure(
               reason: CreateAnnualRevenueGoalFailureReason
                   .annualGoalForYearAlreadyExists,
             ),
           );
-        case RepositoryFailureReason.permissionDenied:
+        case AnnualRevenueGoalRepFailureReason.permissionDenied:
           return left(
             CreateAnnualRevenueGoalFailure(
               reason: CreateAnnualRevenueGoalFailureReason.permissionDenied,
               cause: repositoryFailure,
+            ),
+          );
+        // TODO: Add tests for rate limit failure scenario
+        case AnnualRevenueGoalRepFailureReason.rateLimitExceeded:
+          return left(
+            CreateAnnualRevenueGoalFailure(
+              reason: CreateAnnualRevenueGoalFailureReason.rateLimitExceeded,
+              retryAfter: repositoryFailure.rateLimitRemainingDuration,
             ),
           );
         default:

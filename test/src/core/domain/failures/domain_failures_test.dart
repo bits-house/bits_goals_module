@@ -18,8 +18,8 @@ import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/i
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/user_role/user_role_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/user_role/user_role_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/year/invalid_year_failure.dart';
@@ -91,19 +91,19 @@ void main() {
     });
 
     // =========================================================================
-    // RepositoryFailure
+    // AnnualRevenueGoalRepFailure
     // =========================================================================
-    test('RepositoryFailure', () {
-      const failure1 =
-          RepositoryFailure(reason: RepositoryFailureReason.permissionDenied);
-      const failure2 =
-          RepositoryFailure(reason: RepositoryFailureReason.permissionDenied);
-      const failureDiff =
-          RepositoryFailure(reason: RepositoryFailureReason.connectionError);
+    test('AnnualRevenueGoalRepFailure', () {
+      const failure1 = AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.permissionDenied);
+      const failure2 = AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.permissionDenied);
+      const failureDiff = AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.connectionError);
 
       expect(failure1, equals(failure2));
       expect(failure1, isNot(equals(failureDiff)));
-      expect(failure1.toString(), contains('RepositoryFailure'));
+      expect(failure1.toString(), contains('AnnualRevenueGoalRepFailure'));
     });
 
     // =========================================================================

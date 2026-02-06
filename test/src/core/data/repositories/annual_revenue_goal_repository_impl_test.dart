@@ -9,8 +9,8 @@ import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
@@ -180,7 +180,7 @@ void main() {
       );
 
       test(
-        'should throw RepositoryFailure with conflict reason when goal exists',
+        'should throw AnnualRevenueGoalRepFailure with conflict reason when goal exists',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
@@ -206,10 +206,11 @@ void main() {
               log: log,
             ),
             throwsA(
-              isA<RepositoryFailure>().having(
+              isA<AnnualRevenueGoalRepFailure>().having(
                 (f) => f.reason,
                 'reason',
-                RepositoryFailureReason.annualGoalForYearAlreadyExists,
+                AnnualRevenueGoalRepFailureReason
+                    .annualGoalForYearAlreadyExists,
               ),
             ),
           );
@@ -217,7 +218,7 @@ void main() {
       );
 
       test(
-        'should throw RepositoryFailure with permissionDenied reason when access denied',
+        'should throw AnnualRevenueGoalRepFailure with permissionDenied reason when access denied',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
@@ -245,10 +246,10 @@ void main() {
               log: log,
             ),
             throwsA(
-              isA<RepositoryFailure>().having(
+              isA<AnnualRevenueGoalRepFailure>().having(
                 (f) => f.reason,
                 'reason',
-                RepositoryFailureReason.permissionDenied,
+                AnnualRevenueGoalRepFailureReason.permissionDenied,
               ),
             ),
           );
@@ -256,7 +257,7 @@ void main() {
       );
 
       test(
-        'should throw RepositoryFailure with connectionError for unexpected ServerException',
+        'should throw AnnualRevenueGoalRepFailure with connectionError for unexpected ServerException',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
@@ -282,10 +283,10 @@ void main() {
               log: log,
             ),
             throwsA(
-              isA<RepositoryFailure>().having(
+              isA<AnnualRevenueGoalRepFailure>().having(
                 (f) => f.reason,
                 'reason',
-                RepositoryFailureReason.connectionError,
+                AnnualRevenueGoalRepFailureReason.connectionError,
               ),
             ),
           );
@@ -293,7 +294,7 @@ void main() {
       );
 
       test(
-        'should throw RepositoryFailure with connectionError for generic exception',
+        'should throw AnnualRevenueGoalRepFailure with connectionError for generic exception',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
@@ -318,10 +319,10 @@ void main() {
               log: log,
             ),
             throwsA(
-              isA<RepositoryFailure>().having(
+              isA<AnnualRevenueGoalRepFailure>().having(
                 (f) => f.reason,
                 'reason',
-                RepositoryFailureReason.connectionError,
+                AnnualRevenueGoalRepFailureReason.connectionError,
               ),
             ),
           );
@@ -329,7 +330,7 @@ void main() {
       );
 
       test(
-        'should throw RepositoryFailure when offline',
+        'should throw AnnualRevenueGoalRepFailure when offline',
         () async {
           // Arrange
           final aggregate = createValidAggregate();
@@ -347,10 +348,10 @@ void main() {
               log: log,
             ),
             throwsA(
-              isA<RepositoryFailure>().having(
+              isA<AnnualRevenueGoalRepFailure>().having(
                 (f) => f.reason,
                 'reason',
-                RepositoryFailureReason.connectionError,
+                AnnualRevenueGoalRepFailureReason.connectionError,
               ),
             ),
           );
@@ -418,7 +419,7 @@ void main() {
       );
 
       test(
-        'should throw RepositoryFailure when data source fails',
+        'should throw AnnualRevenueGoalRepFailure when data source fails',
         () async {
           // Arrange
           when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
@@ -428,13 +429,13 @@ void main() {
           // Act & Assert
           expect(
             () => repository.getCurrentYear(),
-            throwsA(isA<RepositoryFailure>()),
+            throwsA(isA<AnnualRevenueGoalRepFailure>()),
           );
         },
       );
 
       test(
-        'should throw RepositoryFailure with connectionError when offline',
+        'should throw AnnualRevenueGoalRepFailure with connectionError when offline',
         () async {
           // Arrange
           when(() => mockNetworkInfo.isConnected)
@@ -444,10 +445,10 @@ void main() {
           expect(
             () => repository.getCurrentYear(),
             throwsA(
-              isA<RepositoryFailure>().having(
+              isA<AnnualRevenueGoalRepFailure>().having(
                 (f) => f.reason,
                 'reason',
-                RepositoryFailureReason.connectionError,
+                AnnualRevenueGoalRepFailureReason.connectionError,
               ),
             ),
           );

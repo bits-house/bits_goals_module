@@ -12,6 +12,8 @@ enum CreateAnnualRevenueGoalFailureReason {
 
   annualGoalForYearAlreadyExists,
 
+  rateLimitExceeded,
+
   permissionDenied,
 
   unexpected,
