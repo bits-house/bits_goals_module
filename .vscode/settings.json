@@ -19,6 +19,7 @@
     "flutterfire",
     "Grossi",
     "infile",
+    "Interfunctions",
     "january",
     "july",
     "june",
@@ -43,6 +44,7 @@
   "chat.tools.terminal.autoApprove": {
     "flutter": true,
     "Test-Path": true,
-    "dart": true
+    "dart": true,
+    "ForEach-Object": true
   }
 }
