@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
@@ -385,6 +386,83 @@ void main() {
             expect((l as CreateAnnualRevenueGoalFailure).reason,
                 CreateAnnualRevenueGoalFailureReason.connectionError);
           },
+          (r) => fail('Should be Left'),
+        );
+      },
+    );
+
+    // ============================================================
+    // RATE LIMIT & INFRASTRUCTURE FAILURE TESTS
+    // ============================================================
+
+    test(
+      'should map rateLimitExceeded repository failure with retry duration',
+      () async {
+        // Arrange
+        const retryDuration = Duration(seconds: 45);
+
+        when(() => mockRealTimeService.getCurrentYear())
+            .thenAnswer((_) async => tCurrentYear);
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+
+        when(() => mockRepository.create(
+              goal: any(named: 'goal'),
+              log: any(named: 'log'),
+            )).thenThrow(
+          const AnnualRevenueGoalRepFailure(
+            reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
+            rateLimitRemainingDuration: retryDuration,
+          ),
+        );
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) {
+            final failure = l as CreateAnnualRevenueGoalFailure;
+            expect(failure.reason,
+                CreateAnnualRevenueGoalFailureReason.rateLimitExceeded);
+            expect(failure.retryAfter, retryDuration);
+          },
+          (r) => fail('Should be Left'),
+        );
+      },
+    );
+
+    test(
+      'should map RealTimeServiceException to connectionError failure',
+      () async {
+        // Arrange
+        when(() => mockAccessControlService.hasPermission(any()))
+            .thenReturn(true);
+
+        when(() => mockRealTimeService.getCurrentYear()).thenThrow(
+            const RealTimeServiceException('NTP Server unreachable'));
+
+        final params = CreateAnnualRevenueGoalParams(
+          year: tValidYear,
+          annualRevenueTarget: tMoney,
+        );
+
+        // Act
+        final result = await useCase(params);
+
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (l) => expect(
+            (l as CreateAnnualRevenueGoalFailure).reason,
+            CreateAnnualRevenueGoalFailureReason.connectionError,
+          ),
           (r) => fail('Should be Left'),
         );
       },

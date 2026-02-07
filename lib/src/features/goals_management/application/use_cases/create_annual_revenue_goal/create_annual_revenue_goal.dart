@@ -42,6 +42,7 @@ import 'package:dartz/dartz.dart';
 /// * [CreateAnnualRevenueGoalFailureReason.annualGoalForYearAlreadyExists] - Goal for year already exists.
 /// * [CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget] - Input or split resulted in <= 0 values.
 /// * [CreateAnnualRevenueGoalFailureReason.permissionDenied] - User lacks rights.
+/// * [CreateAnnualRevenueGoalFailureReason.rateLimitExceeded] - Rate limit exceeded.
 /// * Other unexpected and infrastructure errors.
 
 class CreateAnnualRevenueGoal
@@ -158,7 +159,6 @@ class CreateAnnualRevenueGoal
               cause: repositoryFailure,
             ),
           );
-        // TODO: Add tests for rate limit failure scenario
         case AnnualRevenueGoalRepFailureReason.rateLimitExceeded:
           return left(
             CreateAnnualRevenueGoalFailure(
@@ -175,7 +175,6 @@ class CreateAnnualRevenueGoal
           );
       }
     } on RealTimeServiceException {
-      // TODO: Add tests for real time service failure scenario
       return left(
         const CreateAnnualRevenueGoalFailure(
           reason: CreateAnnualRevenueGoalFailureReason.connectionError,
