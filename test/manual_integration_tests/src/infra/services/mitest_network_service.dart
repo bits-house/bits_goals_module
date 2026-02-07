@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/infra/platform/network_info_impl.dart';
+import 'package:bits_goals_module/src/infra/services/network_service_impl.dart';
 
 // --- HELPERS ---
 
@@ -31,7 +31,7 @@ Future<bool> _mockOfflineTcpCheck(
 }
 
 void main() async {
-  print('STARTING NETWORK INFO DATA SOURCE TESTS\n');
+  print('STARTING NETWORK SERVICE TESTS\n');
 
   // ---------------------------------------------------------
   // TEST 1: REAL CONNECTION (Integration)
@@ -40,12 +40,12 @@ void main() async {
   print('TEST 1: Happy Path (Real System Network)');
   try {
     // Inject the spy to observe the parallel execution
-    final networkInfo = NetworkInfoImpl(
+    final networkService = NetworkServiceImpl(
       tcpChecker: _spyTcpCheck,
     );
 
     final stopwatch = Stopwatch()..start();
-    final isConnected = await networkInfo.isConnected;
+    final isConnected = await networkService.isConnected;
     stopwatch.stop();
 
     print('   Result: $isConnected');
@@ -66,12 +66,12 @@ void main() async {
   // ---------------------------------------------------------
   print('TEST 2: Simulated Offline (Forced Failure)');
   try {
-    final networkInfo = NetworkInfoImpl(
+    final networkService = NetworkServiceImpl(
       tcpChecker: _mockOfflineTcpCheck,
     );
 
     final stopwatch = Stopwatch()..start();
-    final isConnected = await networkInfo.isConnected;
+    final isConnected = await networkService.isConnected;
     stopwatch.stop();
 
     print('   Result: $isConnected');
@@ -92,7 +92,7 @@ void main() async {
   // ---------------------------------------------------------
   print('TEST 3: Caching & Debouncing (Optimization Check)');
   try {
-    final networkInfo = NetworkInfoImpl(
+    final networkService = NetworkServiceImpl(
       tcpChecker: _spyTcpCheck,
     );
 
@@ -101,9 +101,9 @@ void main() async {
 
     // Fire 3 calls concurrently; they should all join the first Future
     final results = await Future.wait([
-      networkInfo.isConnected,
-      networkInfo.isConnected,
-      networkInfo.isConnected,
+      networkService.isConnected,
+      networkService.isConnected,
+      networkService.isConnected,
     ]);
 
     stopwatch.stop();
@@ -121,5 +121,5 @@ void main() async {
     print('   FAIL: $e\n');
   }
 
-  print('NETWORK INFO DATA SOURCE TESTS COMPLETED');
+  print('NETWORK SERVICE TESTS COMPLETED');
 }

@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/rate_limiter_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/rate_limiter_service.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';

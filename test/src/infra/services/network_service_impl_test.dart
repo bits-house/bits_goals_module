@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:bits_goals_module/src/infra/platform/network_info_impl.dart';
+import 'package:bits_goals_module/src/infra/services/network_service_impl.dart';
 
 // =============================================================================
 // MOCKS & HELPERS
@@ -19,7 +19,7 @@ class MockTcpHelper extends Mock implements TcpHelper {}
 class MockSocket extends Mock implements Socket {}
 
 void main() {
-  late NetworkInfoImpl networkInfo;
+  late NetworkServiceImpl networkService;
   late MockTcpHelper mockTcp;
 
   const defaultDomainsCount = 5;
@@ -32,10 +32,10 @@ void main() {
   setUp(() {
     mockTcp = MockTcpHelper();
     // Default injection for testing logic without hitting the real network.
-    networkInfo = NetworkInfoImpl(tcpChecker: mockTcp.check);
+    networkService = NetworkServiceImpl(tcpChecker: mockTcp.check);
   });
 
-  group('NetworkInfoImpl (Strategy & Logic) |', () {
+  group('NetworkServiceImpl (Strategy & Logic) |', () {
     // =========================================================================
     // 1. BASIC CONNECTIVITY
     // =========================================================================
@@ -47,7 +47,7 @@ void main() {
           .thenAnswer((_) async => true);
 
       // Act
-      final result = await networkInfo.isConnected;
+      final result = await networkService.isConnected;
 
       // Assert
       expect(result, isTrue);
@@ -59,7 +59,7 @@ void main() {
           .thenAnswer((_) async => false);
 
       // Act
-      final result = await networkInfo.isConnected;
+      final result = await networkService.isConnected;
 
       // Assert
       expect(result, isFalse);
@@ -94,7 +94,7 @@ void main() {
 
       // Act
       final stopwatch = Stopwatch()..start();
-      final result = await networkInfo.isConnected;
+      final result = await networkService.isConnected;
       stopwatch.stop();
 
       // Assert
@@ -115,9 +115,9 @@ void main() {
           .thenAnswer((_) async => true);
 
       // Act
-      await networkInfo.isConnected; // Call 1 (Triggers network check)
-      await networkInfo.isConnected; // Call 2 (Returns cached value)
-      await networkInfo.isConnected; // Call 3 (Returns cached value)
+      await networkService.isConnected; // Call 1 (Triggers network check)
+      await networkService.isConnected; // Call 2 (Returns cached value)
+      await networkService.isConnected; // Call 3 (Returns cached value)
 
       // Assert
       // Interaction count should stay at 5 (one batch for one network check).
@@ -136,9 +136,9 @@ void main() {
       // Act
       // Fire multiple calls at the same time.
       final results = await Future.wait([
-        networkInfo.isConnected,
-        networkInfo.isConnected,
-        networkInfo.isConnected,
+        networkService.isConnected,
+        networkService.isConnected,
+        networkService.isConnected,
       ]);
 
       // Assert
@@ -154,10 +154,10 @@ void main() {
 
     test('Should return FALSE if domain list is empty', () async {
       // Arrange
-      final emptyNetworkInfo = NetworkInfoImpl(domains: []);
+      final emptyNetworkService = NetworkServiceImpl(domains: []);
 
       // Act
-      final result = await emptyNetworkInfo.isConnected;
+      final result = await emptyNetworkService.isConnected;
 
       // Assert
       expect(result, isFalse);
@@ -175,7 +175,7 @@ void main() {
 
       // Act
       final stopwatch = Stopwatch()..start();
-      final result = await networkInfo.isConnected;
+      final result = await networkService.isConnected;
       stopwatch.stop();
 
       // Assert
@@ -189,7 +189,7 @@ void main() {
   // GRUPO 2: LOW-LEVEL IMPLEMENTATION COVERAGE (_defaultTcpCheck)
   // ===========================================================================
 
-  group('NetworkInfoImpl (Implementation Coverage) |', () {
+  group('NetworkServiceImpl (Implementation Coverage) |', () {
     test('Should cover _defaultTcpCheck SUCCESS path using IOOverrides',
         () async {
       final mockSocket = MockSocket();
@@ -197,7 +197,7 @@ void main() {
 
       await IOOverrides.runZoned(() async {
         // Instantiate without mocking the checker to force the static method.
-        final realImpl = NetworkInfoImpl(domains: ['google.com']);
+        final realImpl = NetworkServiceImpl(domains: ['google.com']);
 
         final result = await realImpl.isConnected;
 
@@ -213,7 +213,7 @@ void main() {
     test('Should cover _defaultTcpCheck FAILURE path (SocketException)',
         () async {
       await IOOverrides.runZoned(() async {
-        final realImpl = NetworkInfoImpl(domains: ['google.com']);
+        final realImpl = NetworkServiceImpl(domains: ['google.com']);
 
         final result = await realImpl.isConnected;
 

@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
 
-import '../../core/application/ports/rate_limiter_service.dart';
+import '../../core/application/ports/infra_services/rate_limiter_service.dart';
 
 /// Simple in-memory sliding-window rate limiter.
 ///

@@ -42,7 +42,7 @@ Future<DateTime> Function() _createSpyNtpRunner() {
 }
 
 void main() async {
-  print('STARTING REMOTE TIME DATA SOURCE TESTS\n');
+  print('STARTING REMOTE TIME SERVICE TESTS\n');
 
   final client = _createInsecureClient();
 
@@ -52,13 +52,13 @@ void main() async {
   // ---------------------------------------------------------
   print('TEST 1: Happy Path (NTP Working)');
   try {
-    final dataSource = RealTimeServiceImpl(
+    final service = RealTimeServiceImpl(
       client: client,
       ntpRunner: _createSpyNtpRunner(),
     );
 
     final stopwatch = Stopwatch()..start();
-    final year = await dataSource.getCurrentYear();
+    final year = await service.getCurrentYear();
     stopwatch.stop();
 
     print('   Result: $year');
@@ -75,13 +75,13 @@ void main() async {
   print('TEST 2: Fallback (NTP Failure -> Brasil API)');
   try {
     // Force NTP to fail by injecting a throwing function
-    final dataSource = RealTimeServiceImpl(
+    final service = RealTimeServiceImpl(
       client: client,
       ntpRunner: () async => throw Exception('Simulated: NTP Blocked'),
     );
 
     final stopwatch = Stopwatch()..start();
-    final year = await dataSource.getCurrentYear();
+    final year = await service.getCurrentYear();
     stopwatch.stop();
 
     print('   Result: $year');
@@ -93,5 +93,5 @@ void main() async {
     client.close();
   }
 
-  print('REMOTE TIME DATA SOURCE TESTS COMPLETED');
+  print('REMOTE TIME SERVICE TESTS COMPLETED');
 }

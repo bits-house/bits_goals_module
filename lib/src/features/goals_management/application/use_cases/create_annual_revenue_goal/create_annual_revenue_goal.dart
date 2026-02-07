@@ -1,11 +1,11 @@
 import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
-import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_action_log_mapper.dart';
+import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
 import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';

@@ -1,8 +1,14 @@
 import 'package:bits_goals_module/src/core/data/models/annual_revenue_goal_meta_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/application/ports/annual_revenue_goal_action_log_mapper.dart';
+import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
+import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 
+/// Maps [AnnualRevenueGoal] domain entities to a log format
+/// with the nested [MonthlyRevenueGoal]s.
+///
+/// It is a separated mapper because it is used by the application layer, as a port to instantiate
+/// a ActionLog entity, as application layer should not depend on data layer.
 class AnnualRevenueGoalActionLogMapperImpl
     implements AnnualRevenueGoalActionLogMapper {
   const AnnualRevenueGoalActionLogMapperImpl();

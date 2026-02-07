@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:http/http.dart' as http;
 import 'package:ntp/ntp.dart';

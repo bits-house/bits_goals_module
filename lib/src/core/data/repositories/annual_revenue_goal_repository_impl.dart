@@ -9,17 +9,17 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/network_service.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
-  final NetworkInfo _networkInfo;
+  final NetworkService _networkService;
 
   AnnualRevenueGoalRepositoryImpl({
     required AnnualRevenueGoalRemoteDataSource remoteDataSource,
-    required NetworkInfo networkInfo,
+    required NetworkService networkService,
   })  : _remoteDataSource = remoteDataSource,
-        _networkInfo = networkInfo;
+        _networkService = networkService;
 
   @override
   Future<AnnualRevenueGoal> create({
@@ -27,7 +27,7 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
     required ActionLog log,
   }) async {
     try {
-      if (!await _networkInfo.isConnected) {
+      if (!await _networkService.isConnected) {
         throw const AnnualRevenueGoalRepFailure(
           reason: AnnualRevenueGoalRepFailureReason.connectionError,
         );
@@ -50,8 +50,9 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
       rethrow;
     } on RateLimiterException catch (e) {
       throw AnnualRevenueGoalRepFailure(
-          reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
-          rateLimitRemainingDuration: e.remainingDuration);
+        reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
+        rateLimitRemainingDuration: e.remainingDuration,
+      );
     } on ServerException catch (e) {
       if (e.reason == ServerExceptionReason.conflict) {
         throw const AnnualRevenueGoalRepFailure(

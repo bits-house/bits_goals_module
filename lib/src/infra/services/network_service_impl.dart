@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/network_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 
 /// Typedef to allow mocking the TCP check logic.
@@ -9,7 +9,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart'
 typedef TcpChecker = Future<bool> Function(
     String host, int port, Duration timeout);
 
-class NetworkInfoImpl implements NetworkInfo {
+class NetworkServiceImpl implements NetworkService {
   // TODO: Refactor as a service
   // ===========================================================================
   // CONFIGURATION
@@ -44,7 +44,7 @@ class NetworkInfoImpl implements NetworkInfo {
 
   /// [tcpChecker]: Optional injection for testing (mocks).
   /// [domains]: Optional list of domains.
-  NetworkInfoImpl({
+  NetworkServiceImpl({
     TcpChecker? tcpChecker,
     List<String>? domains,
   })  : _tcpChecker = tcpChecker ?? _defaultTcpCheck,

@@ -19,7 +19,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
-import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/network_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -30,7 +30,7 @@ import 'package:mocktail/mocktail.dart';
 class MockRemoteDataSource extends Mock
     implements AnnualRevenueGoalRemoteDataSource {}
 
-class MockNetworkInfo extends Mock implements NetworkInfo {}
+class MockNetworkService extends Mock implements NetworkService {}
 
 class FakeMonthlyGoalList extends Fake
     implements List<MonthlyRevenueGoalRemoteModel> {}
@@ -45,7 +45,7 @@ class FakeAnnualRevenueGoal extends Fake implements AnnualRevenueGoal {}
 
 void main() {
   late MockRemoteDataSource mockRemoteDataSource;
-  late MockNetworkInfo mockNetworkInfo;
+  late MockNetworkService mockNetworkService;
   late AnnualRevenueGoalRepositoryImpl repository;
 
   setUpAll(() {
@@ -56,11 +56,11 @@ void main() {
 
   setUp(() {
     mockRemoteDataSource = MockRemoteDataSource();
-    mockNetworkInfo = MockNetworkInfo();
+    mockNetworkService = MockNetworkService();
 
     repository = AnnualRevenueGoalRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
-      networkInfo: mockNetworkInfo,
+      networkService: mockNetworkService,
     );
   });
 
@@ -107,7 +107,8 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -124,7 +125,7 @@ void main() {
 
           // Assert
           expect(result, equals(aggregate));
-          verify(() => mockNetworkInfo.isConnected).called(1);
+          verify(() => mockNetworkService.isConnected).called(1);
           verify(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -144,7 +145,8 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -183,7 +185,8 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -228,7 +231,8 @@ void main() {
             remainingDuration: waitDuration,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
 
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
@@ -270,7 +274,8 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -309,7 +314,8 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -347,7 +353,8 @@ void main() {
           );
           final exception = Exception('Generic error');
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -382,7 +389,7 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected)
+          when(() => mockNetworkService.isConnected)
               .thenAnswer((_) async => false);
 
           // Act & Assert
@@ -419,7 +426,8 @@ void main() {
             requiredPermission: GoalsModulePermission.manageGlobalGoals,
           );
 
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+          when(() => mockNetworkService.isConnected)
+              .thenAnswer((_) async => true);
           when(
             () => mockRemoteDataSource.createMonthlyGoalsForYear(
               year: any(named: 'year'),
@@ -435,7 +443,7 @@ void main() {
           );
 
           // Assert
-          verify(() => mockNetworkInfo.isConnected).called(1);
+          verify(() => mockNetworkService.isConnected).called(1);
         },
       );
     });
