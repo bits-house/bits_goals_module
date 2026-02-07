@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
-import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
-import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:http/http.dart' as http;
 import 'package:ntp/ntp.dart';
@@ -48,9 +47,8 @@ class RealTimeServiceImpl implements RealTimeService {
       return Year.fromInt(localDateTime.year);
     }
 
-    throw const ServerException(
-      reason: ServerExceptionReason.connectionError,
-      error: 'Brasil API did not return a Date header.',
+    throw const RealTimeServiceException(
+      'Failed to retrieve time from Brasil API: Missing Date header',
     );
   }
 }

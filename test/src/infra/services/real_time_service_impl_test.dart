@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/infra/services/real_time_service_impl.dart';
-import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
@@ -34,7 +34,7 @@ void main() {
     );
   }
 
-  group('RemoteTimeDataSourceImpl', () {
+  group('RealTimeServiceImpl', () {
     final tYear = Year.fromInt(2026);
     final tDate = DateTime(tYear.value, 1, 1);
 
@@ -83,7 +83,7 @@ void main() {
     });
 
     test(
-        'should throw RemoteTimeException when NTP fails AND API returns non-200',
+        'should throw RealTimeServiceException when NTP fails AND API returns non-200',
         () async {
       // Arrange
       realTime = RealTimeServiceImpl(
@@ -102,12 +102,12 @@ void main() {
       // Act & Assert
       final call = realTime.getCurrentYear;
 
-      // Note: Make sure RemoteTimeException is exported or imported correctly
-      await expectLater(() => call(), throwsA(isA<ServerException>()));
+      // Note: Make sure RealTimeServiceException is exported or imported correctly
+      await expectLater(() => call(), throwsA(isA<RealTimeServiceException>()));
     });
 
     test(
-        'should throw RemoteTimeException when NTP fails AND API response is missing Date header',
+        'should throw RealTimeServiceException when NTP fails AND API response is missing Date header',
         () async {
       // Arrange
       realTime = RealTimeServiceImpl(
@@ -126,7 +126,7 @@ void main() {
       // Act & Assert
       final call = realTime.getCurrentYear;
 
-      expect(() => call(), throwsA(isA<ServerException>()));
+      expect(() => call(), throwsA(isA<RealTimeServiceException>()));
     });
 
     test('should handle NTP timeout correctly by switching to API', () async {

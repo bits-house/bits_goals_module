@@ -3,7 +3,7 @@ class RateLimiterException implements Exception {
   final Duration remainingDuration;
   final String message;
 
-  RateLimiterException({
+  const RateLimiterException({
     required this.functionId,
     required this.remainingDuration,
     this.message = 'Rate limit exceeded for this action',
