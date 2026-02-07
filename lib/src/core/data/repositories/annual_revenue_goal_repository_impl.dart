@@ -49,7 +49,6 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
     } on AnnualRevenueGoalRepFailure {
       rethrow;
     } on RateLimiterException catch (e) {
-      // TODO: Add tests for this
       throw AnnualRevenueGoalRepFailure(
           reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
           rateLimitRemainingDuration: e.remainingDuration);

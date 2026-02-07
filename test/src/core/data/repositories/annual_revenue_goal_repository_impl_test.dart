@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
@@ -206,6 +207,55 @@ void main() {
                 AnnualRevenueGoalRepFailureReason
                     .annualGoalForYearAlreadyExists,
               ),
+            ),
+          );
+        },
+      );
+
+      test(
+        'should throw AnnualRevenueGoalRepFailure with rateLimitExceeded reason and duration when rate limited',
+        () async {
+          // Arrange
+          final aggregate = createValidAggregate();
+          final log = createValidLog(
+            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+          );
+
+          const waitDuration = Duration(seconds: 42);
+
+          const rateLimitException = RateLimiterException(
+            functionId: 'create_goals',
+            remainingDuration: waitDuration,
+          );
+
+          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+
+          when(
+            () => mockRemoteDataSource.createMonthlyGoalsForYear(
+              year: any(named: 'year'),
+              goals: any(named: 'goals'),
+              log: any(named: 'log'),
+            ),
+          ).thenThrow(rateLimitException);
+
+          // Act & Assert
+          expect(
+            () => repository.create(
+              goal: aggregate,
+              log: log,
+            ),
+            throwsA(
+              isA<AnnualRevenueGoalRepFailure>()
+                  .having(
+                    (f) => f.reason,
+                    'reason',
+                    AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
+                  )
+                  .having(
+                    (f) => f.rateLimitRemainingDuration,
+                    'rateLimitRemainingDuration',
+                    waitDuration,
+                  ),
             ),
           );
         },
