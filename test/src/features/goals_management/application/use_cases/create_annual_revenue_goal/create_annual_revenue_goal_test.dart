@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
@@ -27,6 +28,8 @@ import 'package:mocktail/mocktail.dart';
 class MockAnnualRevenueGoalRepository extends Mock
     implements AnnualRevenueGoalRepository {}
 
+class MockRealTimeService extends Mock implements RealTimeService {}
+
 class MockAccessControlService extends Mock implements AccessControlService {}
 
 class MockMetadataCollector extends Mock implements MetadataCollector {}
@@ -41,6 +44,7 @@ class FakeActionLog extends Fake implements ActionLog {}
 void main() {
   late CreateAnnualRevenueGoal useCase;
   late MockAnnualRevenueGoalRepository mockRepository;
+  late MockRealTimeService mockRealTimeService;
   late MockAccessControlService mockAccessControlService;
   late MockMetadataCollector mockMetadataCollector;
   late MockAnnualRevenueGoalActionLogMapper mockMapper;
@@ -53,6 +57,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockAnnualRevenueGoalRepository();
+    mockRealTimeService = MockRealTimeService();
     mockAccessControlService = MockAccessControlService();
     mockMetadataCollector = MockMetadataCollector();
     mockMapper = MockAnnualRevenueGoalActionLogMapper();
@@ -80,6 +85,7 @@ void main() {
       accessControl: mockAccessControlService,
       metadataCollector: mockMetadataCollector,
       goalMapper: mockMapper,
+      realTimeService: mockRealTimeService,
     );
   });
 
@@ -129,7 +135,7 @@ void main() {
         // Arrange
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: tMoney);
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(
           () => mockRepository.create(
@@ -168,7 +174,7 @@ void main() {
       'should return Left(pastYear) when year is before current year',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -195,7 +201,7 @@ void main() {
       'should return Left(zeroOrNegativeTarget) when target is negative',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -222,7 +228,7 @@ void main() {
       'should return Left(zeroOrNegativeTarget) when target is zero',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -276,7 +282,7 @@ void main() {
       'should map annualGoalForYearAlreadyExists repository failure',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -314,7 +320,7 @@ void main() {
       'should map permissionDenied repository failure',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -351,7 +357,7 @@ void main() {
       'should map connectionError repository failure',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -392,7 +398,7 @@ void main() {
       'should map AnnualRevenueGoalFailure to internal failure',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -433,7 +439,7 @@ void main() {
       'should map generic exception to internal failure',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -505,7 +511,7 @@ void main() {
           target: annualTarget,
         );
 
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -547,7 +553,7 @@ void main() {
         // Arrange
         final tAnnualGoal =
             createValidAnnualGoal(year: tCurrentYear, target: tMoney);
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -577,7 +583,7 @@ void main() {
         final minTarget = Money.fromCents(12);
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: minTarget);
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -606,7 +612,7 @@ void main() {
         final largeTarget = Money.fromDouble(999999999.99);
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: largeTarget);
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -632,7 +638,7 @@ void main() {
       'should reject year far in the past',
       () async {
         // Arrange
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
@@ -665,7 +671,7 @@ void main() {
         // Arrange
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: tMoney);
-        when(() => mockRepository.getCurrentYear()).thenAnswer(
+        when(() => mockRealTimeService.getCurrentYear()).thenAnswer(
           (_) async {
             await Future.delayed(const Duration(milliseconds: 10));
             return tCurrentYear;
@@ -697,7 +703,7 @@ void main() {
         // Arrange
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: tMoney);
-        when(() => mockRepository.getCurrentYear())
+        when(() => mockRealTimeService.getCurrentYear())
             .thenAnswer((_) async => tCurrentYear);
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);

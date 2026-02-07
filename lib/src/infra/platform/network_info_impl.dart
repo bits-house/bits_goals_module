@@ -10,6 +10,7 @@ typedef TcpChecker = Future<bool> Function(
     String host, int port, Duration timeout);
 
 class NetworkInfoImpl implements NetworkInfo {
+  // TODO: Refactor as a service
   // ===========================================================================
   // CONFIGURATION
   // ===========================================================================

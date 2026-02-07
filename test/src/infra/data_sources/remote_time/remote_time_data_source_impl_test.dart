@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/infra/data_sources/remote_time/remote_time_data_source_impl.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
+import 'package:bits_goals_module/src/infra/services/real_time_service_impl.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,7 @@ import 'package:mocktail/mocktail.dart';
 class MockHttpClient extends Mock implements http.Client {}
 
 void main() {
-  late RemoteTimeDataSourceImpl dataSource;
+  late RealTimeServiceImpl realTime;
   late MockHttpClient mockHttpClient;
 
   setUpAll(() {
@@ -34,19 +35,19 @@ void main() {
   }
 
   group('RemoteTimeDataSourceImpl', () {
-    const tYear = 2026;
-    final tDate = DateTime(tYear, 1, 1);
+    final tYear = Year.fromInt(2026);
+    final tDate = DateTime(tYear.value, 1, 1);
 
     test('should return year from NTP when NTP call is successful', () async {
       // Arrange
-      dataSource = RemoteTimeDataSourceImpl(
+      realTime = RealTimeServiceImpl(
         client: mockHttpClient,
         // Mocking NTP via the typedef injection
         ntpRunner: () async => tDate,
       );
 
       // Act
-      final result = await dataSource.getCurrentYear();
+      final result = await realTime.getCurrentYear();
 
       // Assert
       expect(result, tYear);
@@ -57,7 +58,7 @@ void main() {
     test('should return year from Brasil API when NTP fails (Fallback)',
         () async {
       // Arrange
-      dataSource = RemoteTimeDataSourceImpl(
+      realTime = RealTimeServiceImpl(
         client: mockHttpClient,
         ntpRunner: () async => throw Exception('NTP Timeout'),
       );
@@ -72,10 +73,10 @@ void main() {
       );
 
       // Act
-      final result = await dataSource.getCurrentYear();
+      final result = await realTime.getCurrentYear();
 
       // Assert
-      expect(result, 2026);
+      expect(result, tYear);
       verify(() => mockHttpClient.head(
             Uri.parse('https://brasilapi.com.br/api/ddd/v1/11'),
           )).called(1);
@@ -85,7 +86,7 @@ void main() {
         'should throw RemoteTimeException when NTP fails AND API returns non-200',
         () async {
       // Arrange
-      dataSource = RemoteTimeDataSourceImpl(
+      realTime = RealTimeServiceImpl(
         client: mockHttpClient,
         ntpRunner: () async => throw Exception('NTP failed'),
       );
@@ -99,7 +100,7 @@ void main() {
       );
 
       // Act & Assert
-      final call = dataSource.getCurrentYear;
+      final call = realTime.getCurrentYear;
 
       // Note: Make sure RemoteTimeException is exported or imported correctly
       await expectLater(() => call(), throwsA(isA<ServerException>()));
@@ -109,7 +110,7 @@ void main() {
         'should throw RemoteTimeException when NTP fails AND API response is missing Date header',
         () async {
       // Arrange
-      dataSource = RemoteTimeDataSourceImpl(
+      realTime = RealTimeServiceImpl(
         client: mockHttpClient,
         ntpRunner: () async => throw Exception('NTP failed'),
       );
@@ -123,14 +124,14 @@ void main() {
       );
 
       // Act & Assert
-      final call = dataSource.getCurrentYear;
+      final call = realTime.getCurrentYear;
 
       expect(() => call(), throwsA(isA<ServerException>()));
     });
 
     test('should handle NTP timeout correctly by switching to API', () async {
       // Arrange
-      dataSource = RemoteTimeDataSourceImpl(
+      realTime = RealTimeServiceImpl(
         client: mockHttpClient,
         ntpRunner: () async => throw TimeoutException('NTP timed out'),
       );
@@ -143,10 +144,10 @@ void main() {
       );
 
       // Act
-      final result = await dataSource.getCurrentYear();
+      final result = await realTime.getCurrentYear();
 
       // Assert
-      expect(result, 2024);
+      expect(result, Year.fromInt(2024));
     });
   });
 }

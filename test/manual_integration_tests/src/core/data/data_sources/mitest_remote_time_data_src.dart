@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
-import 'package:bits_goals_module/src/infra/data_sources/remote_time/remote_time_data_source_impl.dart';
+import 'package:bits_goals_module/src/infra/services/real_time_service_impl.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:ntp/ntp.dart';
@@ -52,7 +52,7 @@ void main() async {
   // ---------------------------------------------------------
   print('TEST 1: Happy Path (NTP Working)');
   try {
-    final dataSource = RemoteTimeDataSourceImpl(
+    final dataSource = RealTimeServiceImpl(
       client: client,
       ntpRunner: _createSpyNtpRunner(),
     );
@@ -75,7 +75,7 @@ void main() async {
   print('TEST 2: Fallback (NTP Failure -> Brasil API)');
   try {
     // Force NTP to fail by injecting a throwing function
-    final dataSource = RemoteTimeDataSourceImpl(
+    final dataSource = RealTimeServiceImpl(
       client: client,
       ntpRunner: () async => throw Exception('Simulated: NTP Blocked'),
     );

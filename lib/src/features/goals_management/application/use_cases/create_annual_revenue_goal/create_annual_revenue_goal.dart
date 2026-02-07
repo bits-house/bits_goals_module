@@ -1,5 +1,7 @@
+import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
+import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
@@ -48,12 +50,14 @@ class CreateAnnualRevenueGoal
   final AccessControlService accessControl;
   final MetadataCollector metadataCollector;
   final AnnualRevenueGoalActionLogMapper goalMapper;
+  final RealTimeService realTimeService;
 
   CreateAnnualRevenueGoal({
     required this.repository,
     required this.accessControl,
     required this.metadataCollector,
     required this.goalMapper,
+    required this.realTimeService,
   });
 
   @override
@@ -88,7 +92,7 @@ class CreateAnnualRevenueGoal
       }
 
       /// Year must be equal or greater than current year
-      final currentYear = await repository.getCurrentYear();
+      final currentYear = await realTimeService.getCurrentYear();
       if (params.year.isBefore(currentYear)) {
         return left(
           const CreateAnnualRevenueGoalFailure(
@@ -170,6 +174,13 @@ class CreateAnnualRevenueGoal
             ),
           );
       }
+    } on RealTimeServiceException {
+      // TODO: Add tests for real time service failure scenario
+      return left(
+        const CreateAnnualRevenueGoalFailure(
+          reason: CreateAnnualRevenueGoalFailureReason.connectionError,
+        ),
+      );
     } catch (e) {
       return left(
         CreateAnnualRevenueGoalFailure(

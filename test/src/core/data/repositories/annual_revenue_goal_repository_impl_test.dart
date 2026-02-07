@@ -1,5 +1,4 @@
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
@@ -30,8 +29,6 @@ import 'package:mocktail/mocktail.dart';
 class MockRemoteDataSource extends Mock
     implements AnnualRevenueGoalRemoteDataSource {}
 
-class MockRemoteTimeDataSource extends Mock implements RemoteTimeDataSource {}
-
 class MockNetworkInfo extends Mock implements NetworkInfo {}
 
 class FakeMonthlyGoalList extends Fake
@@ -47,7 +44,6 @@ class FakeAnnualRevenueGoal extends Fake implements AnnualRevenueGoal {}
 
 void main() {
   late MockRemoteDataSource mockRemoteDataSource;
-  late MockRemoteTimeDataSource mockRemoteTimeDataSource;
   late MockNetworkInfo mockNetworkInfo;
   late AnnualRevenueGoalRepositoryImpl repository;
 
@@ -59,13 +55,11 @@ void main() {
 
   setUp(() {
     mockRemoteDataSource = MockRemoteDataSource();
-    mockRemoteTimeDataSource = MockRemoteTimeDataSource();
     mockNetworkInfo = MockNetworkInfo();
 
     repository = AnnualRevenueGoalRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       networkInfo: mockNetworkInfo,
-      remoteTimeDataSource: mockRemoteTimeDataSource,
     );
   });
 
@@ -392,85 +386,6 @@ void main() {
 
           // Assert
           verify(() => mockNetworkInfo.isConnected).called(1);
-        },
-      );
-    });
-
-    group('getCurrentYear', () {
-      test(
-        'should return year when request succeeds',
-        () async {
-          // Arrange
-          const serverYear = 2025;
-
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-          when(() => mockRemoteTimeDataSource.getCurrentYear())
-              .thenAnswer((_) async => serverYear);
-
-          // Act
-          final result = await repository.getCurrentYear();
-
-          // Assert
-          expect(result, isA<Year>());
-          expect(result.value, equals(serverYear));
-          verify(() => mockNetworkInfo.isConnected).called(1);
-          verify(() => mockRemoteTimeDataSource.getCurrentYear()).called(1);
-        },
-      );
-
-      test(
-        'should throw AnnualRevenueGoalRepFailure when data source fails',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
-          when(() => mockRemoteTimeDataSource.getCurrentYear())
-              .thenThrow(Exception('Network error'));
-
-          // Act & Assert
-          expect(
-            () => repository.getCurrentYear(),
-            throwsA(isA<AnnualRevenueGoalRepFailure>()),
-          );
-        },
-      );
-
-      test(
-        'should throw AnnualRevenueGoalRepFailure with connectionError when offline',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected)
-              .thenAnswer((_) async => false);
-
-          // Act & Assert
-          expect(
-            () => repository.getCurrentYear(),
-            throwsA(
-              isA<AnnualRevenueGoalRepFailure>().having(
-                (f) => f.reason,
-                'reason',
-                AnnualRevenueGoalRepFailureReason.connectionError,
-              ),
-            ),
-          );
-
-          verifyNever(() => mockRemoteTimeDataSource.getCurrentYear());
-        },
-      );
-
-      test(
-        'should not call time data source when offline',
-        () async {
-          // Arrange
-          when(() => mockNetworkInfo.isConnected)
-              .thenAnswer((_) async => false);
-
-          // Act
-          try {
-            await repository.getCurrentYear();
-          } catch (_) {}
-
-          // Assert
-          verifyNever(() => mockRemoteTimeDataSource.getCurrentYear());
         },
       );
     });

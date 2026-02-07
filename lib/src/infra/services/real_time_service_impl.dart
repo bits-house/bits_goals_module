@@ -1,40 +1,42 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time_data_source.dart';
+import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:http/http.dart' as http;
 import 'package:ntp/ntp.dart';
 
 /// For NTP.now function, to test fallback behavior.
 typedef NtpRunner = Future<DateTime> Function();
 
-/// Infra implementation of [RemoteTimeDataSource].
-class RemoteTimeDataSourceImpl implements RemoteTimeDataSource {
+/// Infra implementation of [RealTimeService].
+class RealTimeServiceImpl implements RealTimeService {
   final http.Client client;
   final NtpRunner _ntpRunner;
 
-  RemoteTimeDataSourceImpl({
+  RealTimeServiceImpl({
     required this.client,
     NtpRunner? ntpRunner,
   }) : _ntpRunner = ntpRunner ?? NTP.now;
 
   @override
-  Future<int> getCurrentYear() async {
+  Future<Year> getCurrentYear() async {
     try {
       // 1. PRIMARY ATTEMPT: NTP
       final DateTime ntpTime = await _ntpRunner().timeout(
         const Duration(seconds: 3),
       );
-      return ntpTime.toLocal().year;
+      final localDateTime = ntpTime.toLocal();
+      return Year.fromInt(localDateTime.year);
     } catch (_) {
       // 2. FALLBACK: HTTP API
       return _getFromBrasilApi();
     }
   }
 
-  Future<int> _getFromBrasilApi() async {
+  Future<Year> _getFromBrasilApi() async {
     final response = await client
         .head(Uri.parse('https://brasilapi.com.br/api/ddd/v1/11'))
         .timeout(const Duration(seconds: 5));
@@ -43,7 +45,7 @@ class RemoteTimeDataSourceImpl implements RemoteTimeDataSource {
       final dateHeader = response.headers['date']!;
       final serverTime = HttpDate.parse(dateHeader);
       final localDateTime = serverTime.toLocal();
-      return localDateTime.year;
+      return Year.fromInt(localDateTime.year);
     }
 
     throw const ServerException(

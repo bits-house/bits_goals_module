@@ -1,7 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 
 /// Repository for managing [AnnualRevenueGoal] aggregates.
 ///
@@ -27,13 +26,4 @@ abstract class AnnualRevenueGoalRepository {
     required AnnualRevenueGoal goal,
     required ActionLog log,
   });
-
-  /// Gets the current year, to not get year from local offline system clock.
-  ///
-  /// Throws:
-  /// - [RepositoryFailure]
-  ///
-  /// Returns:
-  /// - The current year as a [Year] value object.
-  Future<Year> getCurrentYear();
 }

@@ -6,6 +6,7 @@ abstract class StringUtils {
   static String normalize(String value) => value.trim().toLowerCase();
 
   /// Validates the email format following strict TLD and structure rules.
+  // TODO: Put in Email VO
   static bool isValidEmail(String? email) {
     if (isEmpty(email)) return false;
 

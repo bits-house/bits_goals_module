@@ -1,6 +1,5 @@
 import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
@@ -10,21 +9,17 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/application/ports/network_info.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
-  final RemoteTimeDataSource _remoteTimeSource;
   final NetworkInfo _networkInfo;
 
   AnnualRevenueGoalRepositoryImpl({
     required AnnualRevenueGoalRemoteDataSource remoteDataSource,
     required NetworkInfo networkInfo,
-    required RemoteTimeDataSource remoteTimeDataSource,
   })  : _remoteDataSource = remoteDataSource,
-        _networkInfo = networkInfo,
-        _remoteTimeSource = remoteTimeDataSource;
+        _networkInfo = networkInfo;
 
   @override
   Future<AnnualRevenueGoal> create({
@@ -74,27 +69,6 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
         reason: AnnualRevenueGoalRepFailureReason.connectionError,
         cause: e,
       );
-    } catch (e) {
-      throw AnnualRevenueGoalRepFailure(
-        reason: AnnualRevenueGoalRepFailureReason.connectionError,
-        cause: e,
-      );
-    }
-  }
-
-  // TODO: Refactor to use its own repository
-  @override
-  Future<Year> getCurrentYear() async {
-    try {
-      if (!await _networkInfo.isConnected) {
-        throw const AnnualRevenueGoalRepFailure(
-          reason: AnnualRevenueGoalRepFailureReason.connectionError,
-        );
-      }
-      final yearInt = await _remoteTimeSource.getCurrentYear();
-      return Year.fromInt(yearInt);
-    } on AnnualRevenueGoalRepFailure {
-      rethrow;
     } catch (e) {
       throw AnnualRevenueGoalRepFailure(
         reason: AnnualRevenueGoalRepFailureReason.connectionError,
