@@ -104,8 +104,9 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
       }
 
       // Fallback for any other exceptions.
-      throw const ServerException(
+      throw ServerException(
         reason: ServerExceptionReason.unexpected,
+        error: e,
       );
     }
   }
