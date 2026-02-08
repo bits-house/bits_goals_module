@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:bits_goals_module/src/core/application/exceptions/network_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra_services/network_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 
@@ -10,12 +12,11 @@ typedef TcpChecker = Future<bool> Function(
     String host, int port, Duration timeout);
 
 class NetworkServiceImpl implements NetworkService {
-  // TODO: Refactor as a service
   // ===========================================================================
   // CONFIGURATION
   // ===========================================================================
 
-  static const List<String> _defaultReliableDomains = [
+  static const _defaultReliableDomains = [
     'google.com',
     'cloudflare.com',
     'microsoft.com',
@@ -23,9 +24,19 @@ class NetworkServiceImpl implements NetworkService {
     'amazon.com',
   ];
 
-  static const Duration _globalTimeout = Duration(seconds: 4);
+  /// List of reliable services that return raw IP text.
+  /// We use multiple sources to avoid a single point of failure.
+  static const List<String> _ipEchoServices = [
+    'https://api.ipify.org',
+    'https://ifconfig.me/ip',
+    'https://icanhazip.com',
+    'https://ipecho.net/plain',
+    'https://ident.me',
+  ];
+
+  static const Duration _globalTimeout = Duration(seconds: 3);
   static const Duration _socketTimeout = Duration(seconds: 3);
-  static const Duration _cacheValidity = Duration(seconds: 2);
+  static const Duration _cacheValidity = Duration(seconds: 3);
 
   // ===========================================================================
   // DEPENDENCIES & STATE
@@ -33,6 +44,7 @@ class NetworkServiceImpl implements NetworkService {
 
   final TcpChecker _tcpChecker;
   final List<String> _domains;
+  final List<String> _ipServices;
 
   bool _cacheStatus = false;
   DateTime _lastCheckTime = DateTime.fromMillisecondsSinceEpoch(0);
@@ -47,8 +59,10 @@ class NetworkServiceImpl implements NetworkService {
   NetworkServiceImpl({
     TcpChecker? tcpChecker,
     List<String>? domains,
+    List<String>? ipServices,
   })  : _tcpChecker = tcpChecker ?? _defaultTcpCheck,
-        _domains = domains ?? _defaultReliableDomains;
+        _domains = domains ?? _defaultReliableDomains,
+        _ipServices = ipServices ?? _ipEchoServices;
 
   /// The real implementation that establishes a socket connection.
   ///
@@ -70,7 +84,7 @@ class NetworkServiceImpl implements NetworkService {
   }
 
   // ===========================================================================
-  // PUBLIC API
+  // isConnected
   // ===========================================================================
 
   @override
@@ -92,10 +106,6 @@ class NetworkServiceImpl implements NetworkService {
       _currentCheck = null;
     }
   }
-
-  // ===========================================================================
-  // INTERNAL LOGIC (RACE STRATEGY)
-  // ===========================================================================
 
   /// Executes multiple TCP connection attempts in parallel ("Race to Success").
   ///
@@ -146,7 +156,45 @@ class NetworkServiceImpl implements NetworkService {
     _lastCheckTime = DateTime.now();
   }
 
+  // ===========================================================================
+  // ipAddress
+  // ===========================================================================
+
+  /// Retrieves the public IP address.
+  /// This implementation:
+  /// 1. Iterates through a list of public IP echo services.
+  /// 2. Sets a short timeout for each request to ensure responsiveness.
+  /// 3. Returns the first successful response.
+  /// 4. Throws an [NetworkServiceException] only if ALL services fail.
   @override
-  // TODO: implement ipAddress
-  Future<IpAddress> get ipAddress => throw UnimplementedError();
+  Future<IpAddress> get ipAddress async {
+    final client = HttpClient();
+
+    // Iterate through the available services
+    for (final url in _ipServices) {
+      try {
+        // Configure a short timeout per service to failover quickly
+        client.connectionTimeout = _globalTimeout;
+
+        final request = await client.getUrl(Uri.parse(url));
+        final response = await request.close();
+
+        if (response.statusCode == 200) {
+          // Read the response stream and decode it
+          final ipString = await response.transform(utf8.decoder).join();
+
+          return IpAddress(ipString);
+        }
+      } catch (e) {
+        // If this service fails (timeout, DNS error, etc.),
+        // silently continue to the next service in the list.
+        continue;
+      }
+    }
+
+    // If the loop finishes, all services failed.
+    // Return a fallback or throw a NetworkServiceException.
+    throw const NetworkServiceException(
+        'Unable to retrieve public IP address from any service.');
+  }
 }

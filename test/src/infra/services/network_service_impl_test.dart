@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:bits_goals_module/src/core/application/exceptions/network_service_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:bits_goals_module/src/infra/services/network_service_impl.dart';
@@ -18,6 +20,23 @@ class MockTcpHelper extends Mock implements TcpHelper {}
 /// Mock for the low-level Socket to verify resource cleanup (destroy).
 class MockSocket extends Mock implements Socket {}
 
+class MockHttpClient extends Mock implements HttpClient {}
+
+class MockHttpClientRequest extends Mock implements HttpClientRequest {}
+
+class MockHttpClientResponse extends Mock implements HttpClientResponse {}
+
+class TestHttpOverrides extends HttpOverrides {
+  final HttpClient client;
+
+  TestHttpOverrides(this.client);
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return client;
+  }
+}
+
 void main() {
   late NetworkServiceImpl networkService;
   late MockTcpHelper mockTcp;
@@ -27,6 +46,8 @@ void main() {
   setUpAll(() {
     // Required for Mocktail to handle 'any()' with custom types like Duration.
     registerFallbackValue(Duration.zero);
+
+    registerFallbackValue(Uri.parse('https://fallback.test'));
   });
 
   setUp(() {
@@ -222,6 +243,110 @@ void main() {
           {sourceAddress, int sourcePort = 0, timeout}) {
         throw const SocketException('Simulated Network Unreachable');
       });
+    });
+  });
+
+  // ===========================================================================
+  // GRUPO 3: PUBLIC IP RETRIEVAL (ipAddress)
+  // ===========================================================================
+
+  group('ipAddress', () {
+    late MockHttpClient httpClient;
+    late MockHttpClientRequest request;
+    late MockHttpClientResponse response;
+    late NetworkServiceImpl service;
+
+    setUp(() {
+      httpClient = MockHttpClient();
+      request = MockHttpClientRequest();
+      response = MockHttpClientResponse();
+
+      service = NetworkServiceImpl(
+        ipServices: [
+          'https://service1.test',
+          'https://service2.test',
+        ],
+      );
+    });
+
+    test('returns IpAddress when first service succeeds', () async {
+      // Arrange
+      when(() => httpClient.getUrl(any())).thenAnswer((_) async => request);
+
+      when(() => request.close()).thenAnswer((_) async => response);
+
+      when(() => response.statusCode).thenReturn(200);
+
+      when(() => response.transform(utf8.decoder)).thenAnswer(
+        (_) => Stream.value('8.8.8.8'),
+      );
+
+      HttpOverrides.runZoned(
+        () async {
+          // Act
+          final result = await service.ipAddress;
+
+          // Assert
+          expect(result.value, '8.8.8.8');
+        },
+        createHttpClient: (_) => httpClient,
+      );
+    });
+
+    test('fails first service and succeeds on second', () async {
+      // Arrange
+      when(() => httpClient.getUrl(any())).thenAnswer((_) async => request);
+
+      when(() => request.close()).thenThrow(const SocketException('Timeout'));
+
+      when(() => response.statusCode).thenReturn(200);
+
+      when(() => response.transform(utf8.decoder)).thenAnswer(
+        (_) => Stream.value('1.1.1.1'),
+      );
+
+      var callCount = 0;
+
+      when(() => httpClient.getUrl(any())).thenAnswer((_) async {
+        callCount++;
+        return request;
+      });
+
+      when(() => request.close()).thenAnswer((_) async {
+        if (callCount == 1) {
+          throw const SocketException('Timeout');
+        }
+        return response;
+      });
+
+      HttpOverrides.runZoned(
+        () async {
+          // Act
+          final result = await service.ipAddress;
+
+          // Assert
+          expect(result.value, '1.1.1.1');
+          expect(callCount, 2);
+        },
+        createHttpClient: (_) => httpClient,
+      );
+    });
+
+    test('throws NetworkServiceException when all services fail', () async {
+      // Arrange
+      when(() => httpClient.getUrl(any()))
+          .thenThrow(const SocketException('No internet'));
+
+      HttpOverrides.runZoned(
+        () async {
+          // Act & Assert
+          expect(
+            () => service.ipAddress,
+            throwsA(isA<NetworkServiceException>()),
+          );
+        },
+        createHttpClient: (_) => httpClient,
+      );
     });
   });
 }

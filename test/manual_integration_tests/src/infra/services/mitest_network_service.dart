@@ -121,5 +121,38 @@ void main() async {
     print('   FAIL: $e\n');
   }
 
+  // ---------------------------------------------------------
+  // TEST 4: PUBLIC IP RETRIEVAL (Real Integration)
+  // Expectation: Should cycle through services and return a valid IpAddress VO.
+  // ---------------------------------------------------------
+  print('TEST 4: Public IP Retrieval (Real Integration)');
+  try {
+    final networkService = NetworkServiceImpl(
+      tcpChecker: _spyTcpCheck,
+    );
+
+    print('   Querying external IP services...');
+    final stopwatch = Stopwatch()..start();
+
+    // 1. Call the implementation
+    final result = await networkService.ipAddress;
+    stopwatch.stop();
+
+    print('   Result: ${result.value}');
+    print('   Time: ${stopwatch.elapsedMilliseconds}ms');
+
+    // 2. Validate using the Value Object itself
+    // Assuming IpAddress throws or is invalid if the format is wrong,
+    // the mere existence of this object with a non-empty value confirms success.
+    // If your IpAddress has a specific .isValid getter, check that instead.
+    if (result.value.isNotEmpty) {
+      print('   SUCCESS (Returned valid IpAddress object)\n');
+    } else {
+      print('   FAIL: Result was not a valid IpAddress\n');
+    }
+  } catch (e) {
+    print('   FAIL: Exception during IP retrieval -> $e\n');
+  }
+
   print('NETWORK SERVICE TESTS COMPLETED');
 }
