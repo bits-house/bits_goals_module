@@ -5,13 +5,13 @@ import 'package:bits_goals_module/src/core/application/exceptions/real_time_serv
 void main() {
   test('should store message correctly', () {
     const message = 'Connection lost';
-    final exception = RealTimeServiceException(message);
+    const exception = RealTimeServiceException(message);
 
     expect(exception.message, equals(message));
   });
 
   test('toString should return correct string format', () {
-    final exception = RealTimeServiceException('Socket error');
+    const exception = RealTimeServiceException('Socket error');
 
     expect(
       exception.toString(),

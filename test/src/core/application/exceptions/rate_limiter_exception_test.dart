@@ -7,7 +7,7 @@ void main() {
     const duration = Duration(seconds: 2);
     const customMessage = 'Custom error message';
 
-    final exception = RateLimiterException(
+    const exception = RateLimiterException(
       functionId: functionId,
       remainingDuration: duration,
       message: customMessage,
@@ -19,9 +19,9 @@ void main() {
   });
 
   test('toString should return correct string format', () {
-    final exception = RateLimiterException(
+    const exception = RateLimiterException(
       functionId: 'my_function',
-      remainingDuration: const Duration(milliseconds: 1500),
+      remainingDuration: Duration(milliseconds: 1500),
     );
 
     expect(
