@@ -98,8 +98,9 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
             reason: ServerExceptionReason.permissionDenied,
           );
         }
-        throw const ServerException(
+        throw ServerException(
           reason: ServerExceptionReason.connectionError,
+          error: e,
         );
       }
 
