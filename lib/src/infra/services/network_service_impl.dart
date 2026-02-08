@@ -8,6 +8,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart'
 
 /// Typedef to allow mocking the TCP check logic.
 /// Returns [true] if a TCP handshake to [host]:[port] succeeds.
+/// Must be singleton.
 typedef TcpChecker = Future<bool> Function(
     String host, int port, Duration timeout);
 

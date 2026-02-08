@@ -9,6 +9,8 @@ import '../../core/application/ports/infra_services/rate_limiter_service.dart';
 ///
 /// - Threading/concurrency: Dart async is single-threaded; attempts are
 ///   recorded immediately before awaiting the function to avoid races.
+///
+/// Must be singleton to maintain state across calls.
 class RateLimiterServiceImpl implements RateLimiterService {
   final Map<String, _RateLimitEntry> _store = {};
 
