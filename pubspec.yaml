@@ -23,6 +23,7 @@ dependencies:
   ntp: ^2.0.0
   http: ^1.6.0
   package_info_plus: ^9.0.0
+  device_info_plus: ^12.3.0
 
 dev_dependencies:
   flutter_test:
