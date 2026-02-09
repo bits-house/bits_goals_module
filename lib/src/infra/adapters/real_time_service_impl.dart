@@ -47,7 +47,7 @@ class RealTimeServiceImpl implements RealTimeService {
     }
 
     throw Exception(
-      'Failed to retrieve current year from internet',
+      'RealTimeService failed to retrieve current year',
     );
   }
 }
