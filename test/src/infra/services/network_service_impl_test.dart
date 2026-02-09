@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:bits_goals_module/src/core/application/exceptions/network_service_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:bits_goals_module/src/infra/services/network_service_impl.dart';
+import 'package:bits_goals_module/src/infra/adapters/network_service_impl.dart';
 
 // =============================================================================
 // MOCKS & HELPERS

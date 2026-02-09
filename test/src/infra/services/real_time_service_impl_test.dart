@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/infra/services/real_time_service_impl.dart';
+import 'package:bits_goals_module/src/infra/adapters/real_time_service_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
 
-import '../../core/application/ports/infra_services/rate_limiter_service.dart';
+import '../../core/application/ports/infra/rate_limiter_service.dart';
 
 /// Simple in-memory sliding-window rate limiter.
 ///
@@ -16,6 +16,7 @@ class RateLimiterServiceImpl implements RateLimiterService {
 
   @override
   Future<T> run<T>({
+    /// functionId identifies the protected operation (not exposed outside infra)
     required String functionId,
     required Future<T> Function() function,
     Duration windowDuration = const Duration(seconds: 2),
@@ -33,9 +34,10 @@ class RateLimiterServiceImpl implements RateLimiterService {
       final oldest = entry.timestamps.first;
       final waitUntil = oldest.add(windowDuration);
       final remaining = waitUntil.difference(now);
-      throw RateLimiterException(
-        functionId: functionId,
+      throw RateLimitExceededException(
         remainingDuration: remaining.isNegative ? Duration.zero : remaining,
+        message:
+            'Rate limit exceeded. Try again in ${remaining.inSeconds} seconds.',
       );
     }
 

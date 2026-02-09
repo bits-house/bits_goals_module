@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
@@ -9,7 +9,7 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/network_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/network_service.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
@@ -48,7 +48,7 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
       return goal;
     } on AnnualRevenueGoalRepFailure {
       rethrow;
-    } on RateLimiterException catch (e) {
+    } on RateLimitExceededException catch (e) {
       throw AnnualRevenueGoalRepFailure(
         reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
         rateLimitRemainingDuration: e.remainingDuration,

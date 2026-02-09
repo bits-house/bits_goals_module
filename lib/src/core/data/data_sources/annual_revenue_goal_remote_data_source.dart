@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
@@ -12,7 +12,7 @@ abstract class AnnualRevenueGoalRemoteDataSource {
   /// Throws:
   /// - [ServerExceptionReason.conflict] if monthly goals for the specified year already exist
   /// - [ServerExceptionReason.permissionDenied] if permission is denied
-  /// - [RateLimiterException] if the rate limit for this operation is exceeded
+  /// - [RateLimitExceededException] if the rate limit for this operation is exceeded
   /// - [ServerExceptionReason] for other server errors
   ///
   /// Rules (for the implementer):

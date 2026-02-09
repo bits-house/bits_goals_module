@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/infra/services/network_service_impl.dart';
+import 'package:bits_goals_module/src/infra/adapters/network_service_impl.dart';
 
 // --- HELPERS ---
 

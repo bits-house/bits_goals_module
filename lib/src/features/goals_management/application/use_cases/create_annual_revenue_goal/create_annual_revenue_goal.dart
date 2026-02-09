@@ -1,7 +1,8 @@
+import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
 import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/metadata_collector_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/real_time_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/action_log_metadata_provider.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
@@ -49,7 +50,7 @@ class CreateAnnualRevenueGoal
     implements ParamsUseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
   final AccessControlService accessControl;
-  final MetadataCollectorService metadataCollector;
+  final ActionLogMetadataProvider metadataCollector;
   final AnnualRevenueGoalActionLogMapper goalMapper;
   final RealTimeService realTimeService;
 
@@ -118,16 +119,16 @@ class CreateAnnualRevenueGoal
       );
 
       /// Create ActionLog
-      /// TODO: Refactor to not need to await on each metadata property (maybe gather all metadata in a single call to the service that returns a DTO with all necessary metadata for logging)
+      final ActionLogMetadataDto metadata = await metadataCollector.metadata;
       final log = ActionLog.create(
         actionType: ActionType.create,
         useCaseId: useCaseId,
         requiredPermission: requiredPermission,
         newDataMapped: goalMapper.map(annualGoal),
         user: accessControl.loggedInUser,
-        appVersion: await metadataCollector.appVersion,
-        userDeviceInfo: await metadataCollector.userDeviceInfo,
-        userIpAddress: await metadataCollector.userIpAddress,
+        appVersion: metadata.appVersion,
+        userDeviceInfo: metadata.userDeviceInfo,
+        userIpAddress: metadata.userIpAddress,
       );
 
       /// Persist atomically

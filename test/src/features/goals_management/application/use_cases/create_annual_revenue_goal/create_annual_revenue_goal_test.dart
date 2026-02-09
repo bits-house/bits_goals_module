@@ -1,5 +1,6 @@
+import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
 import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/real_time_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
@@ -7,8 +8,8 @@ import 'package:bits_goals_module/src/core/domain/failures/entities/annual_reven
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/metadata_collector_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/action_log_metadata_provider.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
@@ -33,7 +34,7 @@ class MockRealTimeService extends Mock implements RealTimeService {}
 
 class MockAccessControlService extends Mock implements AccessControlService {}
 
-class MockMetadataCollector extends Mock implements MetadataCollectorService {}
+class MockMetadataCollector extends Mock implements ActionLogMetadataProvider {}
 
 class MockAnnualRevenueGoalActionLogMapper extends Mock
     implements AnnualRevenueGoalActionLogMapper {}
@@ -71,12 +72,13 @@ void main() {
         displayName: 'Test User',
       ),
     );
-    when(() => mockMetadataCollector.userIpAddress)
-        .thenAnswer((_) async => IpAddress('192.168.1.1'));
-    when(() => mockMetadataCollector.userDeviceInfo)
-        .thenAnswer((_) async => DeviceInfo('Pixel 8, Android 14'));
-    when(() => mockMetadataCollector.appVersion)
-        .thenAnswer((_) async => AppVersion('1.0.0'));
+    when(() => mockMetadataCollector.metadata).thenAnswer((_) async {
+      return ActionLogMetadataDto(
+        appVersion: AppVersion('1.0.0'),
+        userDeviceInfo: DeviceInfo('Pixel 8, Android 14'),
+        userIpAddress: IpAddress('192.168.1.1'),
+      );
+    });
     when(() => mockMapper.map(any())).thenReturn(
       const {'snapshot': 'ok'},
     );

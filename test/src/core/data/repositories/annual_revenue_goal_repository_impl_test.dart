@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
@@ -19,7 +19,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/network_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/network_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -226,8 +226,7 @@ void main() {
 
           const waitDuration = Duration(seconds: 42);
 
-          const rateLimitException = RateLimiterException(
-            functionId: 'create_goals',
+          const rateLimitException = RateLimitExceededException(
             remainingDuration: waitDuration,
           );
 

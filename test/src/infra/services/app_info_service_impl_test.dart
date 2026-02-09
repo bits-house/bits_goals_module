@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/application/exceptions/app_info_service_exception.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
-import 'package:bits_goals_module/src/infra/services/app_info_service_impl.dart';
+import 'package:bits_goals_module/src/infra/adapters/app_info_service_impl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

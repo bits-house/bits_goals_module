@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/application/exceptions/app_info_service_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/app_info_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/app_info_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

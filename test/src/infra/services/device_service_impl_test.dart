@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/application/exceptions/device_service_exception.dart';
-import 'package:bits_goals_module/src/infra/services/device_service_impl.dart';
+import 'package:bits_goals_module/src/infra/adapters/device_service_impl.dart';
 import 'package:bits_goals_module/src/infra/utils/platform_checker.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/rate_limiter_service.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/rate_limiter_service.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
 import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
@@ -124,9 +124,8 @@ void main() {
 
   group('AnnualRevenueGoalRemoteDataSourceFirestoreImpl', () {
     group('Rate Limiter', () {
-      test('should rethrow RateLimiterException', () async {
-        mockRateLimiter.exceptionToThrow = const RateLimiterException(
-          functionId: 'createMonthlyGoalsForYear(2025)',
+      test('should rethrow RateLimitExceededException', () async {
+        mockRateLimiter.exceptionToThrow = const RateLimitExceededException(
           remainingDuration: Duration(seconds: 2),
         );
 
@@ -136,7 +135,7 @@ void main() {
             goals: validGoalsList,
             log: mockLog,
           ),
-          throwsA(isA<RateLimiterException>()),
+          throwsA(isA<RateLimitExceededException>()),
         );
       });
 

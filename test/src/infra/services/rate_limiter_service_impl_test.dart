@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
-import 'package:bits_goals_module/src/infra/services/rate_limiter_service_impl.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
+import 'package:bits_goals_module/src/infra/adapters/rate_limiter_service_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _CustomException implements Exception {
@@ -146,7 +146,7 @@ void main() {
           function: function,
           maxAttempts: 1,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
     });
 
@@ -167,8 +167,7 @@ void main() {
           maxAttempts: 1,
         ),
         throwsA(
-          isA<RateLimiterException>()
-              .having((e) => e.functionId, 'functionId', equals(functionId)),
+          isA<RateLimitExceededException>(),
         ),
       );
     });
@@ -195,7 +194,7 @@ void main() {
           windowDuration: windowDuration,
         ),
         throwsA(
-          isA<RateLimiterException>().having(
+          isA<RateLimitExceededException>().having(
             (e) => e.remainingDuration,
             'remainingDuration',
             isA<Duration>(),
@@ -227,7 +226,7 @@ void main() {
           function: function,
           maxAttempts: 2,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
     });
 
@@ -251,7 +250,7 @@ void main() {
           maxAttempts: 1,
           windowDuration: const Duration(milliseconds: 50),
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       // Wait for window to expire
@@ -309,7 +308,7 @@ void main() {
           function: function,
           maxAttempts: 1,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       expect(attemptCount, equals(1));
@@ -440,7 +439,7 @@ void main() {
           maxAttempts: 1,
           windowDuration: const Duration(days: 365),
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
     });
 
@@ -569,7 +568,7 @@ void main() {
           function: function,
           maxAttempts: 2,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       expect(result1, equals('success'));
@@ -596,11 +595,12 @@ void main() {
           maxAttempts: 1,
           windowDuration: const Duration(milliseconds: 500),
         );
-        fail('Should have thrown RateLimiterException');
+        fail('Should have thrown RateLimitExceededException');
       } catch (e) {
-        expect(e, isA<RateLimiterException>());
+        expect(e, isA<RateLimitExceededException>());
         // Remaining duration should be positive and <= window duration
-        final remainingDuration = (e as RateLimiterException).remainingDuration;
+        final remainingDuration =
+            (e as RateLimitExceededException).remainingDuration;
         expect(
           remainingDuration.inMilliseconds,
           greaterThan(0),
@@ -676,7 +676,7 @@ void main() {
           function: function,
           maxAttempts: 1,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       // func_2 should allow one more attempt
@@ -694,7 +694,7 @@ void main() {
           function: function,
           maxAttempts: 2,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
     });
 
@@ -737,7 +737,7 @@ void main() {
           maxAttempts: 1,
           windowDuration: const Duration(seconds: 1),
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       expect(result1, equals('success'));
@@ -775,7 +775,7 @@ void main() {
           function: function,
           maxAttempts: 1,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       // Attempt 5: func_1 fails (exceeded limit)
@@ -785,7 +785,7 @@ void main() {
           function: function,
           maxAttempts: 2,
         ),
-        throwsA(isA<RateLimiterException>()),
+        throwsA(isA<RateLimitExceededException>()),
       );
 
       expect(result1, equals('success'));

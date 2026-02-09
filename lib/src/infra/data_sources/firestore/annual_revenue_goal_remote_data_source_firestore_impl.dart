@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/application/exceptions/rate_limiter_exception.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra_services/rate_limiter_service.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/rate_limiter_service.dart';
 import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
@@ -86,7 +86,7 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
         rethrow;
       }
 
-      if (e is RateLimiterException) {
+      if (e is RateLimitExceededException) {
         // Rethrow rate limit exceptions as is.
         rethrow;
       }
