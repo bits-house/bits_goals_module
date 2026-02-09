@@ -72,11 +72,11 @@ void main() {
       ),
     );
     when(() => mockMetadataCollector.userIpAddress)
-        .thenReturn(IpAddress('192.168.1.1'));
+        .thenAnswer((_) async => IpAddress('192.168.1.1'));
     when(() => mockMetadataCollector.userDeviceInfo)
-        .thenReturn(DeviceInfo('Pixel 8, Android 14'));
+        .thenAnswer((_) async => DeviceInfo('Pixel 8, Android 14'));
     when(() => mockMetadataCollector.appVersion)
-        .thenReturn(AppVersion('1.0.0'));
+        .thenAnswer((_) async => AppVersion('1.0.0'));
     when(() => mockMapper.map(any())).thenReturn(
       const {'snapshot': 'ok'},
     );

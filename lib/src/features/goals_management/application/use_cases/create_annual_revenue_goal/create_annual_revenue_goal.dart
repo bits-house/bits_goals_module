@@ -118,15 +118,16 @@ class CreateAnnualRevenueGoal
       );
 
       /// Create ActionLog
+      /// TODO: Refactor to not need to await on each metadata property (maybe gather all metadata in a single call to the service that returns a DTO with all necessary metadata for logging)
       final log = ActionLog.create(
         actionType: ActionType.create,
         useCaseId: useCaseId,
         requiredPermission: requiredPermission,
         newDataMapped: goalMapper.map(annualGoal),
         user: accessControl.loggedInUser,
-        appVersion: metadataCollector.appVersion,
-        userDeviceInfo: metadataCollector.userDeviceInfo,
-        userIpAddress: metadataCollector.userIpAddress,
+        appVersion: await metadataCollector.appVersion,
+        userDeviceInfo: await metadataCollector.userDeviceInfo,
+        userIpAddress: await metadataCollector.userIpAddress,
       );
 
       /// Persist atomically
