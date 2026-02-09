@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/application/exceptions/network_service_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:bits_goals_module/src/infra/adapters/network_service_impl.dart';
@@ -332,7 +331,7 @@ void main() {
       );
     });
 
-    test('throws NetworkServiceException when all services fail', () async {
+    test('throws Exception when all services fail', () async {
       // Arrange
       when(() => httpClient.getUrl(any()))
           .thenThrow(const SocketException('No internet'));
@@ -342,7 +341,7 @@ void main() {
           // Act & Assert
           expect(
             () => service.ipAddress,
-            throwsA(isA<NetworkServiceException>()),
+            throwsA(isA<Exception>()),
           );
         },
         createHttpClient: (_) => httpClient,

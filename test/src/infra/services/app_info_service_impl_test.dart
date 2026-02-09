@@ -1,4 +1,3 @@
-import 'package:bits_goals_module/src/core/application/exceptions/app_info_service_exception.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/infra/adapters/app_info_service_impl.dart';
 import 'package:flutter/services.dart';
@@ -25,8 +24,7 @@ void main() {
     // Tests are ordered to handle PackageInfo static caching.
     // Platform Error must run BEFORE success tests to avoid caching an object.
 
-    test('should throw AppInfoServiceException when platform call fails',
-        () async {
+    test('should throw Exception when platform call fails', () async {
       // Arrange
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
@@ -39,7 +37,7 @@ void main() {
       // Act & Assert
       expect(
         () => service.version,
-        throwsA(isA<AppInfoServiceException>()),
+        throwsA(isA<Exception>()),
       );
     });
 

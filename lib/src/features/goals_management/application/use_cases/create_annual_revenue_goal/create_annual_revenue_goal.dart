@@ -1,5 +1,4 @@
 import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
-import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra/action_log_metadata_provider.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra/real_time_service.dart';
@@ -176,12 +175,6 @@ class CreateAnnualRevenueGoal
             ),
           );
       }
-    } on RealTimeServiceException {
-      return left(
-        const CreateAnnualRevenueGoalFailure(
-          reason: CreateAnnualRevenueGoalFailureReason.connectionError,
-        ),
-      );
     } catch (e) {
       return left(
         CreateAnnualRevenueGoalFailure(

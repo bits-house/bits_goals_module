@@ -1,4 +1,3 @@
-import 'package:bits_goals_module/src/core/application/exceptions/device_service_exception.dart';
 import 'package:bits_goals_module/src/infra/adapters/device_service_impl.dart';
 import 'package:bits_goals_module/src/infra/utils/platform_checker.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -153,8 +152,7 @@ void main() {
           .called(1); // Only called once
     });
 
-    test(
-        'should rethrow DeviceServiceException when platform info retrieval fails',
+    test('should rethrow Exception when platform info retrieval fails',
         () async {
       // Arrange
       when(() => mockPlatformChecker.isWeb)
@@ -163,11 +161,7 @@ void main() {
       // Act & Assert
       expect(
         () => deviceService.info,
-        throwsA(isA<DeviceServiceException>().having(
-          (e) => e.message,
-          'message',
-          contains('Failed to parse platform info'),
-        )),
+        throwsA(isA<Exception>()),
       );
     });
 

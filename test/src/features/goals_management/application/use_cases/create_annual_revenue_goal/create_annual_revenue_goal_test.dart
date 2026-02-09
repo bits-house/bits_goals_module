@@ -1,5 +1,4 @@
 import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
-import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
@@ -435,36 +434,6 @@ void main() {
                 CreateAnnualRevenueGoalFailureReason.rateLimitExceeded);
             expect(failure.retryAfter, retryDuration);
           },
-          (r) => fail('Should be Left'),
-        );
-      },
-    );
-
-    test(
-      'should map RealTimeServiceException to connectionError failure',
-      () async {
-        // Arrange
-        when(() => mockAccessControlService.hasPermission(any()))
-            .thenReturn(true);
-
-        when(() => mockRealTimeService.getCurrentYear()).thenThrow(
-            const RealTimeServiceException('NTP Server unreachable'));
-
-        final params = CreateAnnualRevenueGoalParams(
-          year: tValidYear,
-          annualRevenueTarget: tMoney,
-        );
-
-        // Act
-        final result = await useCase(params);
-
-        // Assert
-        expect(result.isLeft(), true);
-        result.fold(
-          (l) => expect(
-            (l as CreateAnnualRevenueGoalFailure).reason,
-            CreateAnnualRevenueGoalFailureReason.connectionError,
-          ),
           (r) => fail('Should be Left'),
         );
       },

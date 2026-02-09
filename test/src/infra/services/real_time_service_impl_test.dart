@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/infra/adapters/real_time_service_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,8 +81,7 @@ void main() {
           )).called(1);
     });
 
-    test(
-        'should throw RealTimeServiceException when NTP fails AND API returns non-200',
+    test('should throw Exception when NTP fails AND API returns non-200',
         () async {
       // Arrange
       realTime = RealTimeServiceImpl(
@@ -103,11 +101,11 @@ void main() {
       final call = realTime.getCurrentYear;
 
       // Note: Make sure RealTimeServiceException is exported or imported correctly
-      await expectLater(() => call(), throwsA(isA<RealTimeServiceException>()));
+      await expectLater(() => call(), throwsA(isA<Exception>()));
     });
 
     test(
-        'should throw RealTimeServiceException when NTP fails AND API response is missing Date header',
+        'should throw Exception when NTP fails AND API response is missing Date header',
         () async {
       // Arrange
       realTime = RealTimeServiceImpl(
@@ -126,7 +124,7 @@ void main() {
       // Act & Assert
       final call = realTime.getCurrentYear;
 
-      expect(() => call(), throwsA(isA<RealTimeServiceException>()));
+      expect(() => call(), throwsA(isA<Exception>()));
     });
 
     test('should handle NTP timeout correctly by switching to API', () async {

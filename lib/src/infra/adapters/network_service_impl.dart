@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/application/exceptions/network_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra/network_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 
@@ -166,7 +165,7 @@ class NetworkServiceImpl implements NetworkService {
   /// 1. Iterates through a list of public IP echo services.
   /// 2. Sets a short timeout for each request to ensure responsiveness.
   /// 3. Returns the first successful response.
-  /// 4. Throws an [NetworkServiceException] only if ALL services fail.
+  /// 4. Throws an [Exception] only if ALL services fail.
   @override
   Future<IpAddress> get ipAddress async {
     final client = HttpClient();
@@ -195,7 +194,6 @@ class NetworkServiceImpl implements NetworkService {
 
     // If the loop finishes, all services failed.
     // Return a fallback or throw a NetworkServiceException.
-    throw const NetworkServiceException(
-        'Unable to retrieve public IP address from any service.');
+    throw Exception('Unable to retrieve public IP address from any service.');
   }
 }
