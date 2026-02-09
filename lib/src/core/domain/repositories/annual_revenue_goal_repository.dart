@@ -22,6 +22,8 @@ abstract class AnnualRevenueGoalRepository {
   ///     If an annual revenue goal for the specified year already exists,
   ///     a Failure MUST be thrown.
   /// - MUST write logs using [ActionLog] provided.
+  // TODO: Use Either for return type to properly model failures instead of throwing them,
+  //  to align with ADR-0015.
   Future<AnnualRevenueGoal> create({
     required AnnualRevenueGoal goal,
     required ActionLog log,
