@@ -8,7 +8,7 @@ import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_r
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra_services/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/metadata_collector_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
@@ -33,7 +33,7 @@ class MockRealTimeService extends Mock implements RealTimeService {}
 
 class MockAccessControlService extends Mock implements AccessControlService {}
 
-class MockMetadataCollector extends Mock implements MetadataCollector {}
+class MockMetadataCollector extends Mock implements MetadataCollectorService {}
 
 class MockAnnualRevenueGoalActionLogMapper extends Mock
     implements AnnualRevenueGoalActionLogMapper {}

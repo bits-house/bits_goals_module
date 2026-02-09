@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/application/exceptions/real_time_service_exception.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra_services/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/metadata_collector.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra_services/metadata_collector_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/infra_services/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
@@ -49,7 +49,7 @@ class CreateAnnualRevenueGoal
     implements ParamsUseCase<AnnualRevenueGoal, CreateAnnualRevenueGoalParams> {
   final AnnualRevenueGoalRepository repository;
   final AccessControlService accessControl;
-  final MetadataCollector metadataCollector;
+  final MetadataCollectorService metadataCollector;
   final AnnualRevenueGoalActionLogMapper goalMapper;
   final RealTimeService realTimeService;
 
