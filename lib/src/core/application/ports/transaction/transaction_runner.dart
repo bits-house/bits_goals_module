@@ -102,6 +102,10 @@ abstract class TransactionRunner {
   /// }
   /// ```
   ///
+  /// If the action returns:
+  /// - Right(value) → transaction is committed
+  /// - Left(failure) → transaction is rolled back
+  ///
   /// ---
   ///
   /// ### Example: Orders save (Host App) with Repo + DataSource
