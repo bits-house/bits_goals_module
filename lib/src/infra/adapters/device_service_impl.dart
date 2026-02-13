@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/infra/utils/platform_checker.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/device_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/device_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 

@@ -1,7 +1,7 @@
 import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/action_log_metadata_provider.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/real_time_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/action_log_metadata_provider.dart';
+import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';

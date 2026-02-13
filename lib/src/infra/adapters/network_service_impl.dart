@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bits_goals_module/src/core/application/ports/infra/network_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/network_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 
 /// Typedef to allow mocking the TCP check logic.

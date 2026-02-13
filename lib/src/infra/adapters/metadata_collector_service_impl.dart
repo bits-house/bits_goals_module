@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/application/ports/infra/action_log_metadata_provider.dart';
+import 'package:bits_goals_module/src/core/application/ports/action_log_metadata_provider.dart';
 import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
