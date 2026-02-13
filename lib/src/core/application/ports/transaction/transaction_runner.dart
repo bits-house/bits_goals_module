@@ -54,7 +54,7 @@ abstract class TransactionRunner {
   ///
   /// ### Critical Rules:
   /// 1. **Do not use `this` runner inside the action.** The action is already running inside one.
-  /// 2. **Pass the `tx` object.** All transaction-aware ports/repositories called within [action]
+  /// 2. **Pass the `tx` (transaction) object.** All transaction-aware ports/repositories called within [action]
   ///    MUST receive and use the provided `tx` argument to ensure they write to the same
   ///    transactional boundary.
   /// 3. **Keep it fast.** Database transactions lock resources. Avoid calling external APIs
