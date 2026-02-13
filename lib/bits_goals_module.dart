@@ -1,4 +1,3 @@
-
 import 'bits_goals_module_platform_interface.dart';
 
 class BitsGoalsModule {

@@ -1,0 +1,4 @@
+enum MonthlyRevenueGoalFailureReason {
+  zeroOrNegativeTarget,
+  negativeProgress,
+}

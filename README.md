@@ -34,7 +34,7 @@ This module adopts:
 All major architectural decisions are documented through **Architecture Decision Records (ADR)**.
 
 📌 For full architectural rationale, see:  
-**[docs/adr](docs/adr) — Architecture Decision Records (ADR)**
+**[docs/architecture/adr](docs/architecture/adr) — Architecture Decision Records (ADR)**
 
 This directory preserves the motivation behind:
 

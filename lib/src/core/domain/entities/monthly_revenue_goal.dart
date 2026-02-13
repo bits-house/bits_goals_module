@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
@@ -41,25 +41,41 @@ class MonthlyRevenueGoal extends Equatable {
         _year = year,
         _id = id;
 
-  /// Factory constructor that validates all domain invariants
   factory MonthlyRevenueGoal.create({
     required Month month,
     required Year year,
     required Money target,
-    Money? progress,
-    IdUuidV7? id,
   }) {
-    final uid = id ?? IdUuidV7.generate();
+    final uid = IdUuidV7.generate();
+    final prog = Money.fromCents(0);
 
     _validateGoalTarget(target);
 
-    final prog = progress ?? Money.fromCents(0);
     return MonthlyRevenueGoal._(
       id: uid,
       month: month,
       year: year,
       target: target,
       progress: prog,
+    );
+  }
+
+  factory MonthlyRevenueGoal.reconstruct({
+    required IdUuidV7 id,
+    required Month month,
+    required Year year,
+    required Money target,
+    required Money progress,
+  }) {
+    _validateGoalTarget(target);
+    _validateProgress(progress);
+
+    return MonthlyRevenueGoal._(
+      id: id,
+      month: month,
+      year: year,
+      target: target,
+      progress: progress,
     );
   }
 
@@ -87,6 +103,16 @@ class MonthlyRevenueGoal extends Equatable {
     if (isZeroOrNegativeTarget) {
       throw const MonthlyRevenueGoalFailure(
         MonthlyRevenueGoalFailureReason.zeroOrNegativeTarget,
+      );
+    }
+  }
+
+  static void _validateProgress(Money progress) {
+    final bool isNegativeProgress = progress.cents < 0;
+
+    if (isNegativeProgress) {
+      throw const MonthlyRevenueGoalFailure(
+        MonthlyRevenueGoalFailureReason.negativeProgress,
       );
     }
   }

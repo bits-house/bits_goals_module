@@ -3,18 +3,28 @@ import 'package:equatable/equatable.dart';
 
 class AnnualRevenueGoalMetaRemoteSchemaV1 {
   static const String year = 'year';
+  static const String version = 'schema_version';
 }
 
 class AnnualRevenueGoalMetaRemoteModel extends Equatable {
   final int year;
+  final int schemaVersion;
 
-  const AnnualRevenueGoalMetaRemoteModel({
+  // ===========================================================================
+  // CONSTRUCTORS
+  // ===========================================================================
+
+  factory AnnualRevenueGoalMetaRemoteModel.fromYear(int year) {
+    return AnnualRevenueGoalMetaRemoteModel._(
+      year: year,
+      schemaVersion: 1,
+    );
+  }
+
+  const AnnualRevenueGoalMetaRemoteModel._({
     required this.year,
+    required this.schemaVersion,
   });
-
-  // ===========================================================================
-  // FROM MAP (Parsing)
-  // ===========================================================================
 
   factory AnnualRevenueGoalMetaRemoteModel.fromMap(Map<String, dynamic> map) {
     try {
@@ -22,8 +32,13 @@ class AnnualRevenueGoalMetaRemoteModel extends Equatable {
         key: AnnualRevenueGoalMetaRemoteSchemaV1.year,
       );
 
-      return AnnualRevenueGoalMetaRemoteModel(
+      final schemaVersionInt = map.getInt(
+        key: AnnualRevenueGoalMetaRemoteSchemaV1.version,
+      );
+
+      return AnnualRevenueGoalMetaRemoteModel._(
         year: yearInt,
+        schemaVersion: schemaVersionInt,
       );
     } catch (e) {
       throw const FormatException('Invalid AnnualRevenueGoalMetaRemoteModel');
@@ -37,6 +52,7 @@ class AnnualRevenueGoalMetaRemoteModel extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       AnnualRevenueGoalMetaRemoteSchemaV1.year: year,
+      AnnualRevenueGoalMetaRemoteSchemaV1.version: schemaVersion,
     };
   }
 
@@ -45,7 +61,7 @@ class AnnualRevenueGoalMetaRemoteModel extends Equatable {
   // ===========================================================================
 
   @override
-  List<Object?> get props => [year];
+  List<Object?> get props => [year, schemaVersion];
 
   @override
   bool get stringify => true;

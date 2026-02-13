@@ -1,0 +1,4 @@
+enum UserRoleFailureReason {
+  emptyName,
+  emptyPermissions,
+}

@@ -84,4 +84,79 @@ extension MapParsingExtension on Map<String, dynamic> {
     throw FormatException(
         'Key "$key" not found and no valid legacy keys found, and no defaultValue provided.');
   }
+
+  /// Extracts milliseconds since epoch from a Firestore Timestamp.
+  ///
+  /// Handles multiple formats:
+  /// - Firestore Timestamp object with `millisecondsSinceEpoch` property
+  /// - Map with '_seconds' and '_nanoseconds' fields
+  /// - Direct int/double representing milliseconds
+  /// - Legacy numeric string values
+  ///
+  /// Usage:
+  /// ```dart
+  /// final timestamp = myMap.getFirestoreTimestamp(
+  /// key: 'created_at',
+  /// defaultValue: null,
+  /// );
+  /// ```
+  int? getFirestoreTimestamp({
+    required String key,
+    List<String> legacyKeys = const [],
+    int? defaultValue,
+  }) {
+    int? tryGetKey(String k) {
+      if (!containsKey(k) || this[k] == null) return null;
+      final value = this[k];
+
+      // Try direct int/double
+      if (value is int) return value;
+      if (value is double) return value.toInt();
+
+      // Try numeric string
+      if (value is String) {
+        final doubleValue = double.tryParse(value);
+        if (doubleValue != null) return doubleValue.toInt();
+        final intValue = int.tryParse(value);
+        if (intValue != null) return intValue;
+      }
+
+      // Try Firestore Timestamp object with millisecondsSinceEpoch property
+      if (value is Map) {
+        try {
+          final valueMap = value;
+          // Firestore Timestamp: {_seconds: 1234567890, _nanoseconds: 123456789}
+          if (valueMap.containsKey('_seconds') &&
+              valueMap.containsKey('_nanoseconds')) {
+            final seconds = valueMap['_seconds'];
+            if (seconds is int || seconds is double) {
+              return (seconds as num).toInt() * 1000;
+            }
+          }
+        } catch (_) {
+          // Fall through to next attempt
+        }
+      }
+
+      // Try .millisecondsSinceEpoch property via reflection-like access
+      if (value is Map && value.containsKey('millisecondsSinceEpoch')) {
+        final millis = value['millisecondsSinceEpoch'];
+        if (millis is int) return millis;
+        if (millis is double) return millis.toInt();
+      }
+
+      return null;
+    }
+
+    var result = tryGetKey(key);
+    if (result != null) return result;
+
+    // Try legacy keys
+    for (final legacyKey in legacyKeys) {
+      result = tryGetKey(legacyKey);
+      if (result != null) return result;
+    }
+
+    return defaultValue;
+  }
 }

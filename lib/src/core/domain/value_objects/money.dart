@@ -1,5 +1,5 @@
-import 'package:bits_goals_module/src/core/domain/failures/money/invalid_money_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/money/invalid_money_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_reason.dart';
 import 'package:equatable/equatable.dart';
 
 /// Money Value Object
@@ -87,4 +87,7 @@ class Money extends Equatable {
 
   @override
   List<Object> get props => [_cents];
+
+  @override
+  bool? get stringify => true;
 }

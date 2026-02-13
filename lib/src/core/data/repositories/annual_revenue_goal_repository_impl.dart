@@ -1,34 +1,35 @@
-import 'package:bits_goals_module/src/core/data/data_sources/remote_data/annual_revenue_goal_remote_data_source.dart';
-import 'package:bits_goals_module/src/core/data/data_sources/remote_time/remote_time_data_source.dart';
+import 'package:bits_goals_module/src/core/data/exceptions/rate_limit_exceeded_exception.dart';
+import 'package:bits_goals_module/src/core/data/data_sources/annual_revenue_goal_remote_data_source.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception.dart';
 import 'package:bits_goals_module/src/core/data/exceptions/server_exception_reason.dart';
+import 'package:bits_goals_module/src/core/data/models/action_log_model.dart';
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
+import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/repositories/repository_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/core/infra/platform/network_info.dart';
+import 'package:bits_goals_module/src/core/application/ports/infra/network_service.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
-  final RemoteTimeDataSource _realTimeSource;
-  final NetworkInfo _networkInfo;
+  final NetworkService _networkService;
 
   AnnualRevenueGoalRepositoryImpl({
     required AnnualRevenueGoalRemoteDataSource remoteDataSource,
-    required NetworkInfo networkInfo,
-    required RemoteTimeDataSource remoteTimeDataSource,
+    required NetworkService networkService,
   })  : _remoteDataSource = remoteDataSource,
-        _networkInfo = networkInfo,
-        _realTimeSource = remoteTimeDataSource;
+        _networkService = networkService;
 
   @override
-  Future<AnnualRevenueGoal> create(AnnualRevenueGoal goal) async {
+  Future<AnnualRevenueGoal> create({
+    required AnnualRevenueGoal goal,
+    required ActionLog log,
+  }) async {
     try {
-      if (!await _networkInfo.isConnected) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.connectionError,
+      if (!await _networkService.isConnected) {
+        throw const AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.connectionError,
         );
       }
 
@@ -36,52 +37,41 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
           .map((entity) => MonthlyRevenueGoalRemoteModel.fromEntity(entity))
           .toList();
 
+      final logModel = ActionLogModel.create(log);
+
       await _remoteDataSource.createMonthlyGoalsForYear(
         year: goal.year.value,
         goals: monthlyModels,
+        log: logModel,
       );
 
       return goal;
-    } on RepositoryFailure {
+    } on AnnualRevenueGoalRepFailure {
       rethrow;
+    } on RateLimitExceededException catch (e) {
+      throw AnnualRevenueGoalRepFailure(
+        reason: AnnualRevenueGoalRepFailureReason.rateLimitExceeded,
+        rateLimitRemainingDuration: e.remainingDuration,
+      );
     } on ServerException catch (e) {
       if (e.reason == ServerExceptionReason.conflict) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.annualGoalForYearAlreadyExists,
+        throw const AnnualRevenueGoalRepFailure(
+          reason:
+              AnnualRevenueGoalRepFailureReason.annualGoalForYearAlreadyExists,
         );
       } else if (e.reason == ServerExceptionReason.permissionDenied) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.permissionDenied,
+        throw const AnnualRevenueGoalRepFailure(
+          reason: AnnualRevenueGoalRepFailureReason.permissionDenied,
         );
       }
 
-      throw RepositoryFailure(
-        reason: RepositoryFailureReason.connectionError,
+      throw AnnualRevenueGoalRepFailure(
+        reason: AnnualRevenueGoalRepFailureReason.connectionError,
         cause: e,
       );
     } catch (e) {
-      throw RepositoryFailure(
-        reason: RepositoryFailureReason.connectionError,
-        cause: e,
-      );
-    }
-  }
-
-  @override
-  Future<Year> getCurrentYear() async {
-    try {
-      if (!await _networkInfo.isConnected) {
-        throw const RepositoryFailure(
-          reason: RepositoryFailureReason.connectionError,
-        );
-      }
-      final yearInt = await _realTimeSource.getCurrentYear();
-      return Year.fromInt(yearInt);
-    } on RepositoryFailure {
-      rethrow;
-    } catch (e) {
-      throw RepositoryFailure(
-        reason: RepositoryFailureReason.connectionError,
+      throw AnnualRevenueGoalRepFailure(
+        reason: AnnualRevenueGoalRepFailureReason.connectionError,
         cause: e,
       );
     }
