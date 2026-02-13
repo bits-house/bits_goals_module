@@ -1,6 +1,4 @@
 import 'package:bits_goals_module/src/core/application/ports/transaction/app_transaction.dart';
-import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
-import 'package:dartz/dartz.dart';
 
 /// [TransactionRunner] defines the contract responsible for executing a unit of work
 /// within a transactional boundary.
@@ -54,12 +52,12 @@ abstract class TransactionRunner {
   ///
   /// ### Critical Rules:
   /// 1. **Do not use `this` runner inside the action.** The action is already running inside one.
-  /// 2. **Pass the `tx` (transaction) object.** All transaction-aware ports/repositories called within [action]
-  ///    MUST receive and use the provided `tx` argument to ensure they write to the same
+  /// 2. **Pass the `sharedTransaction` object.** All transaction-aware ports called within [action]
+  ///    MUST receive and use the provided `sharedTransaction` argument to ensure they write to the same
   ///    transactional boundary.
   /// 3. **Keep it fast.** Database transactions lock resources. Avoid calling external APIs
   ///    (HTTP requests) inside this block.
-  /// 4. **Same Transaction Boundary.** All repositories invoked inside [action]
+  /// 4. **Same Transaction Boundary.** All ports invoked inside [action]
   ///    must operate on the same underlying database/connection.
   ///    This runner guarantees atomicity only within a single storage engine
   ///    (e.g. one SQL database or one Firestore instance).
@@ -69,182 +67,23 @@ abstract class TransactionRunner {
   ///    - HTTP calls (charge credit card, send email/push)
   ///    - Writing to another database/service
   ///    - Publishing events
+  /// 6. **Transaction Outcome:**
+  ///
+  ///     If the action throws:
+  ///       - the transaction MUST be rolled back by the implementation
+  ///       - the exception is rethrown to the caller/use case
   ///
   /// ---
   ///
-  /// ### Example: Orchestrating Orders (Host App) and Goals (This Module)
-  ///
-  /// Orchestration happens in the host app.
+  /// ### Example:
   /// ```dart
-  /// // 1. Orders Module / Host App (Application layer)
-  /// class CreateOrderUseCase {
-  ///   CreateOrderUseCase({
-  ///     required this.transactionRunner,
-  ///     required this.ordersRepository,
-  ///     required this.applyGoalsProgressUseCase,
-  ///   });
-  ///
-  ///   final TransactionRunner transactionRunner;
-  ///   final OrdersRepository ordersRepository;
-  ///   final ApplyGoalsProgressUseCase applyGoalsProgressUseCase;
-  ///
-  ///   Future<Either<Failure, Unit>> call(Order order) async {
-  ///     // The Runner starts the atomic block
-  ///     return transactionRunner.run((tx) async {
-  ///       // Pass `tx` so all writes share the same boundary
-  ///       final saveOrderResult = await ordersRepository.save(order, tx);
-  ///       if (saveOrderResult.isLeft()) {
-  ///         // Returning Left will roll back the transaction here,
-  ///         // without executing the next steps.
-  ///         return saveOrderResult;
-  ///       }
-  ///
-  ///
-  ///       // 2. Goals Module (Application layer)
-  ///       final params = ApplyGoalsProgressParams(
-  ///         sellerId: order.sellerId,
-  ///         amountCents: order.amountCents,
-  ///         occurredAt: order.createdAt,
-  ///         tx: tx,
-  ///       );
-  ///       final applyProgressResult = await applyGoalsProgressUseCase(params);
-  ///       if (applyProgressResult.isLeft()) {
-  ///         // Returning Left will roll back all previous operations in this transaction,
-  ///         // including the order save.
-  ///         return applyProgressResult;
-  ///       }
-  ///
-  ///       return const Right(unit); // <--- Commit happens only if Right(...) is returned.
-  ///     });
-  ///   }
-  /// }
+  /// final result = await transactionRunner.run((sharedTransaction) async {
+  ///   await ordersWriter.updateOrder(orderId, updatedOrder, sharedTransaction);
+  ///   await goalsProgressUpdater.updateGoal(goalId, updatedGoal, sharedTransaction);
+  ///   return someResult;
+  /// });
   /// ```
-  ///
-  /// If the action returns:
-  /// - Right(value) → transaction is committed
-  /// - Left(failure) → transaction is rolled back
-  ///
-  /// If the action throws:
-  /// - the transaction MUST be rolled back by the implementation
-  /// - the exception is rethrown to the caller/use case (safety net for unexpected failures)
-  ///
-  /// ---
-  ///
-  /// ### Example: Orders save (Host App) with Repo + DataSource
-  ///
-  /// This example follows the same dependency flow as ADR-0014:
-  /// `Application (port/repo contract) ← Data (repo impl) ← Infra (data source impl)`.
-  ///
-  /// **1) Application Port** (host app):
-  /// ```dart
-  /// abstract class OrdersRepository {
-  ///   Future<Either<Failure, Unit>> save(Order order, AppTransaction tx);
-  /// }
-  /// ```
-  ///
-  /// **2) Data layer** (host app): repository implementation + data source contract
-  ///
-  /// Repo impl do its job and passes the tx down to the data source, with the serialized data.
-  ///
-  /// ```dart
-  /// class OrdersRepositoryImpl implements OrdersRepository {
-  ///   OrdersRepositoryImpl(this._ds);
-  ///   final OrdersDataSource _ds;
-  ///
-  ///   @override
-  ///   Future<Either<Failure, Unit>> save(Order order, AppTransaction tx) async {
-  ///     try {
-  ///       await _ds.putOrder(
-  ///         id: order.id,
-  ///         data: {
-  ///           'sellerId': order.sellerId,
-  ///           'amountCents': order.amountCents,
-  ///           'createdAt': order.createdAt.toIso8601String(),
-  ///         },
-  ///         tx: tx,
-  ///       );
-  ///       return const Right(unit);
-  ///     } catch (e) {
-  ///       // Translate technical exceptions into Failures.
-  ///       return Left(OrdersSaveFailure.unexpected(cause: e));
-  ///     }
-  ///   }
-  /// }
-  ///
-  /// abstract class OrdersDataSource {
-  ///   Future<void> putOrder({
-  ///     required String id,
-  ///     required Map<String, dynamic> data,
-  ///     required AppTransaction tx,
-  ///   });
-  /// }
-  /// ```
-  ///
-  /// **3) Infra layer** (host app): data source implementation using `AppTransaction`
-  /// ```dart
-  /// class TxOrdersDataSource implements OrdersDataSource {
-  ///   @override
-  ///   Future<void> putOrder({
-  ///     required String id,
-  ///     required Map<String, dynamic> data,
-  ///     required AppTransaction tx,
-  ///   }) {
-  ///     return tx.put(resource: 'orders', id: id, data: data);
-  ///   }
-  /// }
-  /// ```
-  ///
-  /// ---
-  ///
-  /// ### Example: ApplyGoalsProgressUseCase (This Module)
-  ///
-  /// Same idea, but inside this plugin. Note how the params contain **only primitives**
-  /// from the host app and the shared `AppTransaction` to avoid circular dependencies.
-  ///
-  /// **1) Application layer**: Use Case + Params
-  /// ```dart
-  /// class ApplyGoalsProgressUseCase
-  ///     implements ParamsUseCase<Unit, ApplyGoalsProgressParams> {
-  ///   ApplyGoalsProgressUseCase({required this.repository});
-  ///   final GoalsMonthlyProgressRepository repository;
-  ///
-  ///   @override
-  ///   GoalsModulePermission get requiredPermission =>
-  ///       GoalsModulePermission.none;
-  ///
-  ///   @override
-  ///   Future<Either<Failure, Unit>> call(ApplyGoalsProgressParams params) async {
-  ///     try {
-  ///       final goalId = GoalId.from(params);
-  ///
-  ///       final existing = await repository.getById(goalId, params.tx);
-  ///       if (existing == null) {
-  ///         await repository.create(
-  ///           id: goalId,
-  ///           sellerId: params.sellerId,
-  ///           monthKey: params.monthKey,
-  ///           revenueCents: params.amountCents,
-  ///           ordersCount: 1,
-  ///           tx: params.tx,
-  ///         );
-  ///         return const Right(unit);
-  ///       }
-  ///
-  ///       await repository.update(
-  ///         id: goalId,
-  ///         revenueCents: existing.revenueCents + params.amountCents,
-  ///         ordersCount: existing.ordersCount + 1,
-  ///         tx: params.tx,
-  ///       );
-  ///       ...
-  ///     }
-  ///   }
-  /// }
-  /// ```
-  /// The same goes for the repository and data source implementations inside this module,
-  /// which also receive the `AppTransaction` and use it to ensure all operations are part of
-  /// the same transaction.
-  Future<Either<Failure, T>> run<T>(
-    Future<Either<Failure, T>> Function(AppTransaction tx) action,
+  Future<T> run<T>(
+    Future<T> Function(AppTransaction sharedTransaction) action,
   );
 }
