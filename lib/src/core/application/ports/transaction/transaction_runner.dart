@@ -1,4 +1,6 @@
 import 'package:bits_goals_module/src/core/application/ports/transaction/app_transaction.dart';
+import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
+import 'package:dartz/dartz.dart';
 
 /// [TransactionRunner] defines the contract responsible for executing a unit of work
 /// within a transactional boundary.
@@ -52,8 +54,9 @@ abstract class TransactionRunner {
   ///
   /// ### Critical Rules:
   /// 1. **Do not use `this` runner inside the action.** The action is already running inside one.
-  /// 2. **Pass the `tx` object.** All repositories called within [action] MUST receive
-  ///    and use the provided `tx` argument to ensure they write to the same temporary buffer.
+  /// 2. **Pass the `tx` object.** All transaction-aware ports/repositories called within [action]
+  ///    MUST receive and use the provided `tx` argument to ensure they write to the same
+  ///    transactional boundary.
   /// 3. **Keep it fast.** Database transactions lock resources. Avoid calling external APIs
   ///    (HTTP requests) inside this block.
   /// 4. **Same Transaction Boundary.** All repositories invoked inside [action]
@@ -63,100 +66,159 @@ abstract class TransactionRunner {
   ///
   /// ---
   ///
-  /// ### Example: Orchestrating Orders and Goals
+  /// ### Example: Orchestrating Orders (Host App) and Goals (This Module)
+  ///
+  /// Orchestration happens in the host app.
   /// ```dart
-  /// // 1. Orders Module (or main app):
+  /// // 1. Orders Module / Host App (Application layer)
   /// class CreateOrderUseCase {
-  ///   // ... dependencies injected
+  ///   CreateOrderUseCase({
+  ///     required this.transactionRunner,
+  ///     required this.ordersRepository,
+  ///     required this.applyGoalsProgressUseCase,
+  ///   });
   ///
-  ///   Future<void> call(Order order) async {
+  ///   final TransactionRunner transactionRunner;
+  ///   final OrdersRepository ordersRepository;
+  ///   final ApplyGoalsProgressUseCase applyGoalsProgressUseCase;
+  ///
+  ///   Future<Either<Failure, Unit>> call(Order order) async {
   ///     // The Runner starts the atomic block
-  ///     await transactionRunner.run((tx) async {
+  ///     return transactionRunner.run((tx) async {
+  ///       // Pass `tx` so all writes share the same boundary
+  ///       final saveOrderResult = await ordersRepository.save(order, tx);
+  ///       if (saveOrderResult.isLeft()) return saveOrderResult;
   ///
-  ///       // We pass 'tx' so the repo writes to the transaction buffer
-  ///       await ordersRepository.save(order, tx);
-  ///
-  ///       // 2. Module B: Update the Goals
-  ///       // We calculate and save the goals progress atomically
-  ///       final goalsUpdate = GoalsUpdateObject.create(params...);
-  ///       await goalsUpdatePort.applyProgress(goalsUpdate, tx);
-  ///
-  ///     }); // <--- Automatic Commit happens here if no errors occur.
+  ///       // 2. Goals Module (Application layer)
+  ///       final params = ApplyGoalsProgressParams(
+  ///         sellerId: order.sellerId,
+  ///         amountCents: order.amountCents,
+  ///         occurredAt: order.createdAt,
+  ///         tx: tx,
+  ///       );
+  ///       ...
+  ///     }); // <--- Commit happens only if Right(...) is returned.
   ///   }
   /// }
   /// ```
   ///
   /// ---
   ///
-  /// ### Example Implementations (Infra)
+  /// ### Example: Orders save (Host App) with Repo + DataSource
   ///
-  /// Orders repository persists its own aggregate:
+  /// This example follows the same dependency flow as ADR-0014:
+  /// `Application (port/repo contract) ← Data (repo impl) ← Infra (data source impl)`.
+  ///
+  /// **1) Application Port** (host app):
+  /// ```dart
+  /// abstract class OrdersRepository {
+  ///   Future<Either<Failure, Unit>> save(Order order, AppTransaction tx);
+  /// }
+  /// ```
+  ///
+  /// **2) Data layer** (host app): repository implementation + data source contract
+  ///
+  /// Repo impl do its job and passes the tx down to the data source, with the serialized data.
+  ///
   /// ```dart
   /// class OrdersRepositoryImpl implements OrdersRepository {
+  ///   OrdersRepositoryImpl(this._ds);
+  ///   final OrdersDataSource _ds;
+  ///
   ///   @override
-  ///   Future<void> save(Order order, AppTransaction tx) async {
-  ///     await tx.put(
-  ///       resource: 'orders',
-  ///       id: order.id,
-  ///       data: {
-  ///         'sellerId': order.sellerId,
-  ///         'amount': order.amount,
-  ///         'productId': order.productId,
-  ///         'createdAt': order.createdAt.toIso8601String(),
-  ///       },
-  ///     );
+  ///   Future<Either<Failure, Unit>> save(Order order, AppTransaction tx) async {
+  ///     try {
+  ///       await _ds.putOrder(
+  ///         id: order.id,
+  ///         data: {
+  ///           'sellerId': order.sellerId,
+  ///           'amountCents': order.amountCents,
+  ///           'createdAt': order.createdAt.toIso8601String(),
+  ///         },
+  ///         tx: tx,
+  ///       );
+  ///       return const Right(unit);
+  ///     } catch (e) {
+  ///       // Translate technical exceptions into Failures.
+  ///       return Left(OrdersSaveFailure.unexpected(cause: e));
+  ///     }
   ///   }
+  /// }
+  ///
+  /// abstract class OrdersDataSource {
+  ///   Future<void> putOrder({
+  ///     required String id,
+  ///     required Map<String, dynamic> data,
+  ///     required AppTransaction tx,
+  ///   });
   /// }
   /// ```
   ///
-  /// Goals module increments its own projection:
+  /// **3) Infra layer** (host app): data source implementation using `AppTransaction`
   /// ```dart
-  /// class GoalsUpdatePortImpl implements GoalsUpdatePort {
+  /// class TxOrdersDataSource implements OrdersDataSource {
   ///   @override
-  ///   Future<void> applyProgress(
-  ///     GoalsUpdateObject update,
-  ///     AppTransaction tx,
-  ///   ) async {
-  ///     final monthKey =
-  ///         '${update.date.year}${update.date.month.toString().padLeft(2, '0')}';
-  ///
-  ///     final goalId = '${update.sellerId}_$monthKey';
-  ///
-  ///     final existing = await tx.get(
-  ///       resource: 'goals_monthly',
-  ///       id: goalId,
-  ///     );
-  ///
-  ///     if (existing == null) {
-  ///       await tx.put(
-  ///         resource: 'goals_monthly',
-  ///         id: goalId,
-  ///         data: {
-  ///           'sellerId': update.sellerId,
-  ///           'month': monthKey,
-  ///           'revenue': update.amount,
-  ///           'ordersCount': 1,
-  ///         },
-  ///       );
-  ///       return;
-  ///     }
-  ///
-  ///     await tx.update(
-  ///       resource: 'goals_monthly',
-  ///       id: goalId,
-  ///       data: {
-  ///         'revenue': (existing['revenue'] ?? 0) + update.amount,
-  ///         'ordersCount': (existing['ordersCount'] ?? 0) + 1,
-  ///       },
-  ///     );
+  ///   Future<void> putOrder({
+  ///     required String id,
+  ///     required Map<String, dynamic> data,
+  ///     required AppTransaction tx,
+  ///   }) {
+  ///     return tx.put(resource: 'orders', id: id, data: data);
   ///   }
   /// }
   /// ```
   ///
   /// ---
   ///
-  /// Returns the result of [action] (of type [T]) if committed successfully.
-  Future<T> run<T>(
-    Future<T> Function(AppTransaction tx) action,
+  /// ### Example: ApplyGoalsProgressUseCase (This Module)
+  ///
+  /// Same idea, but inside this plugin. Note how the params contain **only primitives**
+  /// from the host app and the shared `AppTransaction` to avoid circular dependencies.
+  ///
+  /// **1) Application layer**: Use Case + Params
+  /// ```dart
+  /// class ApplyGoalsProgressUseCase
+  ///     implements ParamsUseCase<Unit, ApplyGoalsProgressParams> {
+  ///   ApplyGoalsProgressUseCase({required this.repository});
+  ///   final GoalsMonthlyProgressRepository repository;
+  ///
+  ///   @override
+  ///   GoalsModulePermission get requiredPermission =>
+  ///       GoalsModulePermission.none;
+  ///
+  ///   @override
+  ///   Future<Either<Failure, Unit>> call(ApplyGoalsProgressParams params) async {
+  ///     try {
+  ///       final goalId = GoalId.from(params);
+  ///
+  ///       final existing = await repository.getById(goalId, params.tx);
+  ///       if (existing == null) {
+  ///         await repository.create(
+  ///           id: goalId,
+  ///           sellerId: params.sellerId,
+  ///           monthKey: params.monthKey,
+  ///           revenueCents: params.amountCents,
+  ///           ordersCount: 1,
+  ///           tx: params.tx,
+  ///         );
+  ///         return const Right(unit);
+  ///       }
+  ///
+  ///       await repository.update(
+  ///         id: goalId,
+  ///         revenueCents: existing.revenueCents + params.amountCents,
+  ///         ordersCount: existing.ordersCount + 1,
+  ///         tx: params.tx,
+  ///       );
+  ///       ...
+  ///     }
+  ///   }
+  /// }
+  /// ```
+  /// The same goes for the repository and data source implementations inside this module,
+  /// which also receive the `AppTransaction` and use it to ensure all operations are part of
+  /// the same transaction.
+  Future<Either<Failure, T>> run<T>(
+    Future<Either<Failure, T>> Function(AppTransaction tx) action,
   );
 }
