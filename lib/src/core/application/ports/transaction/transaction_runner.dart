@@ -87,7 +87,6 @@ abstract class TransactionRunner {
   ///     return transactionRunner.run((tx) async {
   ///       // Pass `tx` so all writes share the same boundary
   ///       final saveOrderResult = await ordersRepository.save(order, tx);
-  ///       if (saveOrderResult.isLeft()) return saveOrderResult;
   ///
   ///       // 2. Goals Module (Application layer)
   ///       final params = ApplyGoalsProgressParams(
@@ -96,6 +95,7 @@ abstract class TransactionRunner {
   ///         occurredAt: order.createdAt,
   ///         tx: tx,
   ///       );
+  ///       final applyProgressResult = await applyGoalsProgressUseCase(params);
   ///       ...
   ///     }); // <--- Commit happens only if Right(...) is returned.
   ///   }
