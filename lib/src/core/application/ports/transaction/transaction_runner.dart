@@ -63,6 +63,12 @@ abstract class TransactionRunner {
   ///    must operate on the same underlying database/connection.
   ///    This runner guarantees atomicity only within a single storage engine
   ///    (e.g. one SQL database or one Firestore instance).
+  /// 5. **Retry safety.** Some implementations (e.g. Firestore) may retry the transactional
+  ///    callback on contention. Keep the action idempotent and free of side effects,
+  ///    don’t do things inside the transaction that you can’t safely repeat, such as:
+  ///    - HTTP calls (charge credit card, send email/push)
+  ///    - Writing to another database/service
+  ///    - Publishing events
   ///
   /// ---
   ///
@@ -87,6 +93,12 @@ abstract class TransactionRunner {
   ///     return transactionRunner.run((tx) async {
   ///       // Pass `tx` so all writes share the same boundary
   ///       final saveOrderResult = await ordersRepository.save(order, tx);
+  ///       if (saveOrderResult.isLeft()) {
+  ///         // Returning Left will roll back the transaction here,
+  ///         // without executing the next steps.
+  ///         return saveOrderResult;
+  ///       }
+  ///
   ///
   ///       // 2. Goals Module (Application layer)
   ///       final params = ApplyGoalsProgressParams(
@@ -96,8 +108,14 @@ abstract class TransactionRunner {
   ///         tx: tx,
   ///       );
   ///       final applyProgressResult = await applyGoalsProgressUseCase(params);
-  ///       ...
-  ///     }); // <--- Commit happens only if Right(...) is returned.
+  ///       if (applyProgressResult.isLeft()) {
+  ///         // Returning Left will roll back all previous operations in this transaction,
+  ///         // including the order save.
+  ///         return applyProgressResult;
+  ///       }
+  ///
+  ///       return const Right(unit); // <--- Commit happens only if Right(...) is returned.
+  ///     });
   ///   }
   /// }
   /// ```
@@ -105,6 +123,10 @@ abstract class TransactionRunner {
   /// If the action returns:
   /// - Right(value) → transaction is committed
   /// - Left(failure) → transaction is rolled back
+  ///
+  /// If the action throws:
+  /// - the transaction MUST be rolled back by the implementation
+  /// - the exception is rethrown to the caller/use case (safety net for unexpected failures)
   ///
   /// ---
   ///

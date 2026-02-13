@@ -47,6 +47,8 @@ abstract class AppTransaction {
   });
 
   /// Retrieves a resource by its identifier.
+  ///
+  /// Returns `null` if the resource does not exist.
   Future<Map<String, dynamic>?> get({
     required String resource,
     required Object id,
