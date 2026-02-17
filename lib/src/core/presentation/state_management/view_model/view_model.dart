@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_list_observer.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_observer.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_stream_list_view_model.dart';
 
 /// Defines the base contract for a ViewModel in the presentation layer.
 ///
@@ -33,12 +35,17 @@ abstract interface class ViewModel<S, E> {
   /// - MUST be updated only through controlled methods in the ViewModel.
   /// - MUST model the entire screen state in a single sealed class.
   ///
-  /// The [AppObserver] widget listens to this property's internal observable to trigger UI
-  /// rebuilds. It does NOT listen to other reactive properties of the ViewModel (if any).
-  /// Only expose fine-grained reactive properties when updating the entire state would
-  /// cause performance issues and use/create another listener widget for those cases.
-  /// If too many attributes are needed, consider breaking the widget into smaller ones
-  /// with their own ViewModels before exposing more reactive properties.
+  /// The observer widget (like [AppObserver]) listens to this property's internal
+  /// observable to trigger UI rebuilds.
+  ///
+  /// Only expose fine-grained reactive properties by extending a custom ViewModel template, when
+  /// updating the entire state would cause performance issues, like when dealing with large lists.
+  /// There are built-in templates for that, like the [AppStreamListViewModel] with
+  /// [AppListObserver].
+  ///
+  /// If more than this [state] reactive properties is needed, consider breaking the widget into
+  /// smaller ones with their own ViewModels before exposing more reactive properties through
+  /// new ViewModel templates.
   S get state;
 
   /// Stream of side effects exposed to the UI.
@@ -74,5 +81,18 @@ abstract interface class ViewModel<S, E> {
   /// - Internal reactive properties
   /// - Stream subscriptions
   /// - Any external listeners
+  ///
+  /// Implementation example of resources to dispose:
+  /// ```dart
+  /// @override
+  /// void dispose() {
+  ///  // Dispose all reactive properties created in the ViewModel
+  ///  myReactiveProperty.dispose();
+  ///
+  ///  // MUST call super.dispose() to clean up state listeners and effect controllers
+  ///  // in the base ViewModel implementation
+  ///  super.dispose();
+  /// }
+  /// ```
   void dispose();
 }
