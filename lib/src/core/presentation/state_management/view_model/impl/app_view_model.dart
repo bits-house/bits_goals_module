@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_dart/reactivity_impl/app_observable.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/view_model/view_model.dart';
 import 'package:flutter/foundation.dart';
 
 /// A base ViewModel implementation that MUST be extended by every ViewModel in the app that
-/// does not fit in the specialized ones (e.g., AppStreamListViewModel).
+/// does not fit in the specialized ones (e.g., [AppStreamedListViewModel]).
 abstract class AppViewModel<S, E> implements ViewModel<S, E> {
   late final AppObservable<S> _state;
   final _effectController = StreamController<E>.broadcast();
