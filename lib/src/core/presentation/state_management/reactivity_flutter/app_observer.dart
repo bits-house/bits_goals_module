@@ -9,11 +9,16 @@ import 'package:flutter/material.dart';
 /// 2. Executes [onEffect] when an effect is emitted, *without* rebuilding the UI.
 ///
 /// NOT responsibilities:
-/// 1. Manage the lifecycle of the ViewModel, disposing it (the parent widget/dependency injection
-/// should handle this).
-/// 2. Rebuild the UI for other reactive properties of the ViewModel other than state [S] (if any).
+/// 1. Rebuild the UI for other reactive properties of the ViewModel other than state [S] (if any).
 class AppObserver<VM extends ViewModel<S, E>, S, E> extends StatefulWidget {
+  /// The ViewModel instance that holds the state and effects for this widget.
   final VM viewModel;
+
+  /// Set to false if the ViewModel is shared across multiple widgets or has a longer
+  /// lifecycle than this widget (singleton).
+  /// It is defaulted to true, the ViewModel will be disposed when this widget is removed from
+  /// the tree (factory).
+  final bool shouldDisposeViewModel;
 
   /// Function responsible for drawing the screen based on the current state [S].
   final Widget Function(BuildContext context, S state) builder;
@@ -26,6 +31,7 @@ class AppObserver<VM extends ViewModel<S, E>, S, E> extends StatefulWidget {
     super.key,
     required this.viewModel,
     required this.builder,
+    this.shouldDisposeViewModel = true,
     this.onEffect,
   });
 
@@ -55,11 +61,17 @@ class _AppObserverState<VM extends ViewModel<S, E>, S, E>
   void didUpdateWidget(covariant AppObserver<VM, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.viewModel != widget.viewModel) {
-      // A. Clean up old listeners
+      // 1. Clean up old listeners
       _effectSubscription?.cancel();
       oldWidget.viewModel.removeStateListener(_onStateChanged);
 
-      // B. Subscribe to the new ViewModel
+      // 2. Dispose OLD ViewModel in case [shouldDisposeViewModel] is true, if the ViewModel changed,
+      // we assume the old one is no longer needed and should be disposed to free resources.
+      if (oldWidget.shouldDisposeViewModel) {
+        oldWidget.viewModel.dispose();
+      }
+
+      // 3. Subscribe to the new ViewModel
       _currentState = widget.viewModel.state;
       _subscribeToEffects();
       widget.viewModel.addStateListener(_onStateChanged);
@@ -92,6 +104,9 @@ class _AppObserverState<VM extends ViewModel<S, E>, S, E>
   void dispose() {
     _effectSubscription?.cancel();
     widget.viewModel.removeStateListener(_onStateChanged);
+    if (widget.shouldDisposeViewModel) {
+      widget.viewModel.dispose();
+    }
     super.dispose();
   }
 
