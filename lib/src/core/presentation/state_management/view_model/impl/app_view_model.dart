@@ -5,8 +5,7 @@ import 'package:bits_goals_module/src/core/presentation/state_management/view_mo
 import 'package:flutter/foundation.dart';
 
 /// A base ViewModel implementation that MUST be extended by every ViewModel in the app that
-/// the only observable/reactive property is the state itself (no need for multiple
-/// observables or computed properties).
+/// does not fit in the specialized ones (e.g., AppStreamListViewModel).
 abstract class AppViewModel<S, E> implements ViewModel<S, E> {
   late final AppObservable<S> _state;
   final _effectController = StreamController<E>.broadcast();
@@ -32,6 +31,7 @@ abstract class AppViewModel<S, E> implements ViewModel<S, E> {
   Stream<E> get effects => _effectController.stream;
 
   @override
+  @mustCallSuper
   void dispose() {
     _state.dispose();
     _effectController.close();
