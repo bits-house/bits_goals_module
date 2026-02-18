@@ -11,7 +11,7 @@ abstract class AppViewModel<S, E> implements ViewModel<S, E> {
   late final AppObservable<S> _state;
   final _effectController = StreamController<E>.broadcast();
 
-  AppViewModel(S initialState) {
+  AppViewModel({required S initialState}) {
     _state = AppObservable<S>(initialState);
   }
 
