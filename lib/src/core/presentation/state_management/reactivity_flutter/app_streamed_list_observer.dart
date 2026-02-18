@@ -10,8 +10,8 @@ import 'package:bits_goals_module/src/core/presentation/state_management/view_mo
 /// 2. **Animations**: Calculates diffs and animates insertions in [SliverAnimatedList].
 /// 3. **Pagination UI**: Renders Loading/Error footers based on [PaginationState].
 /// 4. **Infinite Scroll**: Detects scroll position and calls [viewModel.loadMore] automatically.
-class AppListObserver<VM extends AppStreamedListViewModel<S, E, T, F>, S, E, T,
-    F> extends StatefulWidget {
+class AppStreamedListObserver<VM extends AppStreamedListViewModel<S, E, T, F>,
+    S, E, T, F> extends StatefulWidget {
   final VM viewModel;
 
   /// Function to extract the List<T> from your main State <S>.
@@ -48,7 +48,7 @@ class AppListObserver<VM extends AppStreamedListViewModel<S, E, T, F>, S, E, T,
 
   final EdgeInsetsGeometry? padding;
 
-  const AppListObserver({
+  const AppStreamedListObserver({
     super.key,
     required this.viewModel,
     required this.listSelector,
@@ -65,12 +65,16 @@ class AppListObserver<VM extends AppStreamedListViewModel<S, E, T, F>, S, E, T,
   });
 
   @override
-  State<AppListObserver<VM, S, E, T, F>> createState() =>
-      _AppListObserverState<VM, S, E, T, F>();
+  State<AppStreamedListObserver<VM, S, E, T, F>> createState() =>
+      _AppStreamedListObserverState<VM, S, E, T, F>();
 }
 
-class _AppListObserverState<VM extends AppStreamedListViewModel<S, E, T, F>, S,
-    E, T, F> extends State<AppListObserver<VM, S, E, T, F>> {
+class _AppStreamedListObserverState<
+    VM extends AppStreamedListViewModel<S, E, T, F>,
+    S,
+    E,
+    T,
+    F> extends State<AppStreamedListObserver<VM, S, E, T, F>> {
   late GlobalKey<SliverAnimatedListState> _listKey;
 
   late ScrollController _scrollController;
@@ -93,7 +97,8 @@ class _AppListObserverState<VM extends AppStreamedListViewModel<S, E, T, F>, S,
   }
 
   @override
-  void didUpdateWidget(covariant AppListObserver<VM, S, E, T, F> oldWidget) {
+  void didUpdateWidget(
+      covariant AppStreamedListObserver<VM, S, E, T, F> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.viewModel != widget.viewModel) {
       _unbind(oldWidget.viewModel, disposeVM: oldWidget.shouldDisposeViewModel);

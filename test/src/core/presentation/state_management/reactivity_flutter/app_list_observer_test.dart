@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_list_observer.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_streamed_list_observer.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,7 +52,6 @@ class _SpyStreamedVM extends AppStreamedListViewModel<_TestState, _TestEffect,
   _SpyStreamedVM(
     this._streamFactory, {
     _TestState? initialStateOverride,
-    int pageSize = 2,
   }) : super(
           initialState: initialStateOverride ?? _LoadingState(),
           stateAfterDataAutoUpdate: (data) =>
@@ -60,7 +59,7 @@ class _SpyStreamedVM extends AppStreamedListViewModel<_TestState, _TestEffect,
           stateOnInitialFailure: (f) => _FailureState(f),
           mapUnexpectedExceptionToFailure: (e) =>
               _TestFailure('unexpected: $e'),
-          pageSize: pageSize,
+          pageSize: 2,
         );
 
   @override
@@ -167,7 +166,8 @@ Widget _makeObserver(
   }
 
   return _wrap(
-    AppListObserver<_SpyStreamedVM, _TestState, _TestEffect, int, _TestFailure>(
+    AppStreamedListObserver<_SpyStreamedVM, _TestState, _TestEffect, int,
+        _TestFailure>(
       viewModel: vm,
       shouldDisposeViewModel: shouldDisposeViewModel,
       listSelector: _listSelector,
@@ -200,7 +200,7 @@ void main() {
   // ─────────────────────────────────────────
   // 1. INITIAL BUILD
   // ─────────────────────────────────────────
-  group('AppListObserver | Initial Build |', () {
+  group('AppStreamedListObserver | Initial Build |', () {
     testWidgets('shows initial state via emptyBuilder and has idle pagination',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
@@ -237,7 +237,7 @@ void main() {
   // ─────────────────────────────────────────
   // 2. MAIN STATE CHANGES
   // ─────────────────────────────────────────
-  group('AppListObserver | Main State |', () {
+  group('AppStreamedListObserver | Main State |', () {
     testWidgets('updates items when main state changes', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
       final vm = _SpyStreamedVM(({limit}) => controller.stream);
@@ -1008,7 +1008,7 @@ void main() {
       // Use default errorBuilder from widget (pass null) to cover that branch.
       await tester.pumpWidget(
         _wrap(
-          AppListObserver<_SpyStreamedVM, _TestState, _TestEffect, int,
+          AppStreamedListObserver<_SpyStreamedVM, _TestState, _TestEffect, int,
               _TestFailure>(
             viewModel: vm,
             listSelector: _listSelector,
@@ -1059,8 +1059,8 @@ void main() {
         _wrap(
           SizedBox(
             height: 200,
-            child: AppListObserver<_SpyStreamedVM, _TestState, _TestEffect, int,
-                _TestFailure>(
+            child: AppStreamedListObserver<_SpyStreamedVM, _TestState,
+                _TestEffect, int, _TestFailure>(
               viewModel: vm,
               listSelector: _listSelector,
               scrollController: scrollController,

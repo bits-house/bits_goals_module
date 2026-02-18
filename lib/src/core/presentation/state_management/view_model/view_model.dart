@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_list_observer.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_streamed_list_observer.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_observer.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
 
@@ -41,7 +41,7 @@ abstract interface class ViewModel<S, E> {
   /// Only expose fine-grained reactive properties by extending a custom ViewModel template, when
   /// updating the entire state would cause performance issues, like when dealing with large lists.
   /// There are built-in templates for that, like the [AppStreamedListViewModel] with
-  /// [AppListObserver].
+  /// [AppStreamedListObserver].
   ///
   /// If more than this [state] reactive properties is needed, consider breaking the widget into
   /// smaller ones with their own ViewModels before exposing more reactive properties through
