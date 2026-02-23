@@ -70,7 +70,8 @@ void main() {
       () {
         // Arrange
         const userRoleName = 'admin';
-        const requestedPermission = GoalsModulePermission.manageGlobalGoals;
+        const requestedPermission =
+            GoalsModulePermission.createAnnualRevenueGoals;
 
         // 1. Mock the Current User
         // FIX: We mock the method call `()` instead of the property getter
@@ -83,7 +84,8 @@ void main() {
           UserRole(
             roleName: userRoleName,
             rolePermissions: const [
-              GoalsModulePermission.manageGlobalGoals, // Permission present
+              GoalsModulePermission
+                  .createAnnualRevenueGoals, // Permission present
             ],
           ),
         ]);
@@ -105,7 +107,8 @@ void main() {
       () {
         // Arrange
         const userRoleName = 'viewer';
-        const requestedPermission = GoalsModulePermission.manageGlobalGoals;
+        const requestedPermission =
+            GoalsModulePermission.createAnnualRevenueGoals;
 
         when(() => mockConfig.getCurrentUser).thenReturn(
           () => generateMockUser(roleName: userRoleName),
@@ -115,7 +118,7 @@ void main() {
           UserRole(
             roleName: userRoleName,
             rolePermissions: const [
-              GoalsModulePermission.none, // Lacks 'manageGlobalGoals'
+              GoalsModulePermission.none, // Lacks 'createAnnualRevenueGoals'
             ],
           ),
         ]);
@@ -137,7 +140,8 @@ void main() {
       () {
         // Arrange
         const unknownRole = 'unknown_or_deprecated_role';
-        const requestedPermission = GoalsModulePermission.manageGlobalGoals;
+        const requestedPermission =
+            GoalsModulePermission.createAnnualRevenueGoals;
 
         // User has a role that the app config doesn't know about
         when(() => mockConfig.getCurrentUser).thenReturn(
@@ -148,7 +152,9 @@ void main() {
         when(() => mockConfig.roles).thenReturn([
           UserRole(
             roleName: 'admin',
-            rolePermissions: const [GoalsModulePermission.manageGlobalGoals],
+            rolePermissions: const [
+              GoalsModulePermission.createAnnualRevenueGoals
+            ],
           ),
         ]);
 

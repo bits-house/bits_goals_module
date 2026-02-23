@@ -63,7 +63,7 @@ class CreateAnnualRevenueGoal
 
   @override
   GoalsModulePermission get requiredPermission =>
-      GoalsModulePermission.manageGlobalGoals;
+      GoalsModulePermission.createAnnualRevenueGoals;
 
   @override
   Future<Either<Failure, AnnualRevenueGoal>> call(

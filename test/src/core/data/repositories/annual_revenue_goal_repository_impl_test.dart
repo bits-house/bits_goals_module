@@ -104,7 +104,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)
@@ -142,7 +142,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)
@@ -182,7 +182,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)
@@ -221,7 +221,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           const waitDuration = Duration(seconds: 42);
@@ -270,7 +270,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)
@@ -310,7 +310,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)
@@ -348,7 +348,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
           final exception = Exception('Generic error');
 
@@ -385,7 +385,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)
@@ -422,7 +422,7 @@ void main() {
           // Arrange
           final aggregate = createValidAggregate();
           final log = createValidLog(
-            requiredPermission: GoalsModulePermission.manageGlobalGoals,
+            requiredPermission: GoalsModulePermission.createAnnualRevenueGoals,
           );
 
           when(() => mockNetworkService.isConnected)

@@ -52,7 +52,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeAnnualRevenueGoal());
-    registerFallbackValue(GoalsModulePermission.manageGlobalGoals);
+    registerFallbackValue(GoalsModulePermission.createAnnualRevenueGoals);
     registerFallbackValue(FakeActionLog());
   });
 
@@ -122,9 +122,9 @@ void main() {
     // USE CASE METADATA TESTS
     // ============================================================
 
-    test('requiredPermission should return manageGlobalGoals', () {
-      expect(
-          useCase.requiredPermission, GoalsModulePermission.manageGlobalGoals);
+    test('requiredPermission should return createAnnualRevenueGoals', () {
+      expect(useCase.requiredPermission,
+          GoalsModulePermission.createAnnualRevenueGoals);
     });
 
     // ============================================================
