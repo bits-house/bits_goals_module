@@ -192,8 +192,8 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
-              CreateAnnualRevenueGoalFailureReason.pastYear),
+          (l) =>
+              expect(l.reason, CreateAnnualRevenueGoalFailureReason.pastYear),
           (r) => fail('Should be Left'),
         );
       },
@@ -219,7 +219,7 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+          (l) => expect(l.reason,
               CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget),
           (r) => fail('Should be Left'),
         );
@@ -246,7 +246,7 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+          (l) => expect(l.reason,
               CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget),
           (r) => fail('Should be Left'),
         );
@@ -270,8 +270,8 @@ void main() {
       // Assert
       expect(result.isLeft(), true);
       result.fold(
-        (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
-            CreateAnnualRevenueGoalFailureReason.permissionDenied),
+        (l) => expect(
+            l.reason, CreateAnnualRevenueGoalFailureReason.permissionDenied),
         (r) => fail('Should be Left'),
       );
     });
@@ -310,7 +310,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) => expect(
-              (l as CreateAnnualRevenueGoalFailure).reason,
+              l.reason,
               CreateAnnualRevenueGoalFailureReason
                   .annualGoalForYearAlreadyExists),
           (r) => fail('Should be Left'),
@@ -347,7 +347,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
+            expect(l.reason,
                 CreateAnnualRevenueGoalFailureReason.permissionDenied);
           },
           (r) => fail('Should be Left'),
@@ -384,8 +384,8 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.connectionError);
+            expect(
+                l.reason, CreateAnnualRevenueGoalFailureReason.connectionError);
           },
           (r) => fail('Should be Left'),
         );
@@ -429,7 +429,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            final failure = l as CreateAnnualRevenueGoalFailure;
+            final failure = l;
             expect(failure.reason,
                 CreateAnnualRevenueGoalFailureReason.rateLimitExceeded);
             expect(failure.retryAfter, retryDuration);
@@ -472,8 +472,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.unexpected);
+            expect(l.reason, CreateAnnualRevenueGoalFailureReason.unexpected);
           },
           (r) => fail('Should be Left'),
         );
@@ -511,8 +510,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.unexpected);
+            expect(l.reason, CreateAnnualRevenueGoalFailureReason.unexpected);
           },
           (r) => fail('Should be Left'),
         );
@@ -703,8 +701,8 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
-              CreateAnnualRevenueGoalFailureReason.pastYear),
+          (l) =>
+              expect(l.reason, CreateAnnualRevenueGoalFailureReason.pastYear),
           (r) => fail('Should be Left'),
         );
       },

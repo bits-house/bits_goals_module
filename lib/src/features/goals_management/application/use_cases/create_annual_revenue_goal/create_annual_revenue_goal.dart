@@ -6,7 +6,6 @@ import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_type.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
-import 'package:bits_goals_module/src/core/domain/failures/failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
@@ -66,7 +65,7 @@ class CreateAnnualRevenueGoal
       GoalsModulePermission.createAnnualRevenueGoals;
 
   @override
-  Future<Either<Failure, AnnualRevenueGoal>> call(
+  Future<Either<CreateAnnualRevenueGoalFailure, AnnualRevenueGoal>> call(
     CreateAnnualRevenueGoalParams params,
   ) async {
     const useCaseId = 'create_annual_revenue_goal';
