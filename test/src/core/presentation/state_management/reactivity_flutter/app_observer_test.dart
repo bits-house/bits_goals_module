@@ -236,30 +236,6 @@ void main() {
     });
 
     testWidgets(
-        'does NOT dispose the ViewModel when shouldDisposeViewModel=false',
-        (tester) async {
-      final vm = _SpyAppViewModel(initialState: 0);
-
-      await tester.pumpWidget(
-        _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
-            shouldDisposeViewModel: false,
-            builder: (context, state) {
-              return Text('state:$state', textDirection: TextDirection.ltr);
-            },
-          ),
-        ),
-      );
-
-      await tester.pumpWidget(_wrap(const SizedBox.shrink()));
-      await tester.pump();
-
-      expect(vm.disposeCallCount, 0);
-      vm.dispose();
-    });
-
-    testWidgets(
         'switches listeners when the ViewModel instance changes and disposes the old one (when enabled)',
         (tester) async {
       final oldVm = _SpyAppViewModel(initialState: 1);
@@ -270,7 +246,6 @@ void main() {
         return _wrap(
           AppObserver<_SpyAppViewModel, int, String>(
             viewModel: vm,
-            shouldDisposeViewModel: true,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state $buildCount',
@@ -299,33 +274,6 @@ void main() {
       newVm.updateState(101);
       await tester.pump();
       expect(find.text('state:101 3'), findsOneWidget);
-    });
-
-    testWidgets(
-        'does not dispose the old ViewModel on swap when shouldDisposeViewModel=false',
-        (tester) async {
-      final oldVm = _SpyAppViewModel(initialState: 1);
-      final newVm = _SpyAppViewModel(initialState: 2);
-
-      Widget make(_SpyAppViewModel vm) {
-        return _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
-            shouldDisposeViewModel: false,
-            builder: (context, state) {
-              return Text('state:$state', textDirection: TextDirection.ltr);
-            },
-          ),
-        );
-      }
-
-      await tester.pumpWidget(make(oldVm));
-      await tester.pumpWidget(make(newVm));
-      await tester.pump();
-
-      expect(oldVm.disposeCallCount, 0);
-      newVm.dispose();
-      oldVm.dispose();
     });
 
     testWidgets('does nothing in didUpdateWidget when ViewModel is unchanged',
