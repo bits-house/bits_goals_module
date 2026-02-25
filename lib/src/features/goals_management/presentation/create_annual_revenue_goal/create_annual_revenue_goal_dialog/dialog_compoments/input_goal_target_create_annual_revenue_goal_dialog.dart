@@ -43,7 +43,14 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
         context.strings.inputGoalTargetCreateAnnualRevenueGoalDialog_title(
       widget.state.selectedYear.value,
     );
-    final errorText = widget.state.revenueTargetInputErrorMessage;
+    final errorReason = widget.state.inputErrorReason;
+    final errorText = switch (errorReason) {
+      GoalRevenueTargetInputErrorReason.invalidTarget =>
+        "Digite um número válido.",
+      GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget =>
+        "Digite um valor maior que zero.",
+      null => null,
+    };
     _focusNode.requestFocus();
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 32, 32, 16),
@@ -82,7 +89,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
               ),
               const SizedBox(width: 8),
               FilledButton(
-                onPressed: errorText == null
+                onPressed: widget.state.enableCreateButton
                     ? () {
                         viewModel.createGoal(
                           year: widget.state.selectedYear,

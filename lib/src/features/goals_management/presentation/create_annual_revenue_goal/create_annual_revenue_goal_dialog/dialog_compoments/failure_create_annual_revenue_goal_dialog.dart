@@ -37,7 +37,7 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
             switch (state.failure.reason) {
               CreateAnnualRevenueGoalFailureReason
                     .annualGoalForYearAlreadyExists =>
-                'Já existe uma meta anual para ${state.year}. Selecione outro ano ou edite a meta existente.',
+                'Já existe uma meta anual para ${state.year.value}. Selecione outro ano ou edite a meta existente.',
               CreateAnnualRevenueGoalFailureReason.unexpected =>
                 'Ocorreu um erro inesperado. Tente novamente.',
               CreateAnnualRevenueGoalFailureReason.connectionError =>

@@ -1,9 +1,19 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_view_model.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
 import 'package:dartz/dartz.dart';
+
+// ==================================================================
+// Meta-states
+// ==================================================================
+
+enum GoalRevenueTargetInputErrorReason {
+  zeroOrNegativeTarget,
+  invalidTarget,
+}
 
 // ==================================================================
 // States
@@ -33,19 +43,21 @@ class InputGoalTargetCreateAnnualRevenueGoal
     extends StatesCreateAnnualRevenueGoalDialog {
   final Year selectedYear;
   final String? revenueTargetInput;
-  final String? revenueTargetInputErrorMessage;
+  final GoalRevenueTargetInputErrorReason? inputErrorReason;
+
+  bool get enableCreateButton => revenueTargetInput != null;
 
   InputGoalTargetCreateAnnualRevenueGoal({
     required this.selectedYear,
     this.revenueTargetInput,
-    this.revenueTargetInputErrorMessage,
+    this.inputErrorReason,
   });
 }
 
 class FailureCreateAnnualRevenueGoal
     extends StatesCreateAnnualRevenueGoalDialog {
   final CreateAnnualRevenueGoalFailure failure;
-  final int year;
+  final Year year;
 
   FailureCreateAnnualRevenueGoal({
     required this.failure,
@@ -65,7 +77,7 @@ class SuccessEffectCreateAnnualRevenueGoal
     required this.year,
   });
 
-  final int year;
+  final Year year;
 }
 
 // ==================================================================
@@ -76,7 +88,9 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
     StatesCreateAnnualRevenueGoalDialog, EffectsCreateAnnualRevenueGoalDialog> {
   CreateAnnualRevenueGoalDialogViewModel({
     required List<Year> unavailableYears,
+    required CreateAnnualRevenueGoal useCase,
   })  : _unavailableYears = unavailableYears,
+        _createAnnualRevenueGoal = useCase,
         super(
           initialState: LoadingCreateAnnualRevenueGoal(),
         ) {
@@ -84,6 +98,7 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
   }
 
   final List<Year> _unavailableYears;
+  final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
 
   // ---------------------------------------------------------------------
   // 1. Initialize the dialog
@@ -101,10 +116,11 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
 
   void initialize() {
     final preselectedYear = _getPreselectedYear();
+    final lastPossibleYear = Year.fromInt(_currentYear.value + 1000);
     setState(
       SelectYearCreateAnnualRevenueGoal(
         minPossibleYear: _currentYear,
-        lastPossibleYear: Year.fromInt(_currentYear.value + 1000),
+        lastPossibleYear: lastPossibleYear,
         preselectedYear: preselectedYear,
         unavailableYears: _unavailableYears,
       ),
@@ -129,28 +145,30 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
     required String input,
     required InputGoalTargetCreateAnnualRevenueGoal currentState,
   }) {
-    if (currentState.revenueTargetInputErrorMessage != null) {
+    if (currentState.inputErrorReason != null) {
       setState(
         InputGoalTargetCreateAnnualRevenueGoal(
           selectedYear: currentState.selectedYear,
           revenueTargetInput: input,
-          revenueTargetInputErrorMessage: null,
+          inputErrorReason: null,
         ),
       );
     }
   }
 
-  String? _validateMoneyInput(String input) {
+  GoalRevenueTargetInputErrorReason? _validateMoneyInput(
+    String input,
+  ) {
     try {
       final double value = double.parse(input);
       Money.fromDouble(value);
       if (value <= 0) {
-        return "Digite um valor maior que zero.";
+        return GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
       } else {
         return null;
       }
     } catch (e) {
-      return "Digite um número válido.";
+      return GoalRevenueTargetInputErrorReason.invalidTarget;
     }
   }
 
@@ -158,11 +176,13 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
     required Year year,
     required String revenueTargetInput,
   }) async {
-    final errorMessage = _validateMoneyInput(revenueTargetInput);
-    final isValidMoney = errorMessage == null;
+    final errorReason = _validateMoneyInput(
+      revenueTargetInput,
+    );
+    final isValidMoney = errorReason == null;
     if (isValidMoney) {
       setState(LoadingCreateAnnualRevenueGoal());
-      // TODO: Integrate CreateAnnualRevenueGoal use case
+      // use _createAnnualRevenueGoal()
       final creationResult = await Future.delayed(
         const Duration(seconds: 1),
         () => const Left(
@@ -175,12 +195,12 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
         (failure) => setState(
           FailureCreateAnnualRevenueGoal(
             failure: failure,
-            year: year.value,
+            year: year,
           ),
         ),
-        (_) => emitEffect(
+        (success) => emitEffect(
           SuccessEffectCreateAnnualRevenueGoal(
-            year: year.value,
+            year: year,
           ),
         ),
       );
@@ -189,7 +209,7 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
         InputGoalTargetCreateAnnualRevenueGoal(
           selectedYear: year,
           revenueTargetInput: revenueTargetInput,
-          revenueTargetInputErrorMessage: errorMessage,
+          inputErrorReason: errorReason,
         ),
       );
     }
