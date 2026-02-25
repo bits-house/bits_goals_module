@@ -50,6 +50,8 @@ class _AppAnimatedDialogState extends State<AppAnimatedDialog>
 
     if (widget.child.key != _currentChild?.key) {
       _runTransition();
+    } else {
+      _currentChild = widget.child;
     }
   }
 
