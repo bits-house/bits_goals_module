@@ -10,8 +10,10 @@ enum _CreateAnnualRevenueGoalButtonType {
 }
 
 class CreateAnnualRevenueGoalButton extends StatelessWidget {
+  static const IconData _defaultIconData = Icons.add;
+
   final GoalsModuleConfig config;
-  final IconData? iconData;
+  final IconData iconData;
   final Color? foregroundColor;
   final Color? backgroundColor;
   final _CreateAnnualRevenueGoalButtonType _type;
@@ -24,7 +26,7 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
   }) {
     return CreateAnnualRevenueGoalButton._internal(
       config: config,
-      iconData: iconData,
+      iconData: iconData ?? _defaultIconData,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       type: _CreateAnnualRevenueGoalButtonType.fabLarge,
@@ -33,7 +35,7 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
 
   const CreateAnnualRevenueGoalButton._internal({
     required this.config,
-    this.iconData = Icons.add,
+    this.iconData = _defaultIconData,
     this.foregroundColor,
     this.backgroundColor,
     required _CreateAnnualRevenueGoalButtonType type,
@@ -63,10 +65,8 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
                   context: context,
                 ),
                 backgroundColor: backgroundColor,
-                child: Icon(
-                  iconData,
-                  color: foregroundColor,
-                ),
+                foregroundColor: foregroundColor,
+                child: Icon(iconData),
               ),
           }
         : const SizedBox.shrink();
