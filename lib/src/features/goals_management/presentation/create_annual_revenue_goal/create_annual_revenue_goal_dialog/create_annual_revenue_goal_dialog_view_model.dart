@@ -32,7 +32,7 @@ class SelectYearCreateAnnualRevenueGoal
 class InputGoalTargetCreateAnnualRevenueGoal
     extends StatesCreateAnnualRevenueGoalDialog {
   final Year selectedYear;
-  final double? revenueTargetInput;
+  final String? revenueTargetInput;
   final String? revenueTargetInputErrorMessage;
 
   InputGoalTargetCreateAnnualRevenueGoal({
@@ -45,8 +45,12 @@ class InputGoalTargetCreateAnnualRevenueGoal
 class FailureCreateAnnualRevenueGoal
     extends StatesCreateAnnualRevenueGoalDialog {
   final CreateAnnualRevenueGoalFailure failure;
+  final int year;
 
-  FailureCreateAnnualRevenueGoal(this.failure);
+  FailureCreateAnnualRevenueGoal({
+    required this.failure,
+    required this.year,
+  });
 }
 
 // ==================================================================
@@ -121,10 +125,24 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
   // ---------------------------------------------------------------------
   // 3. Create the annual revenue goal with the selected year and revenue target
   // ---------------------------------------------------------------------
-  /// UI Validation made based on [CreateAnnualRevenueGoalFailureReason]s.
-  String? _validateMoneyInput(Money input) {
+  void onRevenueTargetInputChanged({
+    required String input,
+    required InputGoalTargetCreateAnnualRevenueGoal currentState,
+  }) {
+    if (currentState.revenueTargetInputErrorMessage != null) {
+      setState(
+        InputGoalTargetCreateAnnualRevenueGoal(
+          selectedYear: currentState.selectedYear,
+          revenueTargetInput: input,
+          revenueTargetInputErrorMessage: null,
+        ),
+      );
+    }
+  }
+
+  String? _validateMoneyInput(String input) {
     try {
-      final double value = input.toDouble();
+      final double value = double.parse(input);
       Money.fromDouble(value);
       if (value <= 0) {
         return "Digite um valor maior que zero.";
@@ -138,20 +156,28 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
 
   Future<void> createGoal({
     required Year year,
-    required Money revenueTargetInput,
+    required String revenueTargetInput,
   }) async {
     final errorMessage = _validateMoneyInput(revenueTargetInput);
     final isValidMoney = errorMessage == null;
-
     if (isValidMoney) {
       setState(LoadingCreateAnnualRevenueGoal());
       // TODO: Integrate CreateAnnualRevenueGoal use case
       final creationResult = await Future.delayed(
-        const Duration(seconds: 2),
-        () => const Right(null),
+        const Duration(seconds: 1),
+        () => const Left(
+          CreateAnnualRevenueGoalFailure(
+            reason: CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget,
+          ),
+        ),
       );
       creationResult.fold(
-        (failure) => setState(FailureCreateAnnualRevenueGoal(failure)),
+        (failure) => setState(
+          FailureCreateAnnualRevenueGoal(
+            failure: failure,
+            year: year.value,
+          ),
+        ),
         (_) => emitEffect(
           SuccessEffectCreateAnnualRevenueGoal(
             year: year.value,
@@ -162,7 +188,7 @@ class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
       setState(
         InputGoalTargetCreateAnnualRevenueGoal(
           selectedYear: year,
-          revenueTargetInput: revenueTargetInput.toDouble(),
+          revenueTargetInput: revenueTargetInput,
           revenueTargetInputErrorMessage: errorMessage,
         ),
       );
