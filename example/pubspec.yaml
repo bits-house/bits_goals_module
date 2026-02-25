@@ -19,6 +19,9 @@ dependencies:
 
   # src:
   fake_cloud_firestore: ^4.0.1
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
   bits_goals_module:
     # When depending on this package from a real application you should use:

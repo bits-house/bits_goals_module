@@ -1,7 +1,9 @@
+import 'package:bits_goals_module/strings/gen/app_localizations.dart';
 import 'package:bits_goals_module_example/home_page.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bits_goals_module/bits_goals_module.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   final firestore = FakeFirebaseFirestore();
@@ -44,6 +46,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        ...AppLocalizations.localizationsDelegates,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+      ], // Needed for the plugin localization
       home: HomePage(config: config),
     );
   }
