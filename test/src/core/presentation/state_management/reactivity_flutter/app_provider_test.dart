@@ -1,5 +1,7 @@
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
+import 'package:bits_goals_module/strings/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // ViewModel Mock simples para testes de tipos
@@ -138,6 +140,36 @@ void main() {
 
       expect(provider2.updateShouldNotify(provider1), isFalse);
       expect(provider3.updateShouldNotify(provider1), isTrue);
+    });
+  });
+
+  group('AppProviderExtension - Localizations', () {
+    testWidgets(
+        'Should return AppLocalizations instance from context.strings extension',
+        (WidgetTester tester) async {
+      late AppLocalizations stringsResult;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (BuildContext context) {
+              stringsResult = context.strings;
+              return const Placeholder();
+            },
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(stringsResult, isA<AppLocalizations>());
     });
   });
 }

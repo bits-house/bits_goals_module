@@ -1,0 +1,21 @@
+{
+    "@@locale": "pt",
+    "selectYearCreateAnnualRevenueGoalDialog_title": "Criar meta de faturamento para:",
+    "@selectYearCreateAnnualRevenueGoalDialog_title": {
+        "description": "Título do diálogo de seleção de ano para criação de meta anual"
+    },
+    "selectYearCreateAnnualRevenueGoalDialog_subtitle": "Selecione o ano",
+    "@selectYearCreateAnnualRevenueGoalDialog_subtitle": {
+        "description": "Subtítulo do diálogo de seleção de ano para criação de meta anual"
+    },
+    "inputGoalTargetCreateAnnualRevenueGoalDialog_title": "Qual a meta de faturamento para {year}?",
+    "@inputGoalTargetCreateAnnualRevenueGoalDialog_title": {
+        "description": "Título do diálogo de definição de meta anual, onde {year} é o ano selecionado",
+        "placeholders": {
+            "year": {
+                "type": "int",
+                "example": "2026"
+            }
+        }
+    }
+}
