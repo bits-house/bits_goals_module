@@ -28,9 +28,7 @@ The features in this module are common across many management systems, especiall
 
 This module adopts **Clean Architecture**.
 
-📌 All major architectural decisions are documented through **Architecture Decision Records (ADR)**, check:
-
-**[docs/architecture/adr](docs/architecture/adr) — Architecture Decision Records (ADR)**
+📌 All major architectural decisions are documented through **Architecture Decision Records (ADR)**, check: **[docs/architecture/adr](docs/architecture/adr)**
 
 ---
 
