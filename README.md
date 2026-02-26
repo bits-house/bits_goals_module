@@ -18,8 +18,7 @@ It was created to:
 The features in this module are common across many management systems, especially in niche business applications that require:
 
 - Sales goals  
-- Revenue targets  
-- Operational KPIs  
+- Revenue targets
 - Consistent business rules across multiple apps  
 
 ---
@@ -44,8 +43,7 @@ That means:
 
 Examples of host app responsibilities:
 
-- Firestore initialization  
-- HTTP client configuration  
+- Firestore initialization
 - User, roles, and permissions mapping  
 
 ---
