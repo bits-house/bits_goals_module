@@ -51,7 +51,7 @@ void main() {
       // Arrange
       final adminRole = UserRole(
         roleName: 'admin',
-        rolePermissions: const [GoalsModulePermission.manageGlobalGoals],
+        rolePermissions: const [GoalsModulePermission.createAnnualRevenueGoals],
       );
 
       // Act
@@ -66,7 +66,7 @@ void main() {
       expect(config.roles.first.roleName, 'admin');
       expect(
         config.roles.first.rolePermissions,
-        contains(GoalsModulePermission.manageGlobalGoals),
+        contains(GoalsModulePermission.createAnnualRevenueGoals),
       );
     });
 
@@ -110,7 +110,7 @@ void main() {
       final editorRole = UserRole(
         roleName: 'editor',
         rolePermissions: const [
-          GoalsModulePermission.manageGlobalGoals,
+          GoalsModulePermission.createAnnualRevenueGoals,
           GoalsModulePermission.none,
         ],
       );
@@ -129,7 +129,7 @@ void main() {
       expect(
         savedRole.rolePermissions,
         containsAll([
-          GoalsModulePermission.manageGlobalGoals,
+          GoalsModulePermission.createAnnualRevenueGoals,
           GoalsModulePermission.none,
         ]),
       );
@@ -178,9 +178,9 @@ void main() {
         UserRole(
             roleName: 'manager',
             rolePermissions: const [GoalsModulePermission.none]),
-        UserRole(
-            roleName: 'manager',
-            rolePermissions: const [GoalsModulePermission.manageGlobalGoals]),
+        UserRole(roleName: 'manager', rolePermissions: const [
+          GoalsModulePermission.createAnnualRevenueGoals
+        ]),
       ];
 
       // Act & Assert

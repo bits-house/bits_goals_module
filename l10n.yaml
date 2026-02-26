@@ -1,0 +1,7 @@
+arb-dir: lib/strings
+template-arb-file: app_pt.arb
+output-dir: lib/strings/gen
+output-localization-file: app_localizations.dart
+nullable-getter: false
+header: |
+  // coverage:ignore-file

@@ -18,31 +18,16 @@ It was created to:
 The features in this module are common across many management systems, especially in niche business applications that require:
 
 - Sales goals  
-- Revenue targets  
-- Operational KPIs  
+- Revenue targets
 - Consistent business rules across multiple apps  
 
 ---
 
 ## Architecture
 
-This module adopts:
+This module adopts **Clean Architecture**.
 
-- **Clean Architecture**  
-- **MVVM** in the presentation layer  
-
-All major architectural decisions are documented through **Architecture Decision Records (ADR)**.
-
-📌 For full architectural rationale, see:  
-**[docs/architecture/adr](docs/architecture/adr) — Architecture Decision Records (ADR)**
-
-This directory preserves the motivation behind:
-
-- Developing the module as a plugin  
-- Dividing the code into Core / Features / Infra  
-- Persistence strategies  
-- Dependency injection strategy  
-- Reuse across plugins and a future Dart backend  
+📌 All major architectural decisions are documented through **Architecture Decision Records (ADR)**, check: **[docs/architecture/adr](docs/architecture/adr)**
 
 ---
 
@@ -58,8 +43,7 @@ That means:
 
 Examples of host app responsibilities:
 
-- Firestore initialization  
-- HTTP client configuration  
+- Firestore initialization
 - User, roles, and permissions mapping  
 
 ---

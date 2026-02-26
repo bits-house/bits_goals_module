@@ -1,63 +1,61 @@
+import 'package:bits_goals_module/strings/gen/app_localizations.dart';
+import 'package:bits_goals_module_example/home_page.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:bits_goals_module/bits_goals_module.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
-  runApp(const MyApp());
+  final firestore = FakeFirebaseFirestore();
+  runApp(
+    MyApp(
+      config: GoalsModuleConfig(
+        remoteDataSrcConfig: FirestoreConfig(
+          firestore: firestore,
+          annualRevenueGoalsMetaCollectionName: 'annualRevenueGoalsMeta',
+          monthlyRevenueGoalsCollectionName: 'monthlyRevenueGoals',
+          goalsActionLogsCollectionName: 'goalsActionLogs',
+        ),
+        getCurrentUser: () => LoggedInUser.create(
+          displayName: 'Matheus',
+          email: 'matheus@example.com',
+          roleName: 'admin',
+          uid: 'my-unique-user-id',
+        ),
+        roles: [
+          UserRole(
+            roleName: 'admin',
+            rolePermissions: const [
+              GoalsModulePermission.createAnnualRevenueGoals,
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+    required this.config,
+  });
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _bitsGoalsModulePlugin = BitsGoalsModule();
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _bitsGoalsModulePlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
+  final GoalsModuleConfig config;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
-        ),
-      ),
+      localizationsDelegates: const [
+        ...AppLocalizations.localizationsDelegates,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+      ], // Needed for the plugin localization
+      home: HomePage(config: config),
     );
   }
 }

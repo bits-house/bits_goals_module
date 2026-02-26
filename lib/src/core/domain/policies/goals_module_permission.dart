@@ -3,5 +3,5 @@ enum GoalsModulePermission {
   /// No special permission required.
   none,
 
-  manageGlobalGoals,
+  createAnnualRevenueGoals,
 }

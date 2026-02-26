@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/application/ports/infra/app_info_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/app_info_service.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

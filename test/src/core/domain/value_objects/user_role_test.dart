@@ -144,7 +144,8 @@ void main() {
             rolePermissions: const [GoalsModulePermission.none]);
 
         // Act & Assert
-        expect(role.hasPermission(GoalsModulePermission.manageGlobalGoals),
+        expect(
+            role.hasPermission(GoalsModulePermission.createAnnualRevenueGoals),
             isFalse);
       });
     });

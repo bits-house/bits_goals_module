@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/real_time_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
@@ -7,8 +7,8 @@ import 'package:bits_goals_module/src/core/domain/failures/entities/annual_reven
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/access_control_service.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/action_log_metadata_provider.dart';
+import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/action_log_metadata_provider.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
@@ -52,7 +52,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeAnnualRevenueGoal());
-    registerFallbackValue(GoalsModulePermission.manageGlobalGoals);
+    registerFallbackValue(GoalsModulePermission.createAnnualRevenueGoals);
     registerFallbackValue(FakeActionLog());
   });
 
@@ -122,9 +122,9 @@ void main() {
     // USE CASE METADATA TESTS
     // ============================================================
 
-    test('requiredPermission should return manageGlobalGoals', () {
-      expect(
-          useCase.requiredPermission, GoalsModulePermission.manageGlobalGoals);
+    test('requiredPermission should return createAnnualRevenueGoals', () {
+      expect(useCase.requiredPermission,
+          GoalsModulePermission.createAnnualRevenueGoals);
     });
 
     // ============================================================
@@ -192,8 +192,8 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
-              CreateAnnualRevenueGoalFailureReason.pastYear),
+          (l) =>
+              expect(l.reason, CreateAnnualRevenueGoalFailureReason.pastYear),
           (r) => fail('Should be Left'),
         );
       },
@@ -219,7 +219,7 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+          (l) => expect(l.reason,
               CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget),
           (r) => fail('Should be Left'),
         );
@@ -246,7 +246,7 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
+          (l) => expect(l.reason,
               CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget),
           (r) => fail('Should be Left'),
         );
@@ -270,8 +270,8 @@ void main() {
       // Assert
       expect(result.isLeft(), true);
       result.fold(
-        (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
-            CreateAnnualRevenueGoalFailureReason.permissionDenied),
+        (l) => expect(
+            l.reason, CreateAnnualRevenueGoalFailureReason.permissionDenied),
         (r) => fail('Should be Left'),
       );
     });
@@ -310,7 +310,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) => expect(
-              (l as CreateAnnualRevenueGoalFailure).reason,
+              l.reason,
               CreateAnnualRevenueGoalFailureReason
                   .annualGoalForYearAlreadyExists),
           (r) => fail('Should be Left'),
@@ -347,7 +347,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
+            expect(l.reason,
                 CreateAnnualRevenueGoalFailureReason.permissionDenied);
           },
           (r) => fail('Should be Left'),
@@ -384,8 +384,8 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.connectionError);
+            expect(
+                l.reason, CreateAnnualRevenueGoalFailureReason.connectionError);
           },
           (r) => fail('Should be Left'),
         );
@@ -429,7 +429,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            final failure = l as CreateAnnualRevenueGoalFailure;
+            final failure = l;
             expect(failure.reason,
                 CreateAnnualRevenueGoalFailureReason.rateLimitExceeded);
             expect(failure.retryAfter, retryDuration);
@@ -472,8 +472,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.unexpected);
+            expect(l.reason, CreateAnnualRevenueGoalFailureReason.unexpected);
           },
           (r) => fail('Should be Left'),
         );
@@ -511,8 +510,7 @@ void main() {
         expect(result.isLeft(), true);
         result.fold(
           (l) {
-            expect((l as CreateAnnualRevenueGoalFailure).reason,
-                CreateAnnualRevenueGoalFailureReason.unexpected);
+            expect(l.reason, CreateAnnualRevenueGoalFailureReason.unexpected);
           },
           (r) => fail('Should be Left'),
         );
@@ -703,8 +701,8 @@ void main() {
         // Assert
         expect(result.isLeft(), true);
         result.fold(
-          (l) => expect((l as CreateAnnualRevenueGoalFailure).reason,
-              CreateAnnualRevenueGoalFailureReason.pastYear),
+          (l) =>
+              expect(l.reason, CreateAnnualRevenueGoalFailureReason.pastYear),
           (r) => fail('Should be Left'),
         );
       },

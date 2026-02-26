@@ -16,6 +16,9 @@ dependencies:
   plugin_platform_interface: ^2.0.2
 
   # src dependencies
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   equatable: ^2.0.7
   dartz: ^0.10.1
   uuid: ^4.5.2
@@ -24,6 +27,7 @@ dependencies:
   http: ^1.6.0
   package_info_plus: ^9.0.0
   device_info_plus: ^12.3.0
+  mobx: ^2.6.0
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +53,8 @@ flutter:
   # This is required for using `dart:ffi`.
   # All these are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
+  generate: true
+  
   plugin:
     platforms:
       android:

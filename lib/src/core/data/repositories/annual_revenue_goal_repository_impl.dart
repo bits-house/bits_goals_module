@@ -9,7 +9,7 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
-import 'package:bits_goals_module/src/core/application/ports/infra/network_service.dart';
+import 'package:bits_goals_module/src/core/application/ports/network_service.dart';
 
 class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
   final AnnualRevenueGoalRemoteDataSource _remoteDataSource;
