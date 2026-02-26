@@ -1,18 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-// Certifique-se de importar o caminho correto do seu ViewModel e Estados
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_streamed_list_store.dart';
 
-/// A self-contained, reactive Observer for [AppStreamedListViewModel] with built-in Infinite Scroll.
+/// A self-contained, reactive Observer for [AppStreamedListStore] with built-in Infinite Scroll.
 ///
 /// It automatically handles:
 /// 1. **Data Binding**: Listens to state changes and updates the UI.
 /// 2. **Animations**: Calculates diffs and animates insertions in [SliverAnimatedList].
 /// 3. **Pagination UI**: Renders Loading/Error footers based on [PaginationState].
-/// 4. **Infinite Scroll**: Detects scroll position and calls [viewModel.loadMore] automatically.
-class AppStreamedListObserver<VM extends AppStreamedListViewModel<S, E, T, F>,
-    S, E, T, F> extends StatefulWidget {
-  final VM viewModel;
+/// 4. **Infinite Scroll**: Detects scroll position and calls [store.loadMore] automatically.
+///
+/// This Observer translates implicit UI intent (scroll proximity)
+/// into pagination requests by calling store.loadMore().
+/// The Store remains the single authority over pagination rules.
+class AppStreamedListObserver<ST extends AppStreamedListStore<S, E, T, F>, S, E,
+    T, F> extends StatefulWidget {
+  final ST store;
 
   /// Function to extract the List<T> from your main State <S>.
   final List<T> Function(S state) listSelector;
@@ -33,8 +36,8 @@ class AppStreamedListObserver<VM extends AppStreamedListViewModel<S, E, T, F>,
   /// Animation duration for insertions.
   final Duration animationDuration;
 
-  /// Whether to dispose the ViewModel when this widget is disposed.
-  final bool shouldDisposeViewModel;
+  /// Whether to dispose the Store when this widget is disposed.
+  final bool shouldDisposeStore;
 
   /// Callback for side effects.
   final void Function(BuildContext context, E effect)? onEffect;
@@ -50,14 +53,14 @@ class AppStreamedListObserver<VM extends AppStreamedListViewModel<S, E, T, F>,
 
   const AppStreamedListObserver({
     super.key,
-    required this.viewModel,
+    required this.store,
     required this.listSelector,
     required this.itemBuilder,
     this.loadingBuilder,
     this.errorBuilder,
     this.emptyBuilder,
     this.animationDuration = const Duration(milliseconds: 300),
-    this.shouldDisposeViewModel = true,
+    this.shouldDisposeStore = true,
     this.onEffect,
     this.scrollController,
     this.scrollThreshold = 200.0,
@@ -65,16 +68,12 @@ class AppStreamedListObserver<VM extends AppStreamedListViewModel<S, E, T, F>,
   });
 
   @override
-  State<AppStreamedListObserver<VM, S, E, T, F>> createState() =>
-      _AppStreamedListObserverState<VM, S, E, T, F>();
+  State<AppStreamedListObserver<ST, S, E, T, F>> createState() =>
+      _AppStreamedListObserverState<ST, S, E, T, F>();
 }
 
-class _AppStreamedListObserverState<
-    VM extends AppStreamedListViewModel<S, E, T, F>,
-    S,
-    E,
-    T,
-    F> extends State<AppStreamedListObserver<VM, S, E, T, F>> {
+class _AppStreamedListObserverState<ST extends AppStreamedListStore<S, E, T, F>,
+    S, E, T, F> extends State<AppStreamedListObserver<ST, S, E, T, F>> {
   late GlobalKey<SliverAnimatedListState> _listKey;
 
   late ScrollController _scrollController;
@@ -93,16 +92,16 @@ class _AppStreamedListObserverState<
     super.initState();
     _listKey = GlobalKey<SliverAnimatedListState>();
     _initScrollController();
-    _bind(widget.viewModel);
+    _bind(widget.store);
   }
 
   @override
   void didUpdateWidget(
-      covariant AppStreamedListObserver<VM, S, E, T, F> oldWidget) {
+      covariant AppStreamedListObserver<ST, S, E, T, F> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.viewModel != widget.viewModel) {
-      _unbind(oldWidget.viewModel, disposeVM: oldWidget.shouldDisposeViewModel);
-      _bind(widget.viewModel);
+    if (oldWidget.store != widget.store) {
+      _unbind(oldWidget.store, disposeST: oldWidget.shouldDisposeStore);
+      _bind(widget.store);
     }
     // Handle external controller changes
     if (oldWidget.scrollController != widget.scrollController) {
@@ -113,7 +112,7 @@ class _AppStreamedListObserverState<
 
   @override
   void dispose() {
-    _unbind(widget.viewModel, disposeVM: widget.shouldDisposeViewModel);
+    _unbind(widget.store, disposeST: widget.shouldDisposeStore);
     _disposeScrollController();
     super.dispose();
   }
@@ -146,33 +145,33 @@ class _AppStreamedListObserverState<
 
     // Check if we are near the bottom
     if (maxScroll - currentScroll <= widget.scrollThreshold) {
-      // The ViewModel handles the "isLoading" check internally,
+      // The Store handles the "isLoading" check internally,
       // so we can safely call this multiple times.
-      widget.viewModel.loadMore();
+      widget.store.loadMore();
     }
   }
 
   // ================= BINDING LOGIC =================
 
-  void _bind(VM viewModel) {
-    _currentState = viewModel.state;
-    _currentPaginationState = viewModel.paginationState;
-    _lastItemCount = viewModel.currentItemCount;
-    _lastListIdentity = viewModel.listIdentity;
+  void _bind(ST store) {
+    _currentState = store.state;
+    _currentPaginationState = store.paginationState;
+    _lastItemCount = store.currentItemCount;
+    _lastListIdentity = store.listIdentity;
 
-    viewModel.addStateListener(_onStateChanged);
-    viewModel.addPaginationStateListener(_onPaginationChanged);
+    store.addStateListener(_onStateChanged);
+    store.addPaginationStateListener(_onPaginationChanged);
 
-    _effectSubscription = viewModel.effects.listen((effect) {
+    _effectSubscription = store.effects.listen((effect) {
       if (mounted) widget.onEffect?.call(context, effect);
     });
   }
 
-  void _unbind(VM viewModel, {required bool disposeVM}) {
+  void _unbind(ST store, {required bool disposeST}) {
     _effectSubscription?.cancel();
-    viewModel.removeStateListener(_onStateChanged);
-    viewModel.removePaginationStateListener(_onPaginationChanged);
-    if (disposeVM) viewModel.dispose();
+    store.removeStateListener(_onStateChanged);
+    store.removePaginationStateListener(_onPaginationChanged);
+    if (disposeST) store.dispose();
   }
 
   // ================= LISTENERS =================
@@ -180,9 +179,9 @@ class _AppStreamedListObserverState<
   void _onStateChanged() {
     if (!mounted) return;
 
-    final vm = widget.viewModel;
-    final newIdentity = vm.listIdentity;
-    final newList = widget.listSelector(vm.state);
+    final store = widget.store;
+    final newIdentity = store.listIdentity;
+    final newList = widget.listSelector(store.state);
     final currentItemCount = newList.length;
 
     final isSameList = _lastListIdentity == newIdentity;
@@ -210,16 +209,15 @@ class _AppStreamedListObserverState<
     _lastItemCount = currentItemCount;
     _lastListIdentity = newIdentity;
 
-    if (vm.state != _currentState) {
-      setState(() => _currentState = vm.state);
+    if (store.state != _currentState) {
+      setState(() => _currentState = store.state);
     }
   }
 
   void _onPaginationChanged() {
     if (!mounted) return;
-    if (widget.viewModel.paginationState != _currentPaginationState) {
-      setState(
-          () => _currentPaginationState = widget.viewModel.paginationState);
+    if (widget.store.paginationState != _currentPaginationState) {
+      setState(() => _currentPaginationState = widget.store.paginationState);
     }
   }
 
@@ -280,7 +278,7 @@ class _AppStreamedListObserverState<
                     children: [
                       Text('Error: $failure'),
                       TextButton(
-                        onPressed: widget.viewModel.retryPagination,
+                        onPressed: widget.store.retryPagination,
                         child: const Text("Retry"),
                       )
                     ],

@@ -4,28 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// ViewModel Mock simples para testes de tipos
-class _MockViewModel {
+// Store Mock simples para testes de tipos
+class _MockStore {
   final String id;
-  _MockViewModel(this.id);
+  _MockStore(this.id);
 }
 
-class _AnotherViewModel {}
+class _AnotherStore {}
 
 void main() {
   group('AppProvider |', () {
-    testWidgets('provides ViewModel to the subtree via AppProvider.of',
+    testWidgets('provides Store to the subtree via AppProvider.of',
         (tester) async {
-      final vm = _MockViewModel('vm_1');
-      _MockViewModel? capturedVm;
+      final st = _MockStore('st_1');
+      _MockStore? capturedSt;
 
       await tester.pumpWidget(
         MaterialApp(
-          home: AppProvider<_MockViewModel>(
-            viewModel: vm,
+          home: AppProvider<_MockStore>(
+            store: st,
             child: Builder(
               builder: (context) {
-                capturedVm = AppProvider.of<_MockViewModel>(context);
+                capturedSt = AppProvider.of<_MockStore>(context);
                 return const SizedBox.shrink();
               },
             ),
@@ -33,23 +33,22 @@ void main() {
         ),
       );
 
-      expect(capturedVm, isNotNull);
-      expect(capturedVm!.id, 'vm_1');
-      expect(capturedVm, vm);
+      expect(capturedSt, isNotNull);
+      expect(capturedSt!.id, 'st_1');
+      expect(capturedSt, st);
     });
 
-    testWidgets('provides ViewModel via context.vm<T>() extension',
-        (tester) async {
-      final vm = _MockViewModel('extension_test');
-      _MockViewModel? capturedVm;
+    testWidgets('provides Store via context.st<T>() extension', (tester) async {
+      final st = _MockStore('extension_test');
+      _MockStore? capturedSt;
 
       await tester.pumpWidget(
         MaterialApp(
-          home: AppProvider<_MockViewModel>(
-            viewModel: vm,
+          home: AppProvider<_MockStore>(
+            store: st,
             child: Builder(
               builder: (context) {
-                capturedVm = context.get<_MockViewModel>();
+                capturedSt = context.get<_MockStore>();
                 return const SizedBox.shrink();
               },
             ),
@@ -57,7 +56,7 @@ void main() {
         ),
       );
 
-      expect(capturedVm, vm);
+      expect(capturedSt, st);
     });
 
     testWidgets('throws FlutterError when provider is not found',
@@ -78,33 +77,33 @@ void main() {
       final context = tester.element(find.byKey(const Key('access_attempt')));
 
       expect(
-        () => AppProvider.of<_MockViewModel>(context),
+        () => AppProvider.of<_MockStore>(context),
         throwsA(isA<FlutterError>().having(
           (e) => e.message,
           'message',
-          contains('AppProvider<_MockViewModel> não encontrado no contexto'),
+          contains('AppProvider<_MockStore> not found in context'),
         )),
       );
     });
 
-    testWidgets('distinguishes between different ViewModel types in the tree',
+    testWidgets('distinguishes between different Store types in the tree',
         (tester) async {
-      final vm1 = _MockViewModel('1');
-      final vm2 = _AnotherViewModel();
+      final st1 = _MockStore('1');
+      final st2 = _AnotherStore();
 
-      _MockViewModel? capturedVm1;
-      _AnotherViewModel? capturedVm2;
+      _MockStore? capturedSt1;
+      _AnotherStore? capturedSt2;
 
       await tester.pumpWidget(
         MaterialApp(
-          home: AppProvider<_MockViewModel>(
-            viewModel: vm1,
-            child: AppProvider<_AnotherViewModel>(
-              viewModel: vm2,
+          home: AppProvider<_MockStore>(
+            store: st1,
+            child: AppProvider<_AnotherStore>(
+              store: st2,
               child: Builder(
                 builder: (context) {
-                  capturedVm1 = context.get<_MockViewModel>();
-                  capturedVm2 = context.get<_AnotherViewModel>();
+                  capturedSt1 = context.get<_MockStore>();
+                  capturedSt2 = context.get<_AnotherStore>();
                   return const SizedBox.shrink();
                 },
               ),
@@ -113,28 +112,28 @@ void main() {
         ),
       );
 
-      expect(capturedVm1, vm1);
-      expect(capturedVm2, vm2);
+      expect(capturedSt1, st1);
+      expect(capturedSt2, st2);
     });
 
     testWidgets(
-        'updateShouldNotify returns true only when ViewModel instance changes',
+        'updateShouldNotify returns true only when Store instance changes',
         (tester) async {
-      final vm1 = _MockViewModel('A');
-      final vm2 = _MockViewModel('B');
+      final st1 = _MockStore('A');
+      final st2 = _MockStore('B');
 
-      final provider1 = AppProvider<_MockViewModel>(
-        viewModel: vm1,
+      final provider1 = AppProvider<_MockStore>(
+        store: st1,
         child: const SizedBox.shrink(),
       );
 
-      final provider2 = AppProvider<_MockViewModel>(
-        viewModel: vm1,
+      final provider2 = AppProvider<_MockStore>(
+        store: st1,
         child: const SizedBox.shrink(),
       );
 
-      final provider3 = AppProvider<_MockViewModel>(
-        viewModel: vm2,
+      final provider3 = AppProvider<_MockStore>(
+        store: st2,
         child: const SizedBox.shrink(),
       );
 

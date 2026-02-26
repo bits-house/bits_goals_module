@@ -26,23 +26,11 @@ The features in this module are common across many management systems, especiall
 
 ## Architecture
 
-This module adopts:
+This module adopts **Clean Architecture**.
 
-- **Clean Architecture**  
-- **MVVM** in the presentation layer  
+📌 All major architectural decisions are documented through **Architecture Decision Records (ADR)**, check:
 
-All major architectural decisions are documented through **Architecture Decision Records (ADR)**.
-
-📌 For full architectural rationale, see:  
 **[docs/architecture/adr](docs/architecture/adr) — Architecture Decision Records (ADR)**
-
-This directory preserves the motivation behind:
-
-- Developing the module as a plugin  
-- Dividing the code into Core / Features / Infra  
-- Persistence strategies  
-- Dependency injection strategy  
-- Reuse across plugins and a future Dart backend  
 
 ---
 

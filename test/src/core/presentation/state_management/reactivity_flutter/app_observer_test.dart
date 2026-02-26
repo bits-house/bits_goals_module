@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_observer.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_view_model.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _SpyAppViewModel extends AppViewModel<int, String> {
+class _SpyAppStore extends AppStore<int, String> {
   int disposeCallCount = 0;
 
-  _SpyAppViewModel({required super.initialState});
+  _SpyAppStore({required super.initialState});
 
   void updateState(int newState) => setState(newState);
 
@@ -22,15 +22,15 @@ class _SpyAppViewModel extends AppViewModel<int, String> {
   }
 }
 
-/// A manual ViewModel (not based on AppObservable) to force edge cases
+/// A manual Store (not based on AppObservable) to force edge cases
 /// that are otherwise unreachable due to idempotency in AppObservable.
-class _ManualViewModel implements ViewModel<int, String> {
+class _ManualStore implements Store<int, String> {
   int _state;
   final _listeners = <VoidCallback>{};
   final _effectsController = StreamController<String>.broadcast();
   bool _disposed = false;
 
-  _ManualViewModel(this._state);
+  _ManualStore(this._state);
 
   @override
   int get state => _state;
@@ -85,14 +85,14 @@ Widget _wrap(Widget child) {
 
 void main() {
   group('AppObserver |', () {
-    testWidgets('builds with the initial ViewModel state', (tester) async {
-      final vm = _SpyAppViewModel(initialState: 10);
+    testWidgets('builds with the initial Store state', (tester) async {
+      final st = _SpyAppStore(initialState: 10);
       int buildCount = 0;
 
       await tester.pumpWidget(
         _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state', textDirection: TextDirection.ltr);
@@ -106,13 +106,13 @@ void main() {
     });
 
     testWidgets('rebuilds only when state changes', (tester) async {
-      final vm = _SpyAppViewModel(initialState: 0);
+      final st = _SpyAppStore(initialState: 0);
       int buildCount = 0;
 
       await tester.pumpWidget(
         _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state', textDirection: TextDirection.ltr);
@@ -122,13 +122,13 @@ void main() {
       );
 
       expect(buildCount, 1);
-      vm.updateState(1);
+      st.updateState(1);
       await tester.pump();
       expect(find.text('state:1'), findsOneWidget);
       expect(buildCount, 2);
 
       // Setting an equal value should not trigger a rebuild due to AppObservable idempotency.
-      vm.updateState(1);
+      st.updateState(1);
       await tester.pump();
       expect(buildCount, 2);
     });
@@ -136,13 +136,13 @@ void main() {
     testWidgets(
         'does not call setState when notified but state is equal to cached value',
         (tester) async {
-      final vm = _ManualViewModel(7);
+      final st = _ManualStore(7);
       int buildCount = 0;
 
       await tester.pumpWidget(
         _wrap(
-          AppObserver<_ManualViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_ManualStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state', textDirection: TextDirection.ltr);
@@ -153,7 +153,7 @@ void main() {
 
       expect(buildCount, 1);
       // Force a state listener notification without a state change.
-      vm.updateState(7, notifyEvenIfEqual: true);
+      st.updateState(7, notifyEvenIfEqual: true);
       await tester.pump();
       expect(buildCount, 1,
           reason:
@@ -162,14 +162,14 @@ void main() {
 
     testWidgets('calls onEffect without rebuilding the widget tree',
         (tester) async {
-      final vm = _SpyAppViewModel(initialState: 0);
+      final st = _SpyAppStore(initialState: 0);
       int buildCount = 0;
       final effects = <String>[];
 
       await tester.pumpWidget(
         _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state', textDirection: TextDirection.ltr);
@@ -182,7 +182,7 @@ void main() {
       );
 
       expect(buildCount, 1);
-      vm.emit('E1');
+      st.emit('E1');
       await tester.pump();
       expect(effects, ['E1']);
       expect(buildCount, 1, reason: 'Effects must not trigger rebuilds.');
@@ -190,13 +190,13 @@ void main() {
 
     testWidgets('handles emitted effects when onEffect is null',
         (tester) async {
-      final vm = _SpyAppViewModel(initialState: 0);
+      final st = _SpyAppStore(initialState: 0);
       int buildCount = 0;
 
       await tester.pumpWidget(
         _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state', textDirection: TextDirection.ltr);
@@ -206,20 +206,20 @@ void main() {
         ),
       );
 
-      vm.emit('IGNORED');
+      st.emit('IGNORED');
       await tester.pump();
       expect(buildCount, 1,
           reason: 'Effects must not rebuild even without onEffect.');
     });
 
-    testWidgets('disposes the ViewModel when removed (default behavior)',
+    testWidgets('disposes the Store when removed (default behavior)',
         (tester) async {
-      final vm = _SpyAppViewModel(initialState: 0);
+      final st = _SpyAppStore(initialState: 0);
 
       await tester.pumpWidget(
         _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               return Text('state:$state', textDirection: TextDirection.ltr);
             },
@@ -227,25 +227,25 @@ void main() {
         ),
       );
 
-      expect(vm.disposeCallCount, 0);
+      expect(st.disposeCallCount, 0);
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();
 
-      expect(vm.disposeCallCount, 1);
+      expect(st.disposeCallCount, 1);
     });
 
     testWidgets(
-        'switches listeners when the ViewModel instance changes and disposes the old one (when enabled)',
+        'switches listeners when the Store instance changes and disposes the old one (when enabled)',
         (tester) async {
-      final oldVm = _SpyAppViewModel(initialState: 1);
-      final newVm = _SpyAppViewModel(initialState: 100);
+      final oldSt = _SpyAppStore(initialState: 1);
+      final newSt = _SpyAppStore(initialState: 100);
       int buildCount = 0;
 
-      Widget make(_SpyAppViewModel vm) {
+      Widget make(_SpyAppStore st) {
         return _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state $buildCount',
@@ -255,36 +255,36 @@ void main() {
         );
       }
 
-      await tester.pumpWidget(make(oldVm));
+      await tester.pumpWidget(make(oldSt));
       expect(find.text('state:1 1'), findsOneWidget);
 
-      await tester.pumpWidget(make(newVm));
+      await tester.pumpWidget(make(newSt));
       await tester.pump();
 
-      expect(oldVm.disposeCallCount, 1,
-          reason: 'Old ViewModel must be disposed on swap.');
+      expect(oldSt.disposeCallCount, 1,
+          reason: 'Old Store must be disposed on swap.');
       expect(find.text('state:100 2'), findsOneWidget);
 
-      // Updates in the old VM must not affect UI anymore.
-      oldVm.updateState(2);
+      // Updates in the old ST must not affect UI anymore.
+      oldSt.updateState(2);
       await tester.pump();
       expect(find.text('state:100 2'), findsOneWidget);
 
-      // Updates in the new VM must affect UI.
-      newVm.updateState(101);
+      // Updates in the new ST must affect UI.
+      newSt.updateState(101);
       await tester.pump();
       expect(find.text('state:101 3'), findsOneWidget);
     });
 
-    testWidgets('does nothing in didUpdateWidget when ViewModel is unchanged',
+    testWidgets('does nothing in didUpdateWidget when Store is unchanged',
         (tester) async {
-      final vm = _SpyAppViewModel(initialState: 1);
+      final st = _SpyAppStore(initialState: 1);
       int buildCount = 0;
 
       Widget make() {
         return _wrap(
-          AppObserver<_SpyAppViewModel, int, String>(
-            viewModel: vm,
+          AppObserver<_SpyAppStore, int, String>(
+            store: st,
             builder: (context, state) {
               buildCount++;
               return Text('state:$state', textDirection: TextDirection.ltr);
@@ -297,10 +297,10 @@ void main() {
       await tester.pumpWidget(make());
       await tester.pump();
 
-      expect(vm.disposeCallCount, 0,
-          reason: 'VM must not be disposed if it did not change.');
+      expect(st.disposeCallCount, 0,
+          reason: 'ST must not be disposed if it did not change.');
       expect(buildCount, greaterThanOrEqualTo(1));
-      vm.dispose();
+      st.dispose();
     });
   });
 }

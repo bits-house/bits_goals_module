@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_view_model.dart';
+import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart';
 import 'package:flutter/material.dart';
 
 class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
@@ -13,7 +13,7 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.get<CreateAnnualRevenueGoalDialogViewModel>();
+    final store = context.get<CreateAnnualRevenueGoalDialogStore>();
     final retryAfterMinutes = state.failure.retryAfter != null
         ? state.failure.retryAfter!.inMinutes
         : 0;
@@ -59,7 +59,7 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
             children: [
               FilledButton(
                 onPressed: () {
-                  viewModel.initialize();
+                  store.initialize();
                 },
                 child: Text("Tentar novamente"),
               ),

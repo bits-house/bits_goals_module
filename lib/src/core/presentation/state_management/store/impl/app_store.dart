@@ -1,17 +1,20 @@
 import 'dart:async';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_dart/reactivity_impl/app_observable.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_streamed_list_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/store.dart';
 import 'package:flutter/foundation.dart';
 
-/// A base ViewModel implementation that MUST be extended by every ViewModel in the app that
-/// does not fit in the specialized ones (e.g., [AppStreamedListViewModel]).
-abstract class AppViewModel<S, E> implements ViewModel<S, E> {
+// TODO: mitigar erros de concorrência e reentrância: Double Submit, Stale Completion,
+//  Reentrância de State, etc.
+
+/// A base Store implementation that MUST be extended by every Store in the app that
+/// does not fit in the specialized ones (e.g., [AppStreamedListStore]).
+abstract class AppStore<S, E> implements Store<S, E> {
   late final AppObservable<S> _state;
   final _effectController = StreamController<E>.broadcast();
 
-  AppViewModel({required S initialState}) {
+  AppStore({required S initialState}) {
     _state = AppObservable<S>(initialState);
   }
 

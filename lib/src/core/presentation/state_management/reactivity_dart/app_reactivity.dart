@@ -1,6 +1,6 @@
 /// A framework-agnostic reactive state holder.
 ///
-/// It is the bridge between the UI and ViewModel with any underlying
+/// It is the bridge between the UI and Store with any underlying
 /// reactivity system (MobX, Signals, Streams, ValueNotifier, etc).
 ///
 /// The UI should never depend on a specific framework.
@@ -52,12 +52,12 @@ abstract class AppReactivity<T> {
   ///
   /// IMPORTANT:
   /// This should be called by whoever OWNS the state
-  /// (typically a ViewModel / Presenter),
+  /// (typically a Store / Presenter),
   /// not by UI listeners.
   ///
   /// Example:
   /// ```dart
-  /// class LoginViewModel {
+  /// class LoginStore {
   ///   final email = AppReactivityImpl<String>("");
   ///
   ///   void dispose() {

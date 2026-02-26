@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_dart/reactivity_impl/app_observable.dart';
 
-/// A specialized [AppViewModel] designed for **Limit-Based Infinite Scrolling** fetching with
+/// A specialized [AppStore] designed for **Limit-Based Infinite Scrolling** fetching with
 /// **Robust Error Handling** and **Real-Time Stream Updates**.
 ///
 /// Note: Not made for page-based APIs where you need to keep the old data while fetching new pages.
@@ -13,10 +13,10 @@ import 'package:bits_goals_module/src/core/presentation/state_management/reactiv
 ///
 /// ### Generics:
 /// [S] - Main State Type. MUST be a sealed class representing the entire screen state.
-/// [E] - Event Type. MUST be a sealed class representing one-off events (navigation, snackbars, etc).
+/// [E] - Effect Type. MUST be a sealed class representing one-off effects (navigation, snackbars, etc).
 /// [T] - List Item Type
 /// [F] - Domain Failure Type
-abstract class AppStreamedListViewModel<S, E, T, F> extends AppViewModel<S, E> {
+abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
   // ================= STATE =================
 
   StreamSubscription<List<T>>? _streamSubscription;
@@ -47,33 +47,33 @@ abstract class AppStreamedListViewModel<S, E, T, F> extends AppViewModel<S, E> {
 
   /// Example usage:
   /// ```dart
-  ///   TestViewModel(
+  ///   TestStore(
   ///     GetItensUseCase useCase,
   ///   ) : super(
   ///           initialState: LoadingState(),
-  ///           stateAfterDataAutoUpdate: (data) {
+  ///           mapDataToStateOnStreamAutoUpdate: (data) {
   ///             if (data.isEmpty) {
   ///               return EmptyState();
   ///             } else {
-  ///               return SuccessState();
+  ///               return SuccessState(data);
   ///             }
   ///           },
-  ///           stateOnInitialFailure: (failure) => FailureState(
+  ///           mapInitialFailureToState: (failure) => FailureState(
   ///             failure: failure,
   ///           ),
-  ///           mapUnexpectedExceptionToFailure: (exception) => Failure(
+  ///           mapExceptionToFailure: (exception) => Failure(
   ///             reason: FailureReason.unexpected,
   ///           ),
   ///         );
-  AppStreamedListViewModel({
+  AppStreamedListStore({
     required super.initialState,
-    required S Function(List<T> data) stateAfterDataAutoUpdate,
-    required S Function(F failure) stateOnInitialFailure,
-    required F Function(Object exception) mapUnexpectedExceptionToFailure,
+    required S Function(List<T> data) mapDataToStateOnStreamAutoUpdate,
+    required S Function(F failure) mapInitialFailureToState,
+    required F Function(Object exception) mapExceptionToFailure,
     int pageSize = 20,
-  })  : _mainStateMapper = stateAfterDataAutoUpdate,
-        _initialFailureHandler = stateOnInitialFailure,
-        _exceptionMapper = mapUnexpectedExceptionToFailure,
+  })  : _mainStateMapper = mapDataToStateOnStreamAutoUpdate,
+        _initialFailureHandler = mapInitialFailureToState,
+        _exceptionMapper = mapExceptionToFailure,
         _pageSize = pageSize {
     _currentLimit = _pageSize;
     _startListening(isInitialLoad: true);
@@ -180,7 +180,7 @@ abstract class AppStreamedListViewModel<S, E, T, F> extends AppViewModel<S, E> {
 
           setState(_mainStateMapper(data));
         } catch (e, s) {
-          debugPrint("[AppStreamedListVM] Mapper Error: $e\n$s");
+          debugPrint("[AppStreamedListStore] Mapper Error: $e\n$s");
           _handleError(e, isInitialLoad);
         }
       },
@@ -197,7 +197,7 @@ abstract class AppStreamedListViewModel<S, E, T, F> extends AppViewModel<S, E> {
     if (error is F) {
       failure = error as F;
     } else {
-      debugPrint("[AppStreamedListVM] Stream Error: $error");
+      debugPrint("[AppStreamedListStore] Stream Error: $error");
       failure = _exceptionMapper(error);
     }
 

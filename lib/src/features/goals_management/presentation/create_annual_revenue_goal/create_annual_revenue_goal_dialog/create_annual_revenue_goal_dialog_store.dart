@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
@@ -81,12 +81,12 @@ class SuccessEffectCreateAnnualRevenueGoal
 }
 
 // ==================================================================
-// ViewModel (Factory)
+// Store (Factory)
 // ==================================================================
 
-class CreateAnnualRevenueGoalDialogViewModel extends AppViewModel<
+class CreateAnnualRevenueGoalDialogStore extends AppStore<
     StatesCreateAnnualRevenueGoalDialog, EffectsCreateAnnualRevenueGoalDialog> {
-  CreateAnnualRevenueGoalDialogViewModel({
+  CreateAnnualRevenueGoalDialogStore({
     required List<Year> unavailableYears,
     required CreateAnnualRevenueGoal useCase,
   })  : _unavailableYears = unavailableYears,

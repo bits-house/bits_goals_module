@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
-import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_view_model.dart';
+import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart';
 import 'package:flutter/material.dart';
 
 class InputGoalTargetCreateAnnualRevenueGoalDialog extends StatefulWidget {
@@ -38,7 +38,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.get<CreateAnnualRevenueGoalDialogViewModel>();
+    final store = context.get<CreateAnnualRevenueGoalDialogStore>();
     final titleString =
         context.strings.inputGoalTargetCreateAnnualRevenueGoalDialog_title(
       widget.state.selectedYear.value,
@@ -72,7 +72,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
               errorText: errorText,
             ),
             controller: _controller,
-            onChanged: (input) => viewModel.onRevenueTargetInputChanged(
+            onChanged: (input) => store.onRevenueTargetInputChanged(
               input: input,
               currentState: widget.state,
             ),
@@ -83,7 +83,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
             children: [
               TextButton(
                 onPressed: () {
-                  viewModel.initialize();
+                  store.initialize();
                 },
                 child: Text("Voltar"),
               ),
@@ -91,7 +91,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
               FilledButton(
                 onPressed: widget.state.enableCreateButton
                     ? () {
-                        viewModel.createGoal(
+                        store.createGoal(
                           year: widget.state.selectedYear,
                           revenueTargetInput: _controller.text,
                         );

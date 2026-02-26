@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_streamed_list_observer.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_streamed_list_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -40,25 +40,24 @@ class _ShowSnackbar extends _TestEffect {
   _ShowSnackbar(this.message);
 }
 
-/// A concrete [AppStreamedListViewModel] with controllable stream factory and
+/// A concrete [AppStreamedListStore] with controllable stream factory and
 /// spy capabilities (dispose counter, effect emission).
-class _SpyStreamedVM extends AppStreamedListViewModel<_TestState, _TestEffect,
-    int, _TestFailure> {
+class _SpyStreamedST
+    extends AppStreamedListStore<_TestState, _TestEffect, int, _TestFailure> {
   final Stream<List<int>> Function({int? limit}) _streamFactory;
   int disposeCallCount = 0;
   int loadMoreCallCount = 0;
   int retryPaginationCallCount = 0;
 
-  _SpyStreamedVM(
+  _SpyStreamedST(
     this._streamFactory, {
     _TestState? initialStateOverride,
   }) : super(
           initialState: initialStateOverride ?? _LoadingState(),
-          stateAfterDataAutoUpdate: (data) =>
+          mapDataToStateOnStreamAutoUpdate: (data) =>
               data.isEmpty ? _EmptyState() : _SuccessState(data),
-          stateOnInitialFailure: (f) => _FailureState(f),
-          mapUnexpectedExceptionToFailure: (e) =>
-              _TestFailure('unexpected: $e'),
+          mapInitialFailureToState: (f) => _FailureState(f),
+          mapExceptionToFailure: (e) => _TestFailure('unexpected: $e'),
           pageSize: 2,
         );
 
@@ -113,8 +112,8 @@ String _paginationLabel(PaginationState<_TestFailure> pState) {
   return 'unknown:$name';
 }
 
-String _statusText(_SpyStreamedVM vm) {
-  return 'state:${_stateLabel(vm.state)} page:${_paginationLabel(vm.paginationState)}';
+String _statusText(_SpyStreamedST st) {
+  return 'state:${_stateLabel(st.state)} page:${_paginationLabel(st.paginationState)}';
 }
 
 List<int> _listSelector(_TestState state) {
@@ -124,14 +123,14 @@ List<int> _listSelector(_TestState state) {
   };
 }
 
-/// Shorthand for a standard AppListObserver widget wired to a [_SpyStreamedVM].
+/// Shorthand for a standard AppListObserver widget wired to a [_SpyStreamedST].
 ///
 /// Notes:
 /// - We render state/pagination via `emptyBuilder` (when list is empty)
 ///   and also within each list item for convenience.
 Widget _makeObserver(
-  _SpyStreamedVM vm, {
-  bool shouldDisposeViewModel = true,
+  _SpyStreamedST st, {
+  bool shouldDisposeStore = true,
   void Function(BuildContext, _TestEffect)? onEffect,
   EdgeInsetsGeometry? padding,
   ScrollController? scrollController,
@@ -144,7 +143,7 @@ Widget _makeObserver(
   Widget defaultEmptyBuilder(BuildContext context) {
     buildCountRef?[0]++;
     return Text(
-      _statusText(vm),
+      _statusText(st),
       textDirection: TextDirection.ltr,
     );
   }
@@ -166,10 +165,10 @@ Widget _makeObserver(
   }
 
   return _wrap(
-    AppStreamedListObserver<_SpyStreamedVM, _TestState, _TestEffect, int,
+    AppStreamedListObserver<_SpyStreamedST, _TestState, _TestEffect, int,
         _TestFailure>(
-      viewModel: vm,
-      shouldDisposeViewModel: shouldDisposeViewModel,
+      store: st,
+      shouldDisposeStore: shouldDisposeStore,
       listSelector: _listSelector,
       padding: padding,
       scrollController: scrollController,
@@ -182,7 +181,7 @@ Widget _makeObserver(
         return SizedBox(
           height: 80,
           child: Text(
-            'item:$item ${_statusText(vm)}',
+            'item:$item ${_statusText(st)}',
             textDirection: TextDirection.ltr,
           ),
         );
@@ -204,11 +203,11 @@ void main() {
     testWidgets('shows initial state via emptyBuilder and has idle pagination',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
       final buildCount = [0];
 
       await tester.pumpWidget(
-        _makeObserver(vm, buildCountRef: buildCount),
+        _makeObserver(st, buildCountRef: buildCount),
       );
 
       expect(find.text('state:loading page:idle'), findsOneWidget);
@@ -219,9 +218,9 @@ void main() {
 
     testWidgets('renders items when stream emits data', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
       expect(find.text('state:loading page:idle'), findsOneWidget);
 
       controller.add([1, 2]);
@@ -240,9 +239,9 @@ void main() {
   group('AppStreamedListObserver | Main State |', () {
     testWidgets('updates items when main state changes', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // Emit initial data → state becomes SuccessState.
       controller.add([1, 2]);
@@ -263,9 +262,9 @@ void main() {
         'handles repeated emissions without crashing (idempotency / listener safety)',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       controller.add([1, 2]);
       await tester.pumpAndSettle();
@@ -282,9 +281,9 @@ void main() {
     testWidgets('shows failure state via emptyBuilder on initial stream error',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       controller.addError(_TestFailure('something broke'));
       await tester.pumpAndSettle();
@@ -297,9 +296,9 @@ void main() {
 
     testWidgets('handles transition to empty state', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       controller.add([]);
       await tester.pumpAndSettle();
@@ -313,13 +312,13 @@ void main() {
         'handles list shrinking without crashing (AnimatedList index guard)',
         (tester) async {
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
       });
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // First emission: 2 items.
       activeController!.add([1, 2]);
@@ -328,7 +327,7 @@ void main() {
       expect(find.textContaining('item:2'), findsOneWidget);
 
       // Refresh swaps list identity and resets limits.
-      vm.refresh();
+      st.refresh();
       await tester.pumpAndSettle();
 
       // Next emission returns fewer items (1 item).
@@ -349,9 +348,9 @@ void main() {
     testWidgets('reflects pagination Loading when loadMore is called',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // Emit exactly pageSize items so hasReachedMax stays false.
       controller.add([1, 2]);
@@ -359,7 +358,7 @@ void main() {
       expect(find.textContaining('page:idle'), findsWidgets);
 
       // Trigger pagination — paginationState → Loading.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -377,13 +376,13 @@ void main() {
       // Use a factory that returns a new controller's stream each time
       // so the error only affects the loadMore call.
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
       });
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // Emit initial data.
       activeController!.add([1, 2]);
@@ -391,7 +390,7 @@ void main() {
       expect(find.textContaining('item:1'), findsOneWidget);
 
       // Trigger loadMore → pagination becomes Loading.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
       expect(find.textContaining('page:loading'), findsWidgets);
 
@@ -408,27 +407,27 @@ void main() {
 
     testWidgets('returns to Idle after refresh', (tester) async {
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
       });
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // Emit initial data.
       activeController!.add([1, 2]);
       await tester.pumpAndSettle();
 
       // loadMore → Error.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
       activeController!.addError(_TestFailure('fail'));
       await tester.pumpAndSettle();
       expect(find.textContaining('page:error'), findsWidgets);
 
       // Refresh resets everything.
-      vm.refresh();
+      st.refresh();
       await tester.pumpAndSettle();
 
       // After refresh, pagination returns to Idle.
@@ -441,11 +440,11 @@ void main() {
     testWidgets('hides emptyBuilder while pagination is Loading',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
       await tester.pumpWidget(
         _makeObserver(
-          vm,
+          st,
           emptyBuilder: (context) => const Text(
             'EMPTY_BUILDER',
             textDirection: TextDirection.ltr,
@@ -454,7 +453,7 @@ void main() {
       );
 
       // Force pagination loading before any data arrives.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -472,13 +471,13 @@ void main() {
     testWidgets('calls onEffect without rebuilding the widget tree',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
       final buildCount = [0];
       final effects = <String>[];
 
       await tester.pumpWidget(
         _makeObserver(
-          vm,
+          st,
           buildCountRef: buildCount,
           onEffect: (context, effect) {
             if (effect is _ShowSnackbar) {
@@ -490,7 +489,7 @@ void main() {
 
       final buildsBefore = buildCount[0];
 
-      vm.emitTestEffect(_ShowSnackbar('hello'));
+      st.emitTestEffect(_ShowSnackbar('hello'));
       await tester.pump();
       expect(effects, ['hello']);
       expect(buildCount[0], buildsBefore,
@@ -501,12 +500,12 @@ void main() {
 
     testWidgets('handles multiple effects in sequence', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
       final effects = <String>[];
 
       await tester.pumpWidget(
         _makeObserver(
-          vm,
+          st,
           onEffect: (context, effect) {
             if (effect is _ShowSnackbar) {
               effects.add(effect.message);
@@ -515,9 +514,9 @@ void main() {
         ),
       );
 
-      vm.emitTestEffect(_ShowSnackbar('first'));
-      vm.emitTestEffect(_ShowSnackbar('second'));
-      vm.emitTestEffect(_ShowSnackbar('third'));
+      st.emitTestEffect(_ShowSnackbar('first'));
+      st.emitTestEffect(_ShowSnackbar('second'));
+      st.emitTestEffect(_ShowSnackbar('third'));
       await tester.pump();
 
       expect(effects, ['first', 'second', 'third']);
@@ -527,18 +526,18 @@ void main() {
 
     testWidgets('does not crash when onEffect is null', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
       final buildCount = [0];
 
       await tester.pumpWidget(
         _makeObserver(
-          vm,
+          st,
           buildCountRef: buildCount,
           onEffect: null,
         ),
       );
 
-      vm.emitTestEffect(_ShowSnackbar('ignored'));
+      st.emitTestEffect(_ShowSnackbar('ignored'));
       await tester.pump();
 
       expect(buildCount[0], greaterThan(0),
@@ -552,38 +551,37 @@ void main() {
   // 5. DISPOSE
   // ─────────────────────────────────────────
   group('AppListObserver | Dispose |', () {
-    testWidgets('disposes the ViewModel when removed (default behavior)',
+    testWidgets('disposes the Store when removed (default behavior)',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
-      expect(vm.disposeCallCount, 0);
+      await tester.pumpWidget(_makeObserver(st));
+      expect(st.disposeCallCount, 0);
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();
 
-      expect(vm.disposeCallCount, 1);
+      expect(st.disposeCallCount, 1);
 
       await controller.close();
     });
 
-    testWidgets(
-        'does NOT dispose the ViewModel when shouldDisposeViewModel=false',
+    testWidgets('does NOT dispose the Store when shouldDisposeStore=false',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
       await tester.pumpWidget(
-        _makeObserver(vm, shouldDisposeViewModel: false),
+        _makeObserver(st, shouldDisposeStore: false),
       );
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();
 
-      expect(vm.disposeCallCount, 0);
+      expect(st.disposeCallCount, 0);
 
-      vm.dispose();
+      st.dispose();
       await controller.close();
     });
 
@@ -592,85 +590,85 @@ void main() {
         (tester) async {
       // Use a factory that keeps a reference so we can emit after dispose.
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
       });
 
       await tester.pumpWidget(
-        _makeObserver(vm, shouldDisposeViewModel: false),
+        _makeObserver(st, shouldDisposeStore: false),
       );
 
       activeController!.add([1, 2]);
       await tester.pumpAndSettle();
 
-      // Remove the widget without disposing the VM.
+      // Remove the widget without disposing the ST.
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();
 
       // These should not throw — listeners were properly removed.
-      // The VM is not disposed, so state can still change internally.
+      // The ST is not disposed, so state can still change internally.
       // No widget is listening, so no crash.
-      expect(vm.disposeCallCount, 0);
+      expect(st.disposeCallCount, 0);
 
-      vm.dispose();
+      st.dispose();
       activeController?.close();
     });
   });
 
   // ─────────────────────────────────────────
-  // 6. VIEW MODEL SWAP (didUpdateWidget)
+  // 6. STORE SWAP (didUpdateWidget)
   // ─────────────────────────────────────────
-  group('AppListObserver | ViewModel Swap |', () {
+  group('AppListObserver | Store Swap |', () {
     testWidgets(
-        'switches all listeners when VM instance changes and disposes the old one',
+        'switches all listeners when ST instance changes and disposes the old one',
         (tester) async {
       final controller1 = StreamController<List<int>>.broadcast();
-      final oldVm = _SpyStreamedVM(({limit}) => controller1.stream);
+      final oldSt = _SpyStreamedST(({limit}) => controller1.stream);
 
       final controller2 = StreamController<List<int>>.broadcast();
-      final newVm = _SpyStreamedVM(({limit}) => controller2.stream);
+      final newSt = _SpyStreamedST(({limit}) => controller2.stream);
 
       final buildCount = [0];
 
-      Widget make(_SpyStreamedVM vm) {
+      Widget make(_SpyStreamedST st) {
         return _makeObserver(
-          vm,
+          st,
           buildCountRef: buildCount,
         );
       }
 
-      // Mount with old VM.
-      await tester.pumpWidget(make(oldVm));
+      // Mount with old ST.
+      await tester.pumpWidget(make(oldSt));
       expect(find.text('state:loading page:idle'), findsOneWidget);
 
-      // Emit data on old VM.
+      // Emit data on old ST.
       controller1.add([1, 2]);
       await tester.pumpAndSettle();
       expect(find.textContaining('item:1'), findsOneWidget);
       final countAfterOldData = buildCount[0];
 
-      // Swap to new VM.
-      await tester.pumpWidget(make(newVm));
+      // Swap to new ST.
+      await tester.pumpWidget(make(newSt));
       await tester.pump();
 
       expect(buildCount[0], countAfterOldData + 1,
           reason:
-              'Should rebuild when switching to the new VM (loading state).');
+              'Should rebuild when switching to the new ST (loading state).');
 
-      expect(oldVm.disposeCallCount, 1,
-          reason: 'Old ViewModel must be disposed on swap.');
-      // New VM has LoadingState initially.
+      expect(oldSt.disposeCallCount, 1,
+          reason: 'Old Store must be disposed on swap.');
+      // New ST has LoadingState initially.
       expect(find.text('state:loading page:idle'), findsOneWidget);
 
       // Emitting on old controller must NOT affect UI.
       controller1.add([99, 100]);
       await tester.pumpAndSettle();
       expect(find.text('state:loading page:idle'), findsOneWidget,
-          reason: 'Old VM updates must be ignored after swap.');
+          reason: 'Old ST updates must be ignored after swap.');
       expect(buildCount[0], countAfterOldData + 1,
-          reason: 'Old VM updates must not trigger new builds.');
+          reason: 'Old ST updates must not trigger new builds.');
 
       // Emitting on new controller MUST affect UI.
       controller2.add([5, 6]);
@@ -681,43 +679,41 @@ void main() {
       controller2.close();
     });
 
-    testWidgets('switches pagination listener on VM swap', (tester) async {
+    testWidgets('switches pagination listener on ST swap', (tester) async {
       StreamController<List<int>>? activeController1;
-      final oldVm = _SpyStreamedVM(({limit}) {
+      final oldSt = _SpyStreamedST(({limit}) {
         activeController1?.close();
         activeController1 = StreamController<List<int>>.broadcast();
         return activeController1!.stream;
       });
 
       StreamController<List<int>>? activeController2;
-      final newVm = _SpyStreamedVM(({limit}) {
+      final newSt = _SpyStreamedST(({limit}) {
         activeController2?.close();
         activeController2 = StreamController<List<int>>.broadcast();
         return activeController2!.stream;
       });
 
-      // Mount with old VM and emit data.
-      await tester
-          .pumpWidget(_makeObserver(oldVm, shouldDisposeViewModel: true));
+      // Mount with old ST and emit data.
+      await tester.pumpWidget(_makeObserver(oldSt, shouldDisposeStore: true));
       activeController1!.add([1, 2]);
       await tester.pumpAndSettle();
       expect(find.textContaining('item:1'), findsOneWidget);
 
-      // Swap to new VM.
-      await tester
-          .pumpWidget(_makeObserver(newVm, shouldDisposeViewModel: true));
+      // Swap to new ST.
+      await tester.pumpWidget(_makeObserver(newSt, shouldDisposeStore: true));
       await tester.pump();
 
-      // New VM starts loading with idle pagination.
+      // New ST starts loading with idle pagination.
       expect(find.text('state:loading page:idle'), findsOneWidget);
 
-      // Emit data on new VM.
+      // Emit data on new ST.
       activeController2!.add([10, 20]);
       await tester.pumpAndSettle();
       expect(find.textContaining('item:10'), findsOneWidget);
 
-      // Trigger loadMore on new VM — pagination reflects Loading.
-      newVm.loadMore();
+      // Trigger loadMore on new ST — pagination reflects Loading.
+      newSt.loadMore();
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -731,40 +727,40 @@ void main() {
     });
 
     testWidgets(
-        'does not dispose old ViewModel on swap when shouldDisposeViewModel=false',
+        'does not dispose old Store on swap when shouldDisposeStore=false',
         (tester) async {
       final controller1 = StreamController<List<int>>.broadcast();
-      final oldVm = _SpyStreamedVM(({limit}) => controller1.stream);
+      final oldSt = _SpyStreamedST(({limit}) => controller1.stream);
 
       final controller2 = StreamController<List<int>>.broadcast();
-      final newVm = _SpyStreamedVM(({limit}) => controller2.stream);
+      final newSt = _SpyStreamedST(({limit}) => controller2.stream);
 
-      Widget make(_SpyStreamedVM vm) {
-        return _makeObserver(vm, shouldDisposeViewModel: false);
+      Widget make(_SpyStreamedST st) {
+        return _makeObserver(st, shouldDisposeStore: false);
       }
 
-      await tester.pumpWidget(make(oldVm));
-      await tester.pumpWidget(make(newVm));
+      await tester.pumpWidget(make(oldSt));
+      await tester.pumpWidget(make(newSt));
       await tester.pump();
 
-      expect(oldVm.disposeCallCount, 0,
-          reason: 'Old VM must NOT be disposed when flag is false.');
+      expect(oldSt.disposeCallCount, 0,
+          reason: 'Old ST must NOT be disposed when flag is false.');
 
-      newVm.dispose();
-      oldVm.dispose();
+      newSt.dispose();
+      oldSt.dispose();
       controller1.close();
       controller2.close();
     });
 
-    testWidgets('does nothing in didUpdateWidget when ViewModel is unchanged',
+    testWidgets('does nothing in didUpdateWidget when Store is unchanged',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
       final buildCount = [0];
 
       Widget make() {
         return _makeObserver(
-          vm,
+          st,
           buildCountRef: buildCount,
         );
       }
@@ -773,25 +769,25 @@ void main() {
       await tester.pumpWidget(make());
       await tester.pump();
 
-      expect(vm.disposeCallCount, 0,
-          reason: 'VM must not be disposed if it did not change.');
+      expect(st.disposeCallCount, 0,
+          reason: 'ST must not be disposed if it did not change.');
       expect(buildCount[0], greaterThanOrEqualTo(1));
 
       controller.close();
     });
 
-    testWidgets('effects from old VM are ignored after swap', (tester) async {
+    testWidgets('effects from old ST are ignored after swap', (tester) async {
       final controller1 = StreamController<List<int>>.broadcast();
-      final oldVm = _SpyStreamedVM(({limit}) => controller1.stream);
+      final oldSt = _SpyStreamedST(({limit}) => controller1.stream);
 
       final controller2 = StreamController<List<int>>.broadcast();
-      final newVm = _SpyStreamedVM(({limit}) => controller2.stream);
+      final newSt = _SpyStreamedST(({limit}) => controller2.stream);
 
       final effects = <String>[];
 
-      Widget make(_SpyStreamedVM vm) {
+      Widget make(_SpyStreamedST st) {
         return _makeObserver(
-          vm,
+          st,
           onEffect: (context, effect) {
             if (effect is _ShowSnackbar) {
               effects.add(effect.message);
@@ -800,19 +796,19 @@ void main() {
         );
       }
 
-      await tester.pumpWidget(make(oldVm));
+      await tester.pumpWidget(make(oldSt));
 
-      // Emit effect from old VM — should arrive.
-      oldVm.emitTestEffect(_ShowSnackbar('from_old'));
+      // Emit effect from old ST — should arrive.
+      oldSt.emitTestEffect(_ShowSnackbar('from_old'));
       await tester.pump();
       expect(effects, ['from_old']);
 
-      // Swap to new VM — old effect subscription is cancelled.
-      await tester.pumpWidget(make(newVm));
+      // Swap to new ST — old effect subscription is cancelled.
+      await tester.pumpWidget(make(newSt));
       await tester.pump();
 
-      // Effect from new VM should arrive.
-      newVm.emitTestEffect(_ShowSnackbar('from_new'));
+      // Effect from new ST should arrive.
+      newSt.emitTestEffect(_ShowSnackbar('from_new'));
       await tester.pump();
       expect(effects, ['from_old', 'from_new']);
 
@@ -828,13 +824,13 @@ void main() {
     testWidgets('full lifecycle: load → paginate → error → retry → refresh',
         (tester) async {
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
       });
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // Initial: loading + idle
       expect(find.text('state:loading page:idle'), findsOneWidget);
@@ -845,7 +841,7 @@ void main() {
       expect(find.textContaining('item:1'), findsOneWidget);
 
       // Step 2: Load more → pagination Loading.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -857,7 +853,7 @@ void main() {
           reason: 'Main state must be preserved during pagination error.');
 
       // Step 4: Retry pagination → loading again.
-      vm.retryPagination();
+      st.retryPagination();
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -868,7 +864,7 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
 
       // Step 6: Refresh.
-      vm.refresh();
+      st.refresh();
       await tester.pumpAndSettle();
       expect(find.textContaining('page:idle'), findsWidgets);
       expect(find.byType(CircularProgressIndicator), findsNothing);
@@ -881,7 +877,7 @@ void main() {
       // Step 8: Remove widget → dispose.
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();
-      expect(vm.disposeCallCount, 1);
+      expect(st.disposeCallCount, 1);
 
       activeController?.close();
     });
@@ -889,12 +885,12 @@ void main() {
     testWidgets('rapidly emitting data does not cause duplicate rebuilds',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
       final buildCount = [0];
 
       await tester.pumpWidget(
         _makeObserver(
-          vm,
+          st,
           buildCountRef: buildCount,
         ),
       );
@@ -915,10 +911,10 @@ void main() {
 
     testWidgets('handles stream closing gracefully', (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
       await tester.pumpWidget(
-        _makeObserver(vm, shouldDisposeViewModel: false),
+        _makeObserver(st, shouldDisposeStore: false),
       );
 
       controller.add([1, 2]);
@@ -931,25 +927,25 @@ void main() {
 
       expect(find.textContaining('state:success'), findsWidgets);
 
-      vm.dispose();
+      st.dispose();
     });
 
     testWidgets(
         'loadMore is ignored when hasReachedMax is true (no pagination rebuild)',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      await tester.pumpWidget(_makeObserver(vm));
+      await tester.pumpWidget(_makeObserver(st));
 
       // Emit fewer items than pageSize → hasReachedMax = true.
       controller.add([1]); // pageSize=2, got 1 → reached max.
       await tester.pumpAndSettle();
-      expect(vm.hasReachedMax, true);
+      expect(st.hasReachedMax, true);
       expect(find.textContaining('item:1'), findsOneWidget);
 
       // Calling loadMore should be a no-op.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsNothing,
           reason: 'loadMore must be ignored when hasReachedMax is true.');
@@ -960,21 +956,21 @@ void main() {
     testWidgets('widget rebuilds correctly after parent rebuild',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
-      // Pump twice with same VM to trigger didUpdateWidget without VM change.
-      await tester.pumpWidget(_makeObserver(vm));
+      // Pump twice with same ST to trigger didUpdateWidget without ST change.
+      await tester.pumpWidget(_makeObserver(st));
       controller.add([1, 2]);
       await tester.pumpAndSettle();
       expect(find.textContaining('item:1'), findsOneWidget);
 
-      // Parent rebuild — same VM instance.
-      await tester.pumpWidget(_makeObserver(vm));
+      // Parent rebuild — same ST instance.
+      await tester.pumpWidget(_makeObserver(st));
       await tester.pump();
 
       // State should be preserved.
       expect(find.textContaining('item:1'), findsOneWidget);
-      expect(vm.disposeCallCount, 0);
+      expect(st.disposeCallCount, 0);
 
       await controller.close();
     });
@@ -982,11 +978,11 @@ void main() {
     testWidgets('renders SliverPadding when padding is provided',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
       await tester.pumpWidget(
         _makeObserver(
-          vm,
+          st,
           padding: const EdgeInsets.all(8),
         ),
       );
@@ -999,7 +995,7 @@ void main() {
     testWidgets('default error footer renders Retry and calls retryPagination',
         (tester) async {
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
@@ -1008,16 +1004,16 @@ void main() {
       // Use default errorBuilder from widget (pass null) to cover that branch.
       await tester.pumpWidget(
         _wrap(
-          AppStreamedListObserver<_SpyStreamedVM, _TestState, _TestEffect, int,
+          AppStreamedListObserver<_SpyStreamedST, _TestState, _TestEffect, int,
               _TestFailure>(
-            viewModel: vm,
+            store: st,
             listSelector: _listSelector,
             itemBuilder: (context, item, animation) => SizedBox(
               height: 80,
               child: Text('item:$item', textDirection: TextDirection.ltr),
             ),
             emptyBuilder: (context) => Text(
-              _statusText(vm),
+              _statusText(st),
               textDirection: TextDirection.ltr,
             ),
             loadingBuilder: null,
@@ -1031,23 +1027,23 @@ void main() {
       await tester.pumpAndSettle();
 
       // loadMore then error -> PaginationError and default error sliver.
-      vm.loadMore();
+      st.loadMore();
       await tester.pump();
       activeController!.addError(_TestFailure('boom'));
       await tester.pumpAndSettle();
 
       expect(find.text('Retry'), findsOneWidget);
-      expect(vm.retryPaginationCallCount, 0);
+      expect(st.retryPaginationCallCount, 0);
       await tester.tap(find.text('Retry'));
       await tester.pump();
-      expect(vm.retryPaginationCallCount, 1);
+      expect(st.retryPaginationCallCount, 1);
 
       await activeController?.close();
     });
 
     testWidgets('scrolling near bottom triggers loadMore', (tester) async {
       StreamController<List<int>>? activeController;
-      final vm = _SpyStreamedVM(({limit}) {
+      final st = _SpyStreamedST(({limit}) {
         activeController?.close();
         activeController = StreamController<List<int>>.broadcast();
         return activeController!.stream;
@@ -1059,9 +1055,9 @@ void main() {
         _wrap(
           SizedBox(
             height: 200,
-            child: AppStreamedListObserver<_SpyStreamedVM, _TestState,
+            child: AppStreamedListObserver<_SpyStreamedST, _TestState,
                 _TestEffect, int, _TestFailure>(
-              viewModel: vm,
+              store: st,
               listSelector: _listSelector,
               scrollController: scrollController,
               scrollThreshold: 1000, // make trigger very easy
@@ -1070,7 +1066,7 @@ void main() {
                 child: Text('item:$item', textDirection: TextDirection.ltr),
               ),
               emptyBuilder: (context) => Text(
-                _statusText(vm),
+                _statusText(st),
                 textDirection: TextDirection.ltr,
               ),
             ),
@@ -1082,13 +1078,13 @@ void main() {
       activeController!.add(List<int>.generate(50, (i) => i));
       await tester.pumpAndSettle();
 
-      final before = vm.loadMoreCallCount;
+      final before = st.loadMoreCallCount;
       // Jump to the bottom to guarantee threshold condition.
       expect(scrollController.hasClients, true);
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
       await tester.pump();
 
-      expect(vm.loadMoreCallCount, greaterThan(before));
+      expect(st.loadMoreCallCount, greaterThan(before));
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();
@@ -1100,27 +1096,27 @@ void main() {
     testWidgets('changing external ScrollController removes old listener',
         (tester) async {
       final controller = StreamController<List<int>>.broadcast();
-      final vm = _SpyStreamedVM(({limit}) => controller.stream);
+      final st = _SpyStreamedST(({limit}) => controller.stream);
 
       final c1 = ScrollController();
       final c2 = ScrollController();
 
       Widget make(ScrollController c) {
-        return _makeObserver(vm, scrollController: c, scrollThreshold: 1000);
+        return _makeObserver(st, scrollController: c, scrollThreshold: 1000);
       }
 
       await tester.pumpWidget(make(c1));
       controller.add(List<int>.generate(30, (i) => i));
       await tester.pumpAndSettle();
 
-      final callsBeforeSwap = vm.loadMoreCallCount;
+      final callsBeforeSwap = st.loadMoreCallCount;
 
       await tester.pumpWidget(make(c2));
       await tester.pump();
 
       // Old controller should be detached after swap.
       expect(c1.hasClients, false);
-      expect(vm.loadMoreCallCount, callsBeforeSwap);
+      expect(st.loadMoreCallCount, callsBeforeSwap);
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       await tester.pump();

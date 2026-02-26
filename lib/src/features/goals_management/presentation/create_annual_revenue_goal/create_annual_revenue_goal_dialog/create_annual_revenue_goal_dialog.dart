@@ -3,7 +3,7 @@ import 'package:bits_goals_module/src/core/presentation/state_management/reactiv
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
 import 'package:bits_goals_module/src/core/presentation/widgets/app_animated_dialog.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
-import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_view_model.dart';
+import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/dialog_compoments/failure_create_annual_revenue_goal_dialog.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/dialog_compoments/input_goal_target_create_annual_revenue_goal_dialog.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/dialog_compoments/loading_create_annual_revenue_goal_dialog.dart';
@@ -47,10 +47,10 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
     final CreateAnnualRevenueGoal useCase =
         context.get<CreateAnnualRevenueGoal>();
     return AppObserver<
-        CreateAnnualRevenueGoalDialogViewModel,
+        CreateAnnualRevenueGoalDialogStore,
         StatesCreateAnnualRevenueGoalDialog,
         EffectsCreateAnnualRevenueGoalDialog>(
-      viewModel: CreateAnnualRevenueGoalDialogViewModel(
+      store: CreateAnnualRevenueGoalDialogStore(
         useCase: useCase,
         unavailableYears: unavailableYears,
       ),

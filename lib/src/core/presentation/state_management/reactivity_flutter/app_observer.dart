@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/store.dart';
 import 'package:flutter/material.dart';
 
-/// A universal wrapper widget that connects a [ViewModel] to the UI.
+/// A universal wrapper widget that connects a [Store] to the UI.
 ///
 /// Responsibilities:
 /// 1. Rebuilds the UI *only* when state [S] changes.
 /// 2. Executes [onEffect] when an effect is emitted, *without* rebuilding the UI.
-/// 3. Manages the lifecycle of the [ViewModel], including disposing it when the widget
+/// 3. Manages the lifecycle of the [Store], including disposing it when the widget
 /// is removed from the tree.
-/// 4. Provides the [ViewModel] to the widget subtree via [AppProvider] inherited widget.
+/// 4. Provides the [Store] to the widget subtree via [AppProvider] inherited widget.
 ///
 /// NOT responsibilities:
-/// 1. Rebuild the UI for other reactive properties of the ViewModel other than state [S] (if any).
-class AppObserver<VM extends ViewModel<S, E>, S, E> extends StatefulWidget {
-  /// The ViewModel instance that holds the state and effects for this widget.
-  final VM viewModel;
+/// 1. Rebuild the UI for other reactive properties of the Store other than state [S] (if any).
+class AppObserver<ST extends Store<S, E>, S, E> extends StatefulWidget {
+  /// The Store instance that holds the state and effects for this widget.
+  final ST store;
 
   /// Function responsible for drawing the screen based on the current state [S].
   final Widget Function(BuildContext context, S state) builder;
@@ -27,53 +27,53 @@ class AppObserver<VM extends ViewModel<S, E>, S, E> extends StatefulWidget {
 
   const AppObserver({
     super.key,
-    required this.viewModel,
+    required this.store,
     required this.builder,
     this.onEffect,
   });
 
   @override
-  State<AppObserver<VM, S, E>> createState() => _AppObserverState<VM, S, E>();
+  State<AppObserver<ST, S, E>> createState() => _AppObserverState<ST, S, E>();
 }
 
-class _AppObserverState<VM extends ViewModel<S, E>, S, E>
-    extends State<AppObserver<VM, S, E>> {
+class _AppObserverState<ST extends Store<S, E>, S, E>
+    extends State<AppObserver<ST, S, E>> {
   late S _currentState;
   StreamSubscription<E>? _effectSubscription;
 
   @override
   void initState() {
     super.initState();
-    // 1. Initialize local state with the current VM value
-    _currentState = widget.viewModel.state;
+    // 1. Initialize local state with the current store value
+    _currentState = widget.store.state;
 
     // 2. Setup listeners
     _subscribeToEffects();
-    widget.viewModel.addStateListener(_onStateChanged);
+    widget.store.addStateListener(_onStateChanged);
   }
 
   /// Handles Hot Reloads or Parent Rebuilds.
-  /// If the [widget.viewModel] instance changes, we must switch listeners to the new one.
+  /// If the [widget.store] instance changes, we must switch listeners to the new one.
   @override
-  void didUpdateWidget(covariant AppObserver<VM, S, E> oldWidget) {
+  void didUpdateWidget(covariant AppObserver<ST, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.viewModel != widget.viewModel) {
+    if (oldWidget.store != widget.store) {
       // 1. Clean up old listeners
       _effectSubscription?.cancel();
-      oldWidget.viewModel.removeStateListener(_onStateChanged);
+      oldWidget.store.removeStateListener(_onStateChanged);
 
-      // 2. Dispose OLD ViewModel, if the ViewModel changed,
-      oldWidget.viewModel.dispose();
+      // 2. Dispose OLD Store, if the Store changed,
+      oldWidget.store.dispose();
 
-      // 3. Subscribe to the new ViewModel
-      _currentState = widget.viewModel.state;
+      // 3. Subscribe to the new Store
+      _currentState = widget.store.state;
       _subscribeToEffects();
-      widget.viewModel.addStateListener(_onStateChanged);
+      widget.store.addStateListener(_onStateChanged);
     }
   }
 
   void _subscribeToEffects() {
-    _effectSubscription = widget.viewModel.effects.listen(
+    _effectSubscription = widget.store.effects.listen(
       (effect) {
         if (mounted) {
           if (widget.onEffect != null) {
@@ -86,7 +86,7 @@ class _AppObserverState<VM extends ViewModel<S, E>, S, E>
 
   void _onStateChanged() {
     if (!mounted) return;
-    final newState = widget.viewModel.state;
+    final newState = widget.store.state;
     if (newState != _currentState) {
       setState(() {
         _currentState = newState;
@@ -97,15 +97,15 @@ class _AppObserverState<VM extends ViewModel<S, E>, S, E>
   @override
   void dispose() {
     _effectSubscription?.cancel();
-    widget.viewModel.removeStateListener(_onStateChanged);
-    widget.viewModel.dispose();
+    widget.store.removeStateListener(_onStateChanged);
+    widget.store.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AppProvider<VM>(
-      viewModel: widget.viewModel,
+    return AppProvider<ST>(
+      store: widget.store,
       child: widget.builder(context, _currentState),
     );
   }

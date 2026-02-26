@@ -2,24 +2,24 @@ import 'dart:ui';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_streamed_list_observer.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_observer.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/view_model/impl/app_streamed_list_view_model.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_streamed_list_store.dart';
 
-/// Defines the base contract for a ViewModel in the presentation layer.
+/// Defines the base contract for a Store in the presentation layer.
 ///
-/// A ViewModel is responsible for:
+/// A Store is responsible for:
 /// - Holding UI state
 /// - Emitting UI effects (One-time events like navigation or snackbars)
-/// - Coordinating state transitions through controlled methods
+/// - coordinating state transitions through event-driven methods
 /// - Managing its own lifecycle
 ///
 /// The UI must never mutate state directly.
-/// All state changes must occur through ViewModel methods, ensuring the MVVM pattern
-/// is preserved and the UI remains a pure function of state.
+/// All state changes must occur through Store methods, ensuring unidirectional
+/// data flow and keeping the UI a pure function of state.
 ///
 /// Generics:
 /// - [S]: The State type (Must be a sealed class representing UI data).
 /// - [E]: The Effect type (Must be a sealed class/enum representing one-off actions).
-abstract interface class ViewModel<S, E> {
+abstract interface class Store<S, E> {
   /// State exposed to the UI.
   ///
   /// This represents the PERSISTENT screen/widget state (what is shown).
@@ -32,20 +32,20 @@ abstract interface class ViewModel<S, E> {
   ///
   /// Rules:
   /// - MUST be read-only to the UI.
-  /// - MUST be updated only through controlled methods in the ViewModel.
+  /// - MUST be updated only through methods in the Store.
   /// - MUST model the entire screen state in a single sealed class.
   ///
   /// The observer widget (like [AppObserver]) listens to this property's internal
   /// observable to trigger UI rebuilds.
   ///
-  /// Only expose fine-grained reactive properties by extending a custom ViewModel template, when
+  /// Only expose fine-grained reactive properties by extending a custom Store template, when
   /// updating the entire state would cause performance issues, like when dealing with large lists.
-  /// There are built-in templates for that, like the [AppStreamedListViewModel] with
+  /// There are built-in templates for that, like the [AppStreamedListStore] with
   /// [AppStreamedListObserver].
   ///
   /// If more than this [state] reactive properties is needed, consider breaking the widget into
-  /// smaller ones with their own ViewModels before exposing more reactive properties through
-  /// new ViewModel templates.
+  /// smaller ones with their own Stores before exposing more reactive properties through
+  /// new Store templates.
   S get state;
 
   /// Stream of side effects exposed to the UI.
@@ -70,10 +70,10 @@ abstract interface class ViewModel<S, E> {
 
   /// Remove a previously registered state listener.
   /// [AppObserver] uses this to clean up listeners when the widget is disposed or
-  /// when the ViewModel instance changes.
+  /// when the Store instance changes.
   void removeStateListener(VoidCallback listener);
 
-  /// Releases all resources owned by this ViewModel.
+  /// Releases all resources owned by this Store.
   ///
   /// Implementations must dispose:
   /// - State reactivity
@@ -86,11 +86,11 @@ abstract interface class ViewModel<S, E> {
   /// ```dart
   /// @override
   /// void dispose() {
-  ///  // Dispose all reactive properties created in the ViewModel
+  ///  // Dispose all reactive properties created in the Store
   ///  myReactiveProperty.dispose();
   ///
   ///  // MUST call super.dispose() to clean up state listeners and effect controllers
-  ///  // in the base ViewModel implementation
+  ///  // in the base Store implementation
   ///  super.dispose();
   /// }
   /// ```
