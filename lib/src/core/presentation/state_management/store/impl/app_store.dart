@@ -5,7 +5,7 @@ import 'package:bits_goals_module/src/core/presentation/state_management/store/i
 import 'package:bits_goals_module/src/core/presentation/state_management/store/store.dart';
 import 'package:flutter/foundation.dart';
 
-// TODO: mitigar erros de concorrência e reentrância: Double Submit, Stale Completion,
+// TODO: mitigar possiveis erros de concorrência e reentrância: Double Submit, Stale Completion,
 //  Reentrância de State, etc.
 
 /// A base Store implementation that MUST be extended by every Store in the app that

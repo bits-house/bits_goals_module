@@ -47,7 +47,7 @@ abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
 
   /// Example usage:
   /// ```dart
-  ///   TestStore(
+  ///   ExampleStore(
   ///     GetItensUseCase useCase,
   ///   ) : super(
   ///           initialState: LoadingState(),
@@ -58,9 +58,7 @@ abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
   ///               return SuccessState(data);
   ///             }
   ///           },
-  ///           mapInitialFailureToState: (failure) => FailureState(
-  ///             failure: failure,
-  ///           ),
+  ///           mapInitialFailureToState: (failure) => FailureState(failure),
   ///           mapExceptionToFailure: (exception) => Failure(
   ///             reason: FailureReason.unexpected,
   ///           ),
@@ -80,6 +78,8 @@ abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
   }
 
   // ================= MANDATORY SETUP =================
+  // TODO: Use generics to automatically create the stream, without the need
+  //  to override
 
   /// Creates the stream with the dynamic [limit].
   ///
