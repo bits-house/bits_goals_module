@@ -14,6 +14,7 @@ class Money extends Equatable {
 
   /// Private constructor to enforce invariants
   const Money._(this._cents);
+  // TODO: Add currency
 
   /// Factory constructor to create Money from a double value
   ///

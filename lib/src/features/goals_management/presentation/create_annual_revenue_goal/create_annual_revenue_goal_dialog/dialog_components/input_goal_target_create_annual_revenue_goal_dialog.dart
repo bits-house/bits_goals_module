@@ -41,7 +41,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
     final store = context.get<CreateAnnualRevenueGoalDialogStore>();
     final titleString =
         context.strings.inputGoalTargetCreateAnnualRevenueGoalDialog_title(
-      widget.state.selectedYear.value,
+      widget.state.selectedYear,
     );
     final errorReason = widget.state.inputErrorReason;
     final errorText = switch (errorReason) {

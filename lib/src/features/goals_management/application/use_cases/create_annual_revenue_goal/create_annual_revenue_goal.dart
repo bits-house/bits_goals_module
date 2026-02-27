@@ -12,6 +12,8 @@ import 'package:bits_goals_module/src/core/domain/policies/goals_module_permissi
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/application/use_cases/params_use_case.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
@@ -82,8 +84,12 @@ class CreateAnnualRevenueGoal
         );
       }
 
+      /// Convert params to Value Objects, validating invariants in the process
+      final year = Year.fromInt(params.year);
+      final target = Money.fromDouble(params.annualRevenueTarget);
+
       /// Annual revenue target must be greater than zero
-      if (params.annualRevenueTarget.cents <= 0) {
+      if (target.cents <= 0) {
         return left(
           const CreateAnnualRevenueGoalFailure(
             reason: CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget,
@@ -93,7 +99,7 @@ class CreateAnnualRevenueGoal
 
       /// Year must be equal or greater than current year
       final currentYear = await realTimeService.getCurrentYear();
-      if (params.year.isBefore(currentYear)) {
+      if (year.isBefore(currentYear)) {
         return left(
           const CreateAnnualRevenueGoalFailure(
             reason: CreateAnnualRevenueGoalFailureReason.pastYear,
@@ -105,14 +111,14 @@ class CreateAnnualRevenueGoal
       /// (this will validate MonthlyRevenueGoal invariants)
       const splitGoal = SplitAnnualRevenueGoal();
       final monthlyGoals = splitGoal(
-        year: params.year,
-        annualGoalTarget: params.annualRevenueTarget,
+        year: year,
+        annualGoalTarget: target,
       );
 
       /// Create AnnualRevenueGoal aggregate
       /// (this will validate AnnualRevenueGoal invariants)
       final annualGoal = AnnualRevenueGoal.build(
-        year: params.year,
+        year: year,
         monthlyGoals: monthlyGoals,
       );
 

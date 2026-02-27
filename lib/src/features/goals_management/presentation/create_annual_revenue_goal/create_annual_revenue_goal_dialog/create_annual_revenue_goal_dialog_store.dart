@@ -1,5 +1,3 @@
-import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
@@ -19,10 +17,10 @@ class LoadingCreateAnnualRevenueGoal
 // Select the year for the annual revenue goal
 class SelectYearCreateAnnualRevenueGoal
     extends CreateAnnualRevenueGoalDialogStates {
-  final Year minPossibleYear;
-  final Year lastPossibleYear;
-  final Year preselectedYear;
-  final List<Year> unavailableYears;
+  final int minPossibleYear;
+  final int lastPossibleYear;
+  final int preselectedYear;
+  final List<int> unavailableYears;
 
   SelectYearCreateAnnualRevenueGoal({
     required this.minPossibleYear,
@@ -35,7 +33,7 @@ class SelectYearCreateAnnualRevenueGoal
 // Input revenue target for the annual revenue goal
 class InputGoalTargetCreateAnnualRevenueGoal
     extends CreateAnnualRevenueGoalDialogStates {
-  final Year selectedYear;
+  final int selectedYear;
   final String? revenueTargetInput;
   final GoalRevenueTargetInputErrorReason? inputErrorReason;
 
@@ -58,7 +56,7 @@ enum GoalRevenueTargetInputErrorReason {
 class FailureCreateAnnualRevenueGoal
     extends CreateAnnualRevenueGoalDialogStates {
   final CreateAnnualRevenueGoalFailure failure;
-  final Year year;
+  final int year;
 
   FailureCreateAnnualRevenueGoal({
     required this.failure,
@@ -79,7 +77,7 @@ class SuccessEffectCreateAnnualRevenueGoal
     required this.year,
   });
 
-  final Year year;
+  final int year;
 }
 
 //  ==================================================================
@@ -88,7 +86,7 @@ class SuccessEffectCreateAnnualRevenueGoal
 class CreateAnnualRevenueGoalDialogStore extends AppStore<
     CreateAnnualRevenueGoalDialogStates, CreateAnnualRevenueGoalDialogEffects> {
   CreateAnnualRevenueGoalDialogStore({
-    required List<Year> unavailableYears,
+    required List<int> unavailableYears,
     // required CreateAnnualRevenueGoal useCase,
   })  : _unavailableYears = unavailableYears,
         // _createAnnualRevenueGoal = useCase,
@@ -98,28 +96,25 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     initialize();
   }
 
-  final List<Year> _unavailableYears;
+  final List<int> _unavailableYears;
   // final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
 
   // ---------------------------------------------------------------------
   // 1. Initialize the dialog
   // ---------------------------------------------------------------------
-  // TODO: Do not instantiate domain types in presentation
-  final Year _currentYear = Year.fromInt(DateTime.now().year);
+  final int _currentYear = DateTime.now().year;
 
-  Year _getPreselectedYear() {
+  int _getPreselectedYear() {
     var preselectedYear = _currentYear;
     while (_unavailableYears.contains(preselectedYear)) {
-      // TODO: Do not instantiate domain types in presentation
-      preselectedYear = Year.fromInt(preselectedYear.value + 1);
+      preselectedYear += 1;
     }
     return preselectedYear;
   }
 
   void initialize() {
     final preselectedYear = _getPreselectedYear();
-    // TODO: Do not instantiate domain types in presentation
-    final lastPossibleYear = Year.fromInt(_currentYear.value + 1000);
+    final lastPossibleYear = _currentYear + 1000;
     setState(
       SelectYearCreateAnnualRevenueGoal(
         minPossibleYear: _currentYear,
@@ -133,7 +128,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
   // 2. Select the year for the annual revenue goal
   // ---------------------------------------------------------------------
-  void onYearSelected(Year year) {
+  void onYearSelected(int year) {
     setState(
       InputGoalTargetCreateAnnualRevenueGoal(
         selectedYear: year,
@@ -151,8 +146,6 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   ) {
     try {
       final double value = double.parse(input);
-      // TODO: Do not instantiate domain types in presentation
-      Money.fromDouble(value);
       if (value <= 0) {
         return GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
       } else {
@@ -180,7 +173,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   }
 
   Future<void> createGoal({
-    required Year year,
+    required int year,
     required String revenueTargetInput,
   }) async {
     final errorReason = _validateMoneyInput(
@@ -189,6 +182,8 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     final isValidMoney = errorReason == null;
     if (isValidMoney) {
       setState(LoadingCreateAnnualRevenueGoal());
+
+      // -------------------------------------------------------------------------
       // TODO: use use case
       final creationResult = await Future.delayed(
         const Duration(seconds: 1),
@@ -198,6 +193,8 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
           ),
         ),
       );
+      // -------------------------------------------------------------------------
+
       creationResult.fold(
         (failure) => setState(
           FailureCreateAnnualRevenueGoal(

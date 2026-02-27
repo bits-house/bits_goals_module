@@ -1,13 +1,11 @@
-import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter/material.dart';
 
-// TODO: Refactor to use DateTime instead of Year Value Object.
 class AppYearPicker extends StatefulWidget {
-  final Year firstYear;
-  final Year lastYear;
-  final Year preSelectedYear;
-  final List<Year> unavailableYears;
-  final void Function(Year) onChanged;
+  final int firstYear;
+  final int lastYear;
+  final int preSelectedYear;
+  final List<int> unavailableYears;
+  final void Function(int) onChanged;
 
   const AppYearPicker({
     super.key,
@@ -56,12 +54,13 @@ class _AppYearPickerState extends State<AppYearPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final int itemCount = widget.lastYear.value - widget.firstYear.value + 1;
+    final int itemCount = widget.lastYear - widget.firstYear + 1;
     return Flexible(
       child: Column(
         children: [
           AnimatedOpacity(
             opacity: hideFirstDivider ? 0 : 1,
+            // TODO: Centralisar duração de animação
             duration: const Duration(milliseconds: 300),
             child: const Divider(
               thickness: 0,
@@ -85,15 +84,13 @@ class _AppYearPickerState extends State<AppYearPicker> {
                   ),
                   itemCount: itemCount,
                   itemBuilder: (context, index) {
-                    final int currentYearValue = widget.firstYear.value + index;
-                    // TODO: Do not instantiate domain types in presentation
-                    final currentYear = Year.fromInt(currentYearValue);
+                    final int currentYearValue = widget.firstYear + index;
                     final bool isSelected =
-                        currentYear.value == widget.preSelectedYear.value;
+                        currentYearValue == widget.preSelectedYear;
                     final bool isUnavailable = widget.unavailableYears
-                        .any((y) => y.value == currentYearValue);
+                        .any((y) => y == currentYearValue);
                     return _YearButton(
-                      year: currentYear,
+                      year: currentYearValue,
                       isSelected: isSelected,
                       isUnavailable: isUnavailable,
                       onChanged: widget.onChanged,
@@ -114,10 +111,10 @@ class _AppYearPickerState extends State<AppYearPicker> {
 }
 
 class _YearButton extends StatelessWidget {
-  final Year year;
+  final int year;
   final bool isSelected;
   final bool isUnavailable;
-  final void Function(Year) onChanged;
+  final void Function(int) onChanged;
 
   const _YearButton({
     required this.year,
@@ -157,7 +154,7 @@ class _YearButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          year.value.toString(),
+          year.toString(),
           style: theme.textTheme.titleMedium?.copyWith(
             color: textColor,
           ),
