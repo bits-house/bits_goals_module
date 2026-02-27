@@ -2,13 +2,13 @@ import 'package:bits_goals_module/src/core/application/ports/transaction/app_tra
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppTransactionFirestoreImpl implements AppTransaction {
-  final Transaction _sdkTransaction;
+  final Transaction _transaction;
   final FirebaseFirestore _firestore;
 
   AppTransactionFirestoreImpl({
-    required Transaction sdkTransaction,
+    required Transaction transaction,
     required FirebaseFirestore firestore,
-  })  : _sdkTransaction = sdkTransaction,
+  })  : _transaction = transaction,
         _firestore = firestore;
 
   DocumentReference _getRef(String resource, Object id) {
@@ -21,7 +21,7 @@ class AppTransactionFirestoreImpl implements AppTransaction {
     required Object id,
   }) async {
     final ref = _getRef(resource, id);
-    _sdkTransaction.delete(ref);
+    _transaction.delete(ref);
   }
 
   @override
@@ -31,7 +31,7 @@ class AppTransactionFirestoreImpl implements AppTransaction {
     required Map<String, dynamic> data,
   }) async {
     final ref = _getRef(resource, id);
-    _sdkTransaction.set(ref, data);
+    _transaction.set(ref, data);
   }
 
   @override
@@ -41,7 +41,7 @@ class AppTransactionFirestoreImpl implements AppTransaction {
     required Map<String, dynamic> data,
   }) async {
     final ref = _getRef(resource, id);
-    _sdkTransaction.update(ref, data);
+    _transaction.update(ref, data);
   }
 
   @override
@@ -50,7 +50,7 @@ class AppTransactionFirestoreImpl implements AppTransaction {
     required Object id,
   }) async {
     final ref = _getRef(resource, id);
-    final snapshot = await _sdkTransaction.get(ref);
+    final snapshot = await _transaction.get(ref);
     if (!snapshot.exists) {
       return null;
     }

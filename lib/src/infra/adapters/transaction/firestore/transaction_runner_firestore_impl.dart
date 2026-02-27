@@ -14,10 +14,10 @@ class TransactionRunnerFirestoreImpl implements TransactionRunner {
   Future<T> run<T>(
     Future<T> Function(AppTransaction sharedTransaction) action,
   ) async {
-    final result = await _firestore.runTransaction((sdkTransaction) async {
+    final result = await _firestore.runTransaction((transaction) async {
       /// 1. Instantiate the `AppTransaction` implementation that will be passed to the [action].
       final firestoreSharedTransaction = AppTransactionFirestoreImpl(
-        sdkTransaction: sdkTransaction,
+        transaction: transaction,
         firestore: _firestore,
       );
 
@@ -35,7 +35,8 @@ class TransactionRunnerFirestoreImpl implements TransactionRunner {
     });
 
     /// 3. Return the result of the transaction. If the transaction was successful, this will be
-    /// the value returned by the [action]. If the transaction failed, an exception will be thrown
+    /// the value returned by the [action]. If the transaction failed, an exception or a domain-specific
+    /// failure from data layer functions called inside [runTransaction] will be thrown
     /// and this line will not be reached.
     return result;
   }

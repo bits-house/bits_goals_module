@@ -103,12 +103,13 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
   // 1. Initialize the dialog
   // ---------------------------------------------------------------------
-
+  // TODO: Do not instantiate domain types in presentation
   final Year _currentYear = Year.fromInt(DateTime.now().year);
 
   Year _getPreselectedYear() {
     var preselectedYear = _currentYear;
     while (_unavailableYears.contains(preselectedYear)) {
+      // TODO: Do not instantiate domain types in presentation
       preselectedYear = Year.fromInt(preselectedYear.value + 1);
     }
     return preselectedYear;
@@ -116,6 +117,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
 
   void initialize() {
     final preselectedYear = _getPreselectedYear();
+    // TODO: Do not instantiate domain types in presentation
     final lastPossibleYear = Year.fromInt(_currentYear.value + 1000);
     setState(
       SelectYearCreateAnnualRevenueGoal(
@@ -161,6 +163,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   ) {
     try {
       final double value = double.parse(input);
+      // TODO: Do not instantiate domain types in presentation
       Money.fromDouble(value);
       if (value <= 0) {
         return GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
