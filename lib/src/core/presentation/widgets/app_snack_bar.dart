@@ -6,7 +6,6 @@ class AppSnackBar {
   static SnackBar build({
     required BuildContext context,
     required Widget content,
-    // TODO: Centralize duration
     Duration duration = const Duration(seconds: 15),
   }) {
     return SnackBar(

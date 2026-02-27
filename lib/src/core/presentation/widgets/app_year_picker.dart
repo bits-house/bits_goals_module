@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/presentation/motion/app_motion.dart';
 import 'package:flutter/material.dart';
 
 class AppYearPicker extends StatefulWidget {
@@ -60,8 +61,7 @@ class _AppYearPickerState extends State<AppYearPicker> {
         children: [
           AnimatedOpacity(
             opacity: hideFirstDivider ? 0 : 1,
-            // TODO: Centralisar duração de animação
-            duration: const Duration(milliseconds: 300),
+            duration: AppMotion.duration,
             child: const Divider(
               thickness: 0,
               height: 0,

@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/presentation/motion/app_motion.dart';
 import 'package:flutter/material.dart';
 
 /// A Dialog that animates its child when it changes, fading out the old one and
@@ -33,13 +34,12 @@ class _AppAnimatedDialogState extends State<AppAnimatedDialog>
 
     _controller = AnimationController(
       vsync: this,
-      // TODO: Centralizar as durações e curvas de animação da aplicação em um único lugar
-      duration: const Duration(milliseconds: 300),
+      duration: AppMotion.duration,
     );
 
     _fade = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeInOut,
+      curve: AppMotion.curve,
     );
 
     _controller.value = 1;
@@ -77,10 +77,8 @@ class _AppAnimatedDialogState extends State<AppAnimatedDialog>
           maxHeight: 348,
         ),
         child: AnimatedSize(
-          // TODO: Centralizar as durações e curvas de animação da aplicação em um único lugar
-          //  para manter a consistência
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+          duration: AppMotion.duration,
+          curve: AppMotion.curve,
           alignment: Alignment.topCenter,
           child: FadeTransition(
             opacity: _fade,
