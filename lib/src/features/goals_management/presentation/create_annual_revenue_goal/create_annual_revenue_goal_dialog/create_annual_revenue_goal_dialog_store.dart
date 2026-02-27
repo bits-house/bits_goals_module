@@ -1,7 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
-import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart';
@@ -83,16 +82,16 @@ class SuccessEffectCreateAnnualRevenueGoal
   final Year year;
 }
 
-/// ==================================================================
-/// Store - Owned by [CreateAnnualRevenueGoalDialog]
-/// ==================================================================
+//  ==================================================================
+///  Store - Owned by [CreateAnnualRevenueGoalDialog]
+//  ==================================================================
 class CreateAnnualRevenueGoalDialogStore extends AppStore<
     CreateAnnualRevenueGoalDialogStates, CreateAnnualRevenueGoalDialogEffects> {
   CreateAnnualRevenueGoalDialogStore({
     required List<Year> unavailableYears,
-    required CreateAnnualRevenueGoal useCase,
+    // required CreateAnnualRevenueGoal useCase,
   })  : _unavailableYears = unavailableYears,
-        _createAnnualRevenueGoal = useCase,
+        // _createAnnualRevenueGoal = useCase,
         super(
           initialState: LoadingCreateAnnualRevenueGoal(),
         ) {
@@ -100,7 +99,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   }
 
   final List<Year> _unavailableYears;
-  final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
+  // final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
 
   // ---------------------------------------------------------------------
   // 1. Initialize the dialog
