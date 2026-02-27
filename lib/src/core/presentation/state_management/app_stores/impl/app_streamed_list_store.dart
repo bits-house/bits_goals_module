@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_dart/reactivity_impl/app_observable.dart';
 
 /// A specialized [AppStore] designed for **Limit-Based Infinite Scrolling** fetching with
