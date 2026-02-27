@@ -41,6 +41,9 @@ Use case integration with host applications:
 
 Presentation layer architecture:
 - **[ADR-0019](docs/architecture/adr/ADR-0019.md)** — Store-driven Presentation Architecture (non-MVVM)
+- Example, adhering to the Store-driven Presentation Architecture defined:
+    - **[Flutter UI - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart)**
+    - **[Store - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart)**
 
 ---
 

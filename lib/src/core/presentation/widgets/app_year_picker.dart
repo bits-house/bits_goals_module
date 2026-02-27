@@ -1,6 +1,7 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter/material.dart';
 
+// TODO: Refactor to use DateTime instead of Year Value Object.
 class AppYearPicker extends StatefulWidget {
   final Year firstYear;
   final Year lastYear;
@@ -85,6 +86,7 @@ class _AppYearPickerState extends State<AppYearPicker> {
                   itemCount: itemCount,
                   itemBuilder: (context, index) {
                     final int currentYearValue = widget.firstYear.value + index;
+                    // TODO: Do not instantiate domain types in presentation
                     final currentYear = Year.fromInt(currentYearValue);
                     final bool isSelected =
                         currentYear.value == widget.preSelectedYear.value;

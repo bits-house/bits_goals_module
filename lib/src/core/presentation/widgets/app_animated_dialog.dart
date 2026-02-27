@@ -33,6 +33,7 @@ class _AppAnimatedDialogState extends State<AppAnimatedDialog>
 
     _controller = AnimationController(
       vsync: this,
+      // TODO: Centralizar as durações e curvas de animação da aplicação em um único lugar
       duration: const Duration(milliseconds: 300),
     );
 
@@ -76,6 +77,8 @@ class _AppAnimatedDialogState extends State<AppAnimatedDialog>
           maxHeight: 348,
         ),
         child: AnimatedSize(
+          // TODO: Centralizar as durações e curvas de animação da aplicação em um único lugar
+          //  para manter a consistência
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           alignment: Alignment.topCenter,
