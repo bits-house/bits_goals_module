@@ -4,28 +4,22 @@ import 'package:bits_goals_module/src/core/presentation/state_management/store/i
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart';
 import 'package:dartz/dartz.dart';
 
 // ==================================================================
-// Meta-states
+// Possible States
 // ==================================================================
 
-enum GoalRevenueTargetInputErrorReason {
-  zeroOrNegativeTarget,
-  invalidTarget,
-}
+sealed class CreateAnnualRevenueGoalDialogStates {}
 
-// ==================================================================
-// States
-// ==================================================================
-
-sealed class StatesCreateAnnualRevenueGoalDialog {}
-
+// Loading
 class LoadingCreateAnnualRevenueGoal
-    extends StatesCreateAnnualRevenueGoalDialog {}
+    extends CreateAnnualRevenueGoalDialogStates {}
 
+// Select the year for the annual revenue goal
 class SelectYearCreateAnnualRevenueGoal
-    extends StatesCreateAnnualRevenueGoalDialog {
+    extends CreateAnnualRevenueGoalDialogStates {
   final Year minPossibleYear;
   final Year lastPossibleYear;
   final Year preselectedYear;
@@ -39,8 +33,9 @@ class SelectYearCreateAnnualRevenueGoal
   });
 }
 
+// Input revenue target for the annual revenue goal
 class InputGoalTargetCreateAnnualRevenueGoal
-    extends StatesCreateAnnualRevenueGoalDialog {
+    extends CreateAnnualRevenueGoalDialogStates {
   final Year selectedYear;
   final String? revenueTargetInput;
   final GoalRevenueTargetInputErrorReason? inputErrorReason;
@@ -54,8 +49,15 @@ class InputGoalTargetCreateAnnualRevenueGoal
   });
 }
 
+/// Meta-state for [InputGoalTargetCreateAnnualRevenueGoal] - UX reasons
+enum GoalRevenueTargetInputErrorReason {
+  zeroOrNegativeTarget,
+  invalidTarget,
+}
+
+// Failure state when creating the annual revenue goal fails
 class FailureCreateAnnualRevenueGoal
-    extends StatesCreateAnnualRevenueGoalDialog {
+    extends CreateAnnualRevenueGoalDialogStates {
   final CreateAnnualRevenueGoalFailure failure;
   final Year year;
 
@@ -66,13 +68,14 @@ class FailureCreateAnnualRevenueGoal
 }
 
 // ==================================================================
-// Effects
+// Possible Effects
 // ==================================================================
 
-sealed class EffectsCreateAnnualRevenueGoalDialog {}
+sealed class CreateAnnualRevenueGoalDialogEffects {}
 
+// Effect emitted when the annual revenue goal is successfully created
 class SuccessEffectCreateAnnualRevenueGoal
-    extends EffectsCreateAnnualRevenueGoalDialog {
+    extends CreateAnnualRevenueGoalDialogEffects {
   SuccessEffectCreateAnnualRevenueGoal({
     required this.year,
   });
@@ -80,12 +83,11 @@ class SuccessEffectCreateAnnualRevenueGoal
   final Year year;
 }
 
-// ==================================================================
-// Store (Factory)
-// ==================================================================
-
+/// ==================================================================
+/// Store - Owned by [CreateAnnualRevenueGoalDialog]
+/// ==================================================================
 class CreateAnnualRevenueGoalDialogStore extends AppStore<
-    StatesCreateAnnualRevenueGoalDialog, EffectsCreateAnnualRevenueGoalDialog> {
+    CreateAnnualRevenueGoalDialogStates, CreateAnnualRevenueGoalDialogEffects> {
   CreateAnnualRevenueGoalDialogStore({
     required List<Year> unavailableYears,
     required CreateAnnualRevenueGoal useCase,
@@ -143,21 +145,8 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
   // 3. Create the annual revenue goal with the selected year and revenue target
   // ---------------------------------------------------------------------
-  void onRevenueTargetInputChanged({
-    required String input,
-    required InputGoalTargetCreateAnnualRevenueGoal currentState,
-  }) {
-    if (currentState.inputErrorReason != null) {
-      setState(
-        InputGoalTargetCreateAnnualRevenueGoal(
-          selectedYear: currentState.selectedYear,
-          revenueTargetInput: input,
-          inputErrorReason: null,
-        ),
-      );
-    }
-  }
 
+  // Synchronous validation only for UX purposes.
   GoalRevenueTargetInputErrorReason? _validateMoneyInput(
     String input,
   ) {
@@ -175,6 +164,22 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     }
   }
 
+  // Clear error - UX purposes
+  void onRevenueTargetInputChanged({
+    required String input,
+    required InputGoalTargetCreateAnnualRevenueGoal currentState,
+  }) {
+    if (currentState.inputErrorReason != null) {
+      setState(
+        InputGoalTargetCreateAnnualRevenueGoal(
+          selectedYear: currentState.selectedYear,
+          revenueTargetInput: input,
+          inputErrorReason: null,
+        ),
+      );
+    }
+  }
+
   Future<void> createGoal({
     required Year year,
     required String revenueTargetInput,
@@ -185,7 +190,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     final isValidMoney = errorReason == null;
     if (isValidMoney) {
       setState(LoadingCreateAnnualRevenueGoal());
-      // use _createAnnualRevenueGoal()
+      // TODO: use use case
       final creationResult = await Future.delayed(
         const Duration(seconds: 1),
         () => const Left(

@@ -18,7 +18,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
 
   final List<Year> unavailableYears;
 
-  Widget _buildByState(StatesCreateAnnualRevenueGoalDialog state) {
+  /// [Key] only needed by [AppAnimatedDialog] for custom animation state reasons
+  Widget _buildByState(CreateAnnualRevenueGoalDialogStates state) {
     switch (state) {
       case LoadingCreateAnnualRevenueGoal():
         return const LoadingCreateAnnualRevenueGoalDialog(
@@ -48,8 +49,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
         context.get<CreateAnnualRevenueGoal>();
     return AppObserver<
         CreateAnnualRevenueGoalDialogStore,
-        StatesCreateAnnualRevenueGoalDialog,
-        EffectsCreateAnnualRevenueGoalDialog>(
+        CreateAnnualRevenueGoalDialogStates,
+        CreateAnnualRevenueGoalDialogEffects>(
       store: CreateAnnualRevenueGoalDialogStore(
         useCase: useCase,
         unavailableYears: unavailableYears,
@@ -63,11 +64,12 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
         if (effect is SuccessEffectCreateAnnualRevenueGoal) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            // TODO: AppSnackbar com timer bar para a duration
+            // TODO: AppSnackbar com timer bar animado para a duration
             SnackBar(
               showCloseIcon: true,
               duration: const Duration(seconds: 15),
               backgroundColor: Theme.of(context).colorScheme.primary,
+              // TODO: internacionalização
               content: Text(
                 "Meta de faturamento para ${effect.year.value} criada! Metas mensais foram geradas e estão disponíveis para edição.",
               ),
