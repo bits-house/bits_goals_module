@@ -55,20 +55,17 @@ abstract class TransactionRunner {
   /// 2. **Pass the `sharedTransaction` object.** All transaction-aware ports called within [action]
   ///    MUST receive and use the provided `sharedTransaction` argument to ensure they write to the same
   ///    transactional boundary.
-  /// 3. **Keep it fast.** Database transactions lock resources. Avoid calling external APIs
-  ///    (HTTP requests) inside this block.
-  /// 4. **Same Transaction Boundary.** All ports invoked inside [action]
+  /// 3. **Same Transaction Boundary.** All ports invoked inside [action]
   ///    must operate on the same underlying database/connection.
   ///    This runner guarantees atomicity only within a single storage engine
   ///    (e.g. one SQL database or one Firestore instance).
-  /// 5. **Retry safety.** Some implementations (e.g. Firestore) may retry the transactional
+  /// 4. **Retry safety.** Some implementations (e.g. Firestore) may retry the transactional
   ///    callback on contention. Keep the action idempotent and free of side effects,
   ///    don’t do things inside the transaction that you can’t safely repeat, such as:
   ///    - HTTP calls (charge credit card, send email/push)
   ///    - Writing to another database/service
   ///    - Publishing events
-  /// 6. **Transaction Outcome:**
-  ///
+  /// 5. **Transaction Outcome:**
   ///     If the action throws:
   ///       - the transaction MUST be rolled back by the implementation
   ///       - the exception is rethrown to the caller/use case
@@ -78,8 +75,17 @@ abstract class TransactionRunner {
   /// ### Example:
   /// ```dart
   /// final result = await transactionRunner.run((sharedTransaction) async {
+  ///
   ///   await ordersWriter.updateOrder(orderId, updatedOrder, sharedTransaction);
+  ///   // In this example, updateOrder is a repository method (data layer implementation, that does not
+  ///   // call any other infrastructure methods, it only interacts with the sharedTransaction)
+  ///   // that accepts the sharedTransaction to ensure specific persistence validations and writing
+  ///   // to the same transaction boundary.
+  ///   // It can throw either a generic Exception (e.g. unexpected error) or a domain-specific
+  ///   // Failure that the use case can handle (e.g. OrderNotFoundFailure).
+  ///
   ///   await goalsProgressUpdater.updateGoal(goalId, updatedGoal, sharedTransaction);
+  ///
   ///   return someResult;
   /// });
   /// ```
