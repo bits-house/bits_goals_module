@@ -27,7 +27,18 @@ The features in this module are common across many management systems, especiall
 
 This module adopts **Clean Architecture**.
 
-📌 All major architectural decisions are documented through **Architecture Decision Records (ADR)**, check: **[docs/architecture/adr](docs/architecture/adr)**
+📌 Architectural decisions are documented through **Architecture Decision Records (ADR)**, check: **[docs/architecture/adr](docs/architecture/adr)**
+
+### Main architectural decisions:
+
+Architecture overview:
+- **[ADR-0014](docs/architecture/adr/ADR-0014.md)** — Dependency Flow and Layer Import Rules
+
+Use cases integration with host applications:
+- **[ADR-0017](docs/architecture/adr/ADR-0017.md)** — TransactionRunner for cross-module/app transactional orchestration (integration use cases)
+
+Presentation layer architecture:
+- **[ADR-0019](docs/architecture/adr/ADR-0019.md)** — Store-driven Presentation Architecture (non-MVVM)
 
 ---
 
