@@ -19,7 +19,9 @@ The features in this module are common across many management systems, especiall
 
 - Sales goals  
 - Revenue targets
-- Consistent business rules across multiple apps  
+- Consistent business rules across multiple apps 
+
+> Note: An example app will be developed and released in the future to demonstrate the module's capabilities without needing to integrate it into an existing codebase.
 
 ---
 
@@ -34,7 +36,7 @@ This module adopts **Clean Architecture**.
 Architecture overview:
 - **[ADR-0014](docs/architecture/adr/ADR-0014.md)** — Dependency Flow and Layer Import Rules
 
-Use cases integration with host applications:
+Use case integration with host applications:
 - **[ADR-0017](docs/architecture/adr/ADR-0017.md)** — TransactionRunner for cross-module/app transactional orchestration (integration use cases)
 
 Presentation layer architecture:
@@ -43,6 +45,8 @@ Presentation layer architecture:
 ---
 
 ## Host Application Integration
+
+> Note: This section is a **preview** of the integration approach and is still being refined. Detailed instructions will be provided in the future.
 
 This plugin is intentionally **application-agnostic**.
 
