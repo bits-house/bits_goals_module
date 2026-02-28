@@ -8,15 +8,15 @@ import 'package:dartz/dartz.dart';
 // Possible States
 // ==================================================================
 
-sealed class CreateAnnualRevenueGoalDialogStates {}
+sealed class CreateAnnualRevenueGoalDialogState {}
 
 // Loading
 class LoadingCreateAnnualRevenueGoal
-    extends CreateAnnualRevenueGoalDialogStates {}
+    extends CreateAnnualRevenueGoalDialogState {}
 
 // Select the year for the annual revenue goal
 class SelectYearCreateAnnualRevenueGoal
-    extends CreateAnnualRevenueGoalDialogStates {
+    extends CreateAnnualRevenueGoalDialogState {
   final int minPossibleYear;
   final int lastPossibleYear;
   final int preselectedYear;
@@ -32,7 +32,7 @@ class SelectYearCreateAnnualRevenueGoal
 
 // Input revenue target for the annual revenue goal
 class InputGoalTargetCreateAnnualRevenueGoal
-    extends CreateAnnualRevenueGoalDialogStates {
+    extends CreateAnnualRevenueGoalDialogState {
   final int selectedYear;
   final String? revenueTargetInput;
   final GoalRevenueTargetInputErrorReason? inputErrorReason;
@@ -54,7 +54,7 @@ enum GoalRevenueTargetInputErrorReason {
 
 // Failure state when creating the annual revenue goal fails
 class FailureCreateAnnualRevenueGoal
-    extends CreateAnnualRevenueGoalDialogStates {
+    extends CreateAnnualRevenueGoalDialogState {
   final CreateAnnualRevenueGoalFailure failure;
   final int year;
 
@@ -68,11 +68,11 @@ class FailureCreateAnnualRevenueGoal
 // Possible Effects
 // ==================================================================
 
-sealed class CreateAnnualRevenueGoalDialogEffects {}
+sealed class CreateAnnualRevenueGoalDialogEffect {}
 
 // Effect emitted when the annual revenue goal is successfully created
 class SuccessEffectCreateAnnualRevenueGoal
-    extends CreateAnnualRevenueGoalDialogEffects {
+    extends CreateAnnualRevenueGoalDialogEffect {
   SuccessEffectCreateAnnualRevenueGoal({
     required this.year,
   });
@@ -84,7 +84,7 @@ class SuccessEffectCreateAnnualRevenueGoal
 ///  Store - Owned by [CreateAnnualRevenueGoalDialog]
 //  ==================================================================
 class CreateAnnualRevenueGoalDialogStore extends AppStore<
-    CreateAnnualRevenueGoalDialogStates, CreateAnnualRevenueGoalDialogEffects> {
+    CreateAnnualRevenueGoalDialogState, CreateAnnualRevenueGoalDialogEffect> {
   CreateAnnualRevenueGoalDialogStore({
     required List<int> unavailableYears,
     // required CreateAnnualRevenueGoal useCase,
