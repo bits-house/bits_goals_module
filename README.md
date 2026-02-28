@@ -7,19 +7,13 @@
 
 ## Overview
 
-**bits_goals_module** is a **Flutter Plugin Module** focused on **sales management, revenue goals, and operational metrics**, designed to be reused across multiple applications.
+**bits_goals_module** is a reusable **Flutter plugin** module that implements **sales and revenue goals management** features, designed for integration across multiple applications.
 
 It was created to:
 
 - Fulfill an urgent requirement of an existing application  
 - Be reused in a second application planned for the near future  
 - Serve as a **showcase module** for a clean and scalable architecture  
-
-The features in this module are common across many management systems, especially in niche business applications that require:
-
-- Sales goals  
-- Revenue targets
-- Consistent business rules across multiple apps 
 
 > Note: An example app will be developed and released in the future to demonstrate the module's capabilities without needing to integrate it into an existing codebase.
 
@@ -33,8 +27,8 @@ This module adopts **Clean Architecture**.
 
 ### Main architectural decisions:
 
-Architecture overview:
-- **[ADR-0014](docs/architecture/adr/ADR-0014.md)** — Dependency Flow and Layer Import Rules
+Module Architecture overview:
+- **[ADR-0014](docs/architecture/adr/ADR-0014.md)**
 
 Use case integration with host applications:
 - **[ADR-0017](docs/architecture/adr/ADR-0017.md)** — TransactionRunner for cross-module/app transactional orchestration (integration use cases)
@@ -49,7 +43,7 @@ Presentation layer architecture:
 
 ## Host Application Integration
 
-> Note: This section is a **preview** of the integration approach and is still being refined. Detailed instructions will be provided in the future.
+> Note: This section is still being refined. Detailed instructions will be provided in the future.
 
 This plugin is intentionally **application-agnostic**.
 
