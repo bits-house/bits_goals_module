@@ -7,23 +7,23 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'app_localizations_pt.dart';
+import 'goals_module_localizations_pt.dart';
 
 // ignore_for_file: type=lint
 
-/// Callers can lookup localized strings with an instance of AppLocalizations
-/// returned by `AppLocalizations.of(context)`.
+/// Callers can lookup localized strings with an instance of GoalsModuleLocalizations
+/// returned by `GoalsModuleLocalizations.of(context)`.
 ///
-/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// Applications need to include `GoalsModuleLocalizations.delegate()` in their app's
 /// `localizationDelegates` list, and the locales they support in the app's
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'gen/app_localizations.dart';
+/// import 'gen/goals_module_localizations.dart';
 ///
 /// return MaterialApp(
-///   localizationsDelegates: AppLocalizations.localizationsDelegates,
-///   supportedLocales: AppLocalizations.supportedLocales,
+///   localizationsDelegates: GoalsModuleLocalizations.localizationsDelegates,
+///   supportedLocales: GoalsModuleLocalizations.supportedLocales,
 ///   home: MyApplicationHome(),
 /// );
 /// ```
@@ -60,20 +60,23 @@ import 'app_localizations_pt.dart';
 /// Select and expand the newly-created Localizations item then, for each
 /// locale your application supports, add a new item and select the locale
 /// you wish to add from the pop-up menu in the Value field. This list should
-/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// be consistent with the languages listed in the GoalsModuleLocalizations.supportedLocales
 /// property.
-abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+abstract class GoalsModuleLocalizations {
+  GoalsModuleLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
-  static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  static GoalsModuleLocalizations of(BuildContext context) {
+    return Localizations.of<GoalsModuleLocalizations>(
+      context,
+      GoalsModuleLocalizations,
+    )!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<GoalsModuleLocalizations> delegate =
+      _GoalsModuleLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -87,14 +90,20 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('pt')];
+
+  /// Mensagem de sucesso exibida no AppSnackBar após criar uma meta anual de faturamento
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta de faturamento para \${year} criada! Metas mensais foram geradas e estão disponíveis para edição.'**
+  String createAnnualRevenueGoalDialog_snackBar_success(int year);
 
   /// Título do diálogo de seleção de ano para criação de meta anual
   ///
@@ -115,13 +124,15 @@ abstract class AppLocalizations {
   String inputGoalTargetCreateAnnualRevenueGoalDialog_title(int year);
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
-  const _AppLocalizationsDelegate();
+class _GoalsModuleLocalizationsDelegate
+    extends LocalizationsDelegate<GoalsModuleLocalizations> {
+  const _GoalsModuleLocalizationsDelegate();
 
   @override
-  Future<AppLocalizations> load(Locale locale) {
-    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  Future<GoalsModuleLocalizations> load(Locale locale) {
+    return SynchronousFuture<GoalsModuleLocalizations>(
+      lookupGoalsModuleLocalizations(locale),
+    );
   }
 
   @override
@@ -129,19 +140,20 @@ class _AppLocalizationsDelegate
       <String>['pt'].contains(locale.languageCode);
 
   @override
-  bool shouldReload(_AppLocalizationsDelegate old) => false;
+  bool shouldReload(_GoalsModuleLocalizationsDelegate old) => false;
 }
 
-AppLocalizations lookupAppLocalizations(Locale locale) {
+GoalsModuleLocalizations lookupGoalsModuleLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'pt':
-      return AppLocalizationsPt();
+      return GoalsModuleLocalizationsPt();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'GoalsModuleLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

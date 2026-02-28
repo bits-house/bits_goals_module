@@ -1,4 +1,5 @@
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_observer.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
 import 'package:bits_goals_module/src/core/presentation/widgets/app_animated_dialog.dart';
 import 'package:bits_goals_module/src/core/presentation/widgets/app_snack_bar.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart';
@@ -16,7 +17,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
 
   final List<int> unavailableYears;
 
-  /// [Key] only needed by [AppAnimatedDialog] for custom animation state reasons
+  /// [Key] is only required by [AppAnimatedDialog] for UI custom animation purposes,
+  /// it is NOT related to AppObserver/Store state management here.
   Widget _buildByState(CreateAnnualRevenueGoalDialogStates state) {
     switch (state) {
       case LoadingCreateAnnualRevenueGoal():
@@ -24,9 +26,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
           key: Key("loading_create_annual_revenue_goal_dialog"),
         );
       case SelectYearCreateAnnualRevenueGoal():
-        return SelectYearCreateAnnualRevenueGoalDialog(
-          state,
-          key: const Key("select_year_create_annual_revenue_goal_dialog"),
+        return const SelectYearCreateAnnualRevenueGoalDialog(
+          key: Key("select_year_create_annual_revenue_goal_dialog"),
         );
       case InputGoalTargetCreateAnnualRevenueGoal():
         return InputGoalTargetCreateAnnualRevenueGoalDialog(
@@ -34,35 +35,36 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
           key: const Key("input_goal_target_create_annual_revenue_goal_dialog"),
         );
       case FailureCreateAnnualRevenueGoal():
-        return FailureCreateAnnualRevenueGoalDialog(
-          state,
-          key: const Key("failure_create_annual_revenue_goal_dialog"),
+        return const FailureCreateAnnualRevenueGoalDialog(
+          key: Key("failure_create_annual_revenue_goal_dialog"),
         );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get the use case instance from the context using AppProvider (dependency injection)
+    // Get the use case instance.
     // final CreateAnnualRevenueGoal useCase =
     //     context.get<CreateAnnualRevenueGoal>();
 
-    // Provide the store to the AppObserver, which will rebuild the UI based on the store
-    // states and handle effects
+    // Get Success AppSnackBar string (internationalization)
+    final snackBarSuccessMessage =
+        context.strings.createAnnualRevenueGoalDialog_snackBar_success;
+
     return AppObserver<
         CreateAnnualRevenueGoalDialogStore,
         CreateAnnualRevenueGoalDialogStates,
         CreateAnnualRevenueGoalDialogEffects>(
+      // Provide the store to the AppObserver, which will rebuild the UI based on the store
+      // states, handle emitted effects, provide the store to the widget tree (dependency
+      // injection), and dispose the Store when this widget is removed from the tree.
       store: CreateAnnualRevenueGoalDialogStore(
         // useCase: useCase,
         unavailableYears: unavailableYears,
       ),
 
-      // The builder function is called automatically whenever the state changes
+      // The builder function is called automatically whenever the state changes.
       builder: (context, state) {
-        // [AppAnimatedDialog] is the main [Dialog], that ensures smooth transitions between
-        // the current [child] and the next [child], based on the [state].
-        // **UX purpose only**.
         return AppAnimatedDialog(
           child: _buildByState(state),
         );
@@ -76,9 +78,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             AppSnackBar.build(
               context: context,
-              // TODO: Internacionalizar
               content: Text(
-                "Meta de faturamento para ${effect.year} criada! Metas mensais foram geradas e estão disponíveis para edição.",
+                snackBarSuccessMessage(effect.year),
               ),
             ),
           );

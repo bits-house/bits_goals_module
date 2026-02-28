@@ -2,13 +2,18 @@
 
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
+import 'goals_module_localizations.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for Portuguese (`pt`).
-class AppLocalizationsPt extends AppLocalizations {
-  AppLocalizationsPt([String locale = 'pt']) : super(locale);
+class GoalsModuleLocalizationsPt extends GoalsModuleLocalizations {
+  GoalsModuleLocalizationsPt([String locale = 'pt']) : super(locale);
+
+  @override
+  String createAnnualRevenueGoalDialog_snackBar_success(int year) {
+    return 'Meta de faturamento para \$$year criada! Metas mensais foram geradas e estão disponíveis para edição.';
+  }
 
   @override
   String get selectYearCreateAnnualRevenueGoalDialog_title =>

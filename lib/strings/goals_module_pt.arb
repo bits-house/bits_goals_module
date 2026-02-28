@@ -1,5 +1,15 @@
 {
     "@@locale": "pt",
+    "createAnnualRevenueGoalDialog_snackBar_success": "Meta de faturamento para ${year} criada! Metas mensais foram geradas e estão disponíveis para edição.",
+    "@createAnnualRevenueGoalDialog_snackBar_success": {
+        "description": "Mensagem de sucesso exibida no AppSnackBar após criar uma meta anual de faturamento",
+        "placeholders": {
+            "year": {
+                "type": "int",
+                "example": "2026"
+            }
+        }
+    },
     "selectYearCreateAnnualRevenueGoalDialog_title": "Criar meta de faturamento para:",
     "@selectYearCreateAnnualRevenueGoalDialog_title": {
         "description": "Título do diálogo de seleção de ano para criação de meta anual"

@@ -1,7 +1,8 @@
 arb-dir: lib/strings
-template-arb-file: app_pt.arb
+template-arb-file: goals_module_pt.arb
 output-dir: lib/strings/gen
-output-localization-file: app_localizations.dart
+output-localization-file: goals_module_localizations.dart
+output-class: GoalsModuleLocalizations
 nullable-getter: false
 header: |
   // coverage:ignore-file

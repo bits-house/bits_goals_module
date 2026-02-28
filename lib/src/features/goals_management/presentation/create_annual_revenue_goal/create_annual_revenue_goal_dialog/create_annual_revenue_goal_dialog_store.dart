@@ -37,7 +37,7 @@ class InputGoalTargetCreateAnnualRevenueGoal
   final String? revenueTargetInput;
   final GoalRevenueTargetInputErrorReason? inputErrorReason;
 
-  bool get enableCreateButton => revenueTargetInput != null;
+  bool get enableCreateButton => inputErrorReason == null;
 
   InputGoalTargetCreateAnnualRevenueGoal({
     required this.selectedYear,
