@@ -13,10 +13,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
-      body: const Center(
-        child: Text('Running'),
+        title: const Text('Goals Module Example'),
       ),
       floatingActionButton: CreateAnnualRevenueGoalButton.fabLarge(
         config: config,

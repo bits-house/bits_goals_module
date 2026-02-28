@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/strings/gen/app_localizations.dart';
+import 'package:bits_goals_module/strings/gen/goals_module_localizations.dart';
 import 'package:flutter/material.dart';
 
 class AppProvider<ST> extends InheritedWidget {
@@ -27,5 +27,5 @@ class AppProvider<ST> extends InheritedWidget {
 extension AppProviderExtension on BuildContext {
   T get<T>() => AppProvider.of<T>(this);
 
-  AppLocalizations get strings => AppLocalizations.of(this);
+  GoalsModuleLocalizations get strings => GoalsModuleLocalizations.of(this);
 }

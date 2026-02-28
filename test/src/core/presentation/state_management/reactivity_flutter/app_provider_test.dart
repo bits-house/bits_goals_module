@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
-import 'package:bits_goals_module/strings/gen/app_localizations.dart';
+import 'package:bits_goals_module/strings/gen/goals_module_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -144,19 +144,19 @@ void main() {
 
   group('AppProviderExtension - Localizations', () {
     testWidgets(
-        'Should return AppLocalizations instance from context.strings extension',
+        'Should return GoalsModuleLocalizations instance from context.strings extension',
         (WidgetTester tester) async {
-      late AppLocalizations stringsResult;
+      late GoalsModuleLocalizations stringsResult;
 
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: const [
-            AppLocalizations.delegate,
+            GoalsModuleLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: AppLocalizations.supportedLocales,
+          supportedLocales: GoalsModuleLocalizations.supportedLocales,
           home: Builder(
             builder: (BuildContext context) {
               stringsResult = context.strings;
@@ -168,7 +168,7 @@ void main() {
 
       await tester.pump();
 
-      expect(stringsResult, isA<AppLocalizations>());
+      expect(stringsResult, isA<GoalsModuleLocalizations>());
     });
   });
 }
