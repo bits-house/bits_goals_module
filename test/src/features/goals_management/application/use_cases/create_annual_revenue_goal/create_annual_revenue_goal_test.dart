@@ -96,21 +96,22 @@ void main() {
     // FIXTURES & HELPERS
     // ============================================================
 
-    final tCurrentYear = Year.fromInt(2025);
-    final tValidYear = Year.fromInt(2026);
-    final tPastYear = Year.fromInt(2024);
-    final tMoney = Money.fromDouble(12000.00);
+    const tCurrentYear = 2025;
+    const tValidYear = 2026;
+    const tPastYear = 2024;
+    const tMoney = 12000.00;
 
     AnnualRevenueGoal createValidAnnualGoal({
-      required Year year,
-      required Money target,
+      required int year,
+      required double target,
     }) {
+      final yearVo = Year.fromInt(year);
       return AnnualRevenueGoal.build(
-        year: year,
+        year: yearVo,
         monthlyGoals: <MonthlyRevenueGoal>[
           for (int i = 1; i <= 12; i++)
             MonthlyRevenueGoal.create(
-              year: year,
+              year: yearVo,
               month: Month.fromInt(i),
               target: Money.fromDouble(1000.00),
             ),
@@ -138,7 +139,7 @@ void main() {
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: tMoney);
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(
           () => mockRepository.create(
             goal: any(named: 'goal'),
@@ -148,7 +149,7 @@ void main() {
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -161,7 +162,7 @@ void main() {
         result.fold(
           (l) => fail('Should be Right: $l'),
           (r) {
-            expect(r.year, tValidYear);
+            expect(r.year, Year.fromInt(tValidYear));
             expect(r.monthlyGoals.length, 12);
           },
         );
@@ -177,11 +178,11 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tPastYear,
           annualRevenueTarget: tMoney,
         );
@@ -204,13 +205,13 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
-          annualRevenueTarget: Money.fromDouble(-1200.00),
+          annualRevenueTarget: -1200.00,
         );
 
         // Act
@@ -231,13 +232,13 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
-          annualRevenueTarget: Money.fromCents(0),
+          annualRevenueTarget: 0.0,
         );
 
         // Act
@@ -259,7 +260,7 @@ void main() {
       when(() => mockAccessControlService.hasPermission(any()))
           .thenReturn(false);
 
-      final params = CreateAnnualRevenueGoalParams(
+      const params = CreateAnnualRevenueGoalParams(
         year: tValidYear,
         annualRevenueTarget: tMoney,
       );
@@ -285,7 +286,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -298,7 +299,7 @@ void main() {
           ),
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -323,7 +324,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -335,7 +336,7 @@ void main() {
           ),
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -360,7 +361,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -372,7 +373,7 @@ void main() {
           ),
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -403,7 +404,7 @@ void main() {
         const retryDuration = Duration(seconds: 45);
 
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
@@ -417,7 +418,7 @@ void main() {
           ),
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -448,7 +449,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -460,7 +461,7 @@ void main() {
           ),
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -488,7 +489,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -498,7 +499,7 @@ void main() {
           Exception('Unexpected error'),
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -552,14 +553,14 @@ void main() {
       'should distribute annual target correctly across 12 months',
       () async {
         // Arrange
-        final annualTarget = Money.fromDouble(12000.00);
+        const annualTarget = 12000.00;
         final tAnnualGoal = createValidAnnualGoal(
           year: tValidYear,
           target: annualTarget,
         );
 
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -567,7 +568,7 @@ void main() {
               log: any(named: 'log'),
             )).thenAnswer((_) async => tAnnualGoal);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: annualTarget,
         );
@@ -601,7 +602,7 @@ void main() {
         final tAnnualGoal =
             createValidAnnualGoal(year: tCurrentYear, target: tMoney);
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -609,7 +610,7 @@ void main() {
               log: any(named: 'log'),
             )).thenAnswer((_) async => tAnnualGoal);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tCurrentYear,
           annualRevenueTarget: tMoney,
         );
@@ -627,11 +628,11 @@ void main() {
       () async {
         // Arrange
         // Minimum target must be divisible across 12 months; using 12 cents = 1 cent per month
-        final minTarget = Money.fromCents(12);
+        const minTarget = 0.12;
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: minTarget);
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -639,7 +640,7 @@ void main() {
               log: any(named: 'log'),
             )).thenAnswer((_) async => tAnnualGoal);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: minTarget,
         );
@@ -656,11 +657,11 @@ void main() {
       'should accept very large target amount',
       () async {
         // Arrange
-        final largeTarget = Money.fromDouble(999999999.99);
+        const largeTarget = 999999999.99;
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: largeTarget);
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -668,7 +669,7 @@ void main() {
               log: any(named: 'log'),
             )).thenAnswer((_) async => tAnnualGoal);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: largeTarget,
         );
@@ -686,12 +687,12 @@ void main() {
       () async {
         // Arrange
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
 
-        final params = CreateAnnualRevenueGoalParams(
-          year: Year.fromInt(1990),
+        const params = CreateAnnualRevenueGoalParams(
+          year: 1990,
           annualRevenueTarget: tMoney,
         );
 
@@ -721,7 +722,7 @@ void main() {
         when(() => mockRealTimeService.getCurrentYear()).thenAnswer(
           (_) async {
             await Future.delayed(const Duration(milliseconds: 10));
-            return tCurrentYear;
+            return Year.fromInt(tCurrentYear);
           },
         );
         when(() => mockAccessControlService.hasPermission(any()))
@@ -731,7 +732,7 @@ void main() {
               log: any(named: 'log'),
             )).thenAnswer((_) async => tAnnualGoal);
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );
@@ -751,7 +752,7 @@ void main() {
         final tAnnualGoal =
             createValidAnnualGoal(year: tValidYear, target: tMoney);
         when(() => mockRealTimeService.getCurrentYear())
-            .thenAnswer((_) async => tCurrentYear);
+            .thenAnswer((_) async => Year.fromInt(tCurrentYear));
         when(() => mockAccessControlService.hasPermission(any()))
             .thenReturn(true);
         when(() => mockRepository.create(
@@ -764,7 +765,7 @@ void main() {
           },
         );
 
-        final params = CreateAnnualRevenueGoalParams(
+        const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
         );

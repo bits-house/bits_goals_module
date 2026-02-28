@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/store/store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/store.dart';
 import 'package:flutter/material.dart';
 
 /// A universal wrapper widget that connects a [Store] to the UI.

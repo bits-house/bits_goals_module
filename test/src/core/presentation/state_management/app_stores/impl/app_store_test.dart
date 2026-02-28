@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _TestStore extends AppStore<int, String> {

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_dart/reactivity_impl/app_observable.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_streamed_list_store.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/store/store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_streamed_list_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/store.dart';
 import 'package:flutter/foundation.dart';
 
-// TODO: mitigar erros de concorrência e reentrância: Double Submit, Stale Completion,
+// TODO: mitigar possiveis erros de concorrência e reentrância: Double Submit, Stale Completion,
 //  Reentrância de State, etc.
 
 /// A base Store implementation that MUST be extended by every Store in the app that

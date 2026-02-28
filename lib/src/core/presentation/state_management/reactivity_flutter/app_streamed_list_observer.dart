@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'package:bits_goals_module/src/core/presentation/motion/app_motion.dart';
 import 'package:flutter/material.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_streamed_list_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_streamed_list_store.dart';
 
 /// A self-contained, reactive Observer for [AppStreamedListStore] with built-in Infinite Scroll.
 ///
@@ -46,7 +47,7 @@ class AppStreamedListObserver<ST extends AppStreamedListStore<S, E, T, F>, S, E,
   final ScrollController? scrollController;
 
   /// Distance from the bottom (in pixels) to trigger [loadMore].
-  /// Defaults to 200.0.
+  /// Defaults to 256.0.
   final double scrollThreshold;
 
   final EdgeInsetsGeometry? padding;
@@ -59,11 +60,11 @@ class AppStreamedListObserver<ST extends AppStreamedListStore<S, E, T, F>, S, E,
     this.loadingBuilder,
     this.errorBuilder,
     this.emptyBuilder,
-    this.animationDuration = const Duration(milliseconds: 300),
+    this.animationDuration = AppMotion.duration,
     this.shouldDisposeStore = true,
     this.onEffect,
     this.scrollController,
-    this.scrollThreshold = 200.0,
+    this.scrollThreshold = 256.0,
     this.padding,
   });
 

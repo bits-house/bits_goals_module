@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/store/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_dart/reactivity_impl/app_observable.dart';
 
 /// A specialized [AppStore] designed for **Limit-Based Infinite Scrolling** fetching with
@@ -47,7 +47,7 @@ abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
 
   /// Example usage:
   /// ```dart
-  ///   TestStore(
+  ///   ExampleStore(
   ///     GetItensUseCase useCase,
   ///   ) : super(
   ///           initialState: LoadingState(),
@@ -58,9 +58,7 @@ abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
   ///               return SuccessState(data);
   ///             }
   ///           },
-  ///           mapInitialFailureToState: (failure) => FailureState(
-  ///             failure: failure,
-  ///           ),
+  ///           mapInitialFailureToState: (failure) => FailureState(failure),
   ///           mapExceptionToFailure: (exception) => Failure(
   ///             reason: FailureReason.unexpected,
   ///           ),
@@ -80,6 +78,8 @@ abstract class AppStreamedListStore<S, E, T, F> extends AppStore<S, E> {
   }
 
   // ================= MANDATORY SETUP =================
+  // TODO: Use generics to automatically create the stream, without the need
+  //  to override
 
   /// Creates the stream with the dynamic [limit].
   ///
