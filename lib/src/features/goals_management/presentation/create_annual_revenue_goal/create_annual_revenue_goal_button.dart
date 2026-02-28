@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
-import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart';
+import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog.dart';
 import 'package:bits_goals_module/src/infra/adapters/access_control_service_impl.dart';
 import 'package:bits_goals_module/src/infra/config/goals_module_config.dart';
 import 'package:flutter/material.dart';

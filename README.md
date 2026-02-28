@@ -37,8 +37,8 @@ This module adopts `Clean Architecture`.
 - **[ADR-0019](docs/architecture/adr/ADR-0019.md)** (presentation layer architecture)
 
     > Examples adhering to the Store-driven Presentation Architecture:
-    > - **[Flutter UI - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart)**
-    > - **[Store - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart)**
+    > - **[Flutter UI - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog.dart)**
+    > - **[Store - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog_store.dart)**
 
 ---
 
