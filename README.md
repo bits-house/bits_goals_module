@@ -60,7 +60,7 @@ return BitsGoalsModule.init(
     );
 ```
 
-> Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` is independent of the `BitsGoalsModule` initialization.
+> Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. The features will be available throughout the widget tree (only within the subtree of the wrapped widget). You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` can be used independently of the `BitsGoalsModule` initialization.
 
 The `config` is a required parameter that provides the necessary configuration for the module to function properly. It requires only 3 things: `remoteDataSrcConfig`, `getCurrentUser`, and `getRoles`. Example:
 
