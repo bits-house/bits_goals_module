@@ -19,7 +19,7 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
 
   /// [Key] is only required by [AppAnimatedDialog] for UI custom animation purposes,
   /// it is NOT related to AppObserver/Store state management.
-  Widget _buildByState(CreateAnnualRevenueGoalDialogStates state) {
+  Widget _buildByState(CreateAnnualRevenueGoalDialogState state) {
     switch (state) {
       case LoadingCreateAnnualRevenueGoal():
         return const LoadingCreateAnnualRevenueGoalDialog(
@@ -53,8 +53,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
 
     return AppObserver<
         CreateAnnualRevenueGoalDialogStore,
-        CreateAnnualRevenueGoalDialogStates,
-        CreateAnnualRevenueGoalDialogEffects>(
+        CreateAnnualRevenueGoalDialogState,
+        CreateAnnualRevenueGoalDialogEffect>(
       // Provide the store to the AppObserver, which will rebuild the UI based on the store
       // states, handle emitted effects, provide the store to the widget tree (dependency
       // injection), and dispose the Store when this widget is removed from the tree.
