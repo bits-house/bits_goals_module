@@ -1,7 +1,7 @@
 import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart';
+import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog.dart';
 import 'package:dartz/dartz.dart';
 
 // ==================================================================
@@ -141,11 +141,13 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
 
   // Synchronous validation only for UX purposes.
+  // TODO: Centralize UI validations
   GoalRevenueTargetInputErrorReason? _validateMoneyInput(
     String input,
   ) {
     try {
-      final double value = double.parse(input);
+      final clearInput = input.replaceAll(',', '.').trim();
+      final double value = double.parse(clearInput);
       if (value <= 0) {
         return GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
       } else {

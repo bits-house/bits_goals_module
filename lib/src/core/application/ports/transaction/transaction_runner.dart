@@ -5,11 +5,8 @@ import 'package:bits_goals_module/src/core/application/ports/transaction/app_tra
 ///
 /// It orchestrates the lifecycle of a transaction,
 /// ensuring that all operations executed through the provided
-/// [AppTransaction] instance are:
-///
-/// - atomic
-/// - consistent
-/// - isolated
+/// [AppTransaction] instance are atomic and consistent, even across multiple modules
+/// and use cases.
 ///
 /// The implementation is responsible for:
 /// - starting the transaction
@@ -18,8 +15,7 @@ import 'package:bits_goals_module/src/core/application/ports/transaction/app_tra
 /// - rolling back on failure
 ///
 /// This abstraction allows application use-cases to remain
-/// persistence-agnostic while still guaranteeing transactional
-/// consistency and atomicity across multiple operations and modules.
+/// persistence-agnostic, as long they share the same data source.
 ///
 /// The underlying implementation may map to:
 ///
@@ -39,19 +35,21 @@ import 'package:bits_goals_module/src/core/application/ports/transaction/app_tra
 ///
 /// ---
 ///
-/// ### Implementation Details
-/// The concrete implementation (in the Infrastructure Layer) handles the messy details:
+/// ### Implementation
+/// The concrete implementation (in this module's Infrastructure Layer) should handle the details
+/// like:
 /// - Firestore: `firestore.runTransaction(...)`
 /// - SQL: `db.transaction(...)`
 /// - Testing: `FakeTransactionRunner`
 abstract class TransactionRunner {
-  /// Executes a unit of work within a transactional boundary.
+  /// [run] executes a unit of work within a transactional boundary.
   ///
   /// This method creates a temporary [AppTransaction] context and passes it
   /// to your [action].
   ///
   /// ### Critical Rules:
-  /// 1. **Do not use `this` runner inside the action.** The action is already running inside one.
+  /// 1. **Do not use `this` runner inside the action.** The action is already running inside
+  ///    a `this` runner.
   /// 2. **Pass the `sharedTransaction` object.** All transaction-aware ports called within [action]
   ///    MUST receive and use the provided `sharedTransaction` argument to ensure they write to the same
   ///    transactional boundary.
@@ -61,34 +59,38 @@ abstract class TransactionRunner {
   ///    (e.g. one SQL database or one Firestore instance).
   /// 4. **Retry safety.** Some implementations (e.g. Firestore) may retry the transactional
   ///    callback on contention. Keep the action idempotent and free of side effects,
-  ///    don’t do things inside the transaction that you can’t safely repeat, such as:
-  ///    - HTTP calls (charge credit card, send email/push)
-  ///    - Writing to another database/service
+  ///    don’t do things inside the transaction that the database/service cannot repeat, such as:
+  ///    - HTTP calls (e.g., updates to external services)
+  ///    - Writing to another database
   ///    - Publishing events
   /// 5. **Transaction Outcome:**
   ///     If the action throws:
   ///       - the transaction MUST be rolled back by the implementation
-  ///       - the exception is rethrown to the caller/use case
+  ///       - the exception is rethrown to the caller/use case as-is
   ///
   /// ---
   ///
-  /// ### Example:
+  /// ### Usage Example:
   /// ```dart
-  /// final result = await transactionRunner.run((sharedTransaction) async {
+  /// final T result = await transactionRunner.run((sharedTransaction) async {
   ///
+  ///   // (Host App repository method - updateOrder)
   ///   await ordersWriter.updateOrder(orderId, updatedOrder, sharedTransaction);
-  ///   // In this example, updateOrder is a repository method (data layer implementation, that does not
-  ///   // call any other infrastructure methods, it only interacts with the sharedTransaction)
-  ///   // that accepts the sharedTransaction to ensure specific persistence validations and writing
-  ///   // to the same transaction boundary.
-  ///   // It can throw either a generic Exception (e.g. unexpected error) or a domain-specific
-  ///   // Failure that the use case can handle (e.g. OrderNotFoundFailure).
   ///
+  ///   // (Repository method from Goals Module, example only - updateGoal)
   ///   await goalsProgressUpdater.updateGoal(goalId, updatedGoal, sharedTransaction);
   ///
   ///   return someResult;
   /// });
   /// ```
+  /// In this example, [updateOrder] is a data-layer repository method that accepts
+  /// a [sharedTransaction] to execute validations and writes within a single
+  /// transaction boundary, without calling other infrastructure methods.
+  ///
+  /// This method may throw a generic [Exception] (e.g., an unexpected error) or a
+  /// domain-specific [Failure] (e.g., [OrderNotFoundFailure] thrown by the repository) to be
+  /// handled by the use case. In either scenario, the transaction is automatically rolled back,
+  /// and the original exception or failure is rethrown as-is.
   Future<T> run<T>(
     Future<T> Function(AppTransaction sharedTransaction) action,
   );

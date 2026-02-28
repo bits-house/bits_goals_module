@@ -22,170 +22,187 @@ void main() {
     accessControlService = AccessControlServiceImpl(mockConfig);
   });
 
-  group('AccessControlServiceImpl Tests |', () {
-    // ============================================================
-    // FIXTURES AND HELPERS
-    // ============================================================
+  group(
+    'AccessControlServiceImpl Tests |',
+    () {
+      // ============================================================
+      // FIXTURES AND HELPERS
+      // ============================================================
 
-    /// Helper to create a LoggedInUser instance with a specific role name.
-    /// Note: The User object only holds the role name (String).
-    /// The actual permissions are resolved via the Config.
-    LoggedInUser generateMockUser({
-      required String roleName,
-    }) {
-      return LoggedInUser.create(
-        uid: 'user_123',
-        roleName: roleName,
-        email: 'testuser@example.com',
-        displayName: 'Test User',
+      /// Helper to create a LoggedInUser instance with a specific role name.
+      /// Note: The User object only holds the role name (String).
+      /// The actual permissions are resolved via the Config.
+      LoggedInUser generateMockUser({
+        required String roleName,
+      }) {
+        return LoggedInUser.create(
+          uid: 'user_123',
+          roleName: roleName,
+          email: 'testuser@example.com',
+          displayName: 'Test User',
+        );
+      }
+
+      List<UserRole> generateMockRoles({
+        required String roleName,
+        required List<GoalsModulePermission> permissions,
+      }) {
+        return [
+          UserRole(
+            roleName: roleName,
+            rolePermissions: permissions,
+          ),
+        ];
+      }
+
+      // -------------------------------------------------------------------------
+      // Scenario 1: Optimization Check (Permission.none)
+      // -------------------------------------------------------------------------
+
+      test(
+        'Should return TRUE immediately when checking [GoalsModulePermission.none], '
+        'skipping any config or user lookup to optimize performance',
+        () {
+          // Act
+          final result =
+              accessControlService.hasPermission(GoalsModulePermission.none);
+
+          // Assert
+          expect(result, isTrue);
+
+          // Verify: Ensure we didn't waste resources fetching user or config
+          verifyZeroInteractions(mockConfig);
+        },
       );
-    }
 
-    // -------------------------------------------------------------------------
-    // Scenario 1: Optimization Check (Permission.none)
-    // -------------------------------------------------------------------------
+      // -------------------------------------------------------------------------
+      // Scenario 2: Role HAS permission (Happy Path)
+      // -------------------------------------------------------------------------
 
-    test(
-      'Should return TRUE immediately when checking [GoalsModulePermission.none], '
-      'skipping any config or user lookup to optimize performance',
-      () {
-        // Act
-        final result =
-            accessControlService.hasPermission(GoalsModulePermission.none);
+      test(
+        'Should return TRUE when the current user role exists in config AND has the requested permission',
+        () {
+          // Arrange
+          const userRoleName = 'admin';
+          const requestedPermission =
+              GoalsModulePermission.createAnnualRevenueGoals;
 
-        // Assert
-        expect(result, isTrue);
+          // 1. Mock the Current User
+          // FIX: We mock the method call `()` instead of the property getter
+          when(() => mockConfig.getCurrentUser).thenReturn(
+            () => generateMockUser(roleName: userRoleName),
+          );
 
-        // Verify: Ensure we didn't waste resources fetching user or config
-        verifyZeroInteractions(mockConfig);
-      },
-    );
+          // 2. Mock the Config Roles (The Source of Truth)
+          when(() => mockConfig.getRoles).thenReturn(
+            () => generateMockRoles(
+              roleName: userRoleName,
+              permissions: const [
+                GoalsModulePermission.createAnnualRevenueGoals
+              ],
+            ),
+          );
 
-    // -------------------------------------------------------------------------
-    // Scenario 2: Role HAS permission (Happy Path)
-    // -------------------------------------------------------------------------
+          // Act
+          final result =
+              accessControlService.hasPermission(requestedPermission);
 
-    test(
-      'Should return TRUE when the current user role exists in config AND has the requested permission',
-      () {
-        // Arrange
-        const userRoleName = 'admin';
-        const requestedPermission =
-            GoalsModulePermission.createAnnualRevenueGoals;
+          // Assert
+          expect(result, isTrue);
+        },
+      );
 
-        // 1. Mock the Current User
-        // FIX: We mock the method call `()` instead of the property getter
-        when(() => mockConfig.getCurrentUser).thenReturn(
-          () => generateMockUser(roleName: userRoleName),
-        );
+      // -------------------------------------------------------------------------
+      // Scenario 3: Role LACKS permission (Sad Path)
+      // -------------------------------------------------------------------------
 
-        // 2. Mock the Config Roles (The Source of Truth)
-        when(() => mockConfig.roles).thenReturn([
-          UserRole(
-            roleName: userRoleName,
-            rolePermissions: const [
-              GoalsModulePermission
-                  .createAnnualRevenueGoals, // Permission present
-            ],
-          ),
-        ]);
+      test(
+        'Should return FALSE when the current user role exists but LACKS the requested permission',
+        () {
+          // Arrange
+          const userRoleName = 'viewer';
+          const requestedPermission =
+              GoalsModulePermission.createAnnualRevenueGoals;
 
-        // Act
-        final result = accessControlService.hasPermission(requestedPermission);
+          when(() => mockConfig.getCurrentUser).thenReturn(
+            () => generateMockUser(roleName: userRoleName),
+          );
 
-        // Assert
-        expect(result, isTrue);
-      },
-    );
+          when(() => mockConfig.getRoles).thenReturn(
+            () => generateMockRoles(
+              roleName: userRoleName,
+              permissions: const [
+                GoalsModulePermission.none, // Lacks 'createAnnualRevenueGoals'
+              ],
+            ),
+          );
 
-    // -------------------------------------------------------------------------
-    // Scenario 3: Role LACKS permission (Sad Path)
-    // -------------------------------------------------------------------------
+          // Act
+          final result =
+              accessControlService.hasPermission(requestedPermission);
 
-    test(
-      'Should return FALSE when the current user role exists but LACKS the requested permission',
-      () {
-        // Arrange
-        const userRoleName = 'viewer';
-        const requestedPermission =
-            GoalsModulePermission.createAnnualRevenueGoals;
+          // Assert
+          expect(result, isFalse);
+        },
+      );
 
-        when(() => mockConfig.getCurrentUser).thenReturn(
-          () => generateMockUser(roleName: userRoleName),
-        );
+      // -------------------------------------------------------------------------
+      // Scenario 4: Role not found in Config (Security Fallback)
+      // -------------------------------------------------------------------------
 
-        when(() => mockConfig.roles).thenReturn([
-          UserRole(
-            roleName: userRoleName,
-            rolePermissions: const [
-              GoalsModulePermission.none, // Lacks 'createAnnualRevenueGoals'
-            ],
-          ),
-        ]);
+      test(
+        'Should return FALSE (Safe Fallback) when the current user role is NOT defined in the config',
+        () {
+          // Arrange
+          const unknownRole = 'unknown_or_deprecated_role';
+          const requestedPermission =
+              GoalsModulePermission.createAnnualRevenueGoals;
 
-        // Act
-        final result = accessControlService.hasPermission(requestedPermission);
+          // User has a role that the app config doesn't know about
+          when(() => mockConfig.getCurrentUser).thenReturn(
+            () => generateMockUser(roleName: unknownRole),
+          );
 
-        // Assert
-        expect(result, isFalse);
-      },
-    );
+          // Config only knows about 'admin'
+          when(() => mockConfig.getRoles).thenReturn(
+            () => generateMockRoles(
+              roleName: 'admin',
+              permissions: const [
+                GoalsModulePermission.createAnnualRevenueGoals
+              ],
+            ),
+          );
 
-    // -------------------------------------------------------------------------
-    // Scenario 4: Role not found in Config (Security Fallback)
-    // -------------------------------------------------------------------------
+          // Act
+          final result =
+              accessControlService.hasPermission(requestedPermission);
 
-    test(
-      'Should return FALSE (Safe Fallback) when the current user role is NOT defined in the config',
-      () {
-        // Arrange
-        const unknownRole = 'unknown_or_deprecated_role';
-        const requestedPermission =
-            GoalsModulePermission.createAnnualRevenueGoals;
+          // Assert
+          expect(result, isFalse,
+              reason:
+                  'Unknown roles must default to restricted access (Null Object Pattern)');
+        },
+      );
 
-        // User has a role that the app config doesn't know about
-        when(() => mockConfig.getCurrentUser).thenReturn(
-          () => generateMockUser(roleName: unknownRole),
-        );
+      // -------------------------------------------------------------------------
+      // Scenario 5: User Proxy
+      // -------------------------------------------------------------------------
 
-        // Config only knows about 'admin'
-        when(() => mockConfig.roles).thenReturn([
-          UserRole(
-            roleName: 'admin',
-            rolePermissions: const [
-              GoalsModulePermission.createAnnualRevenueGoals
-            ],
-          ),
-        ]);
+      test(
+        'loggedInUser getter should forward the user object directly from config',
+        () {
+          // Arrange
+          final expectedUser = generateMockUser(roleName: 'user');
+          when(() => mockConfig.getCurrentUser).thenReturn(() => expectedUser);
 
-        // Act
-        final result = accessControlService.hasPermission(requestedPermission);
+          // Act
+          final result = accessControlService.loggedInUser;
 
-        // Assert
-        expect(result, isFalse,
-            reason:
-                'Unknown roles must default to restricted access (Null Object Pattern)');
-      },
-    );
-
-    // -------------------------------------------------------------------------
-    // Scenario 5: User Proxy
-    // -------------------------------------------------------------------------
-
-    test(
-      'loggedInUser getter should forward the user object directly from config',
-      () {
-        // Arrange
-        final expectedUser = generateMockUser(roleName: 'user');
-        when(() => mockConfig.getCurrentUser).thenReturn(() => expectedUser);
-
-        // Act
-        final result = accessControlService.loggedInUser;
-
-        // Assert
-        expect(result, equals(expectedUser));
-        verify(() => mockConfig.getCurrentUser()).called(1);
-      },
-    );
-  });
+          // Assert
+          expect(result, equals(expectedUser));
+          verify(() => mockConfig.getCurrentUser()).called(1);
+        },
+      );
+    },
+  );
 }

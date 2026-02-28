@@ -56,16 +56,16 @@ void main() {
 
       // Act
       final config = GoalsModuleConfig(
-        roles: [adminRole],
+        getRoles: () => [adminRole],
         getCurrentUser: () => generateUser(roleName: 'admin'),
         remoteDataSrcConfig: firestoreConfig,
       );
 
       // Assert
-      expect(config.roles.length, 1);
-      expect(config.roles.first.roleName, 'admin');
+      expect(config.getRoles().length, 1);
+      expect(config.getRoles().first.roleName, 'admin');
       expect(
-        config.roles.first.rolePermissions,
+        config.getRoles().first.rolePermissions,
         contains(GoalsModulePermission.createAnnualRevenueGoals),
       );
     });
@@ -76,7 +76,7 @@ void main() {
       final expectedUser = generateUser(roleName: 'manager', uid: 'mgr_123');
 
       final config = GoalsModuleConfig(
-        roles:
+        getRoles: () =>
             simpleRoleList, // Config roles don't strictly need to match the user here
         getCurrentUser: () => expectedUser,
         remoteDataSrcConfig: firestoreConfig,
@@ -95,7 +95,7 @@ void main() {
     test('should maintain reference to the provided remoteDataSrcConfig', () {
       // Act
       final config = GoalsModuleConfig(
-        roles: simpleRoleList,
+        getRoles: () => simpleRoleList,
         getCurrentUser: () => generateUser(roleName: 'user'),
         remoteDataSrcConfig: firestoreConfig,
       );
@@ -116,13 +116,14 @@ void main() {
       );
 
       final config = GoalsModuleConfig(
-        roles: [editorRole],
+        getRoles: () => [editorRole],
         getCurrentUser: () => generateUser(roleName: 'editor'),
         remoteDataSrcConfig: firestoreConfig,
       );
 
       // Act
-      final savedRole = config.roles.firstWhere((r) => r.roleName == 'editor');
+      final savedRole =
+          config.getRoles().firstWhere((r) => r.roleName == 'editor');
 
       // Assert
       expect(savedRole.rolePermissions.length, 2);
@@ -142,7 +143,7 @@ void main() {
       var currentRoleName = 'guest';
 
       final config = GoalsModuleConfig(
-        roles: simpleRoleList,
+        getRoles: () => simpleRoleList,
         getCurrentUser: () => generateUser(roleName: currentRoleName),
         remoteDataSrcConfig: firestoreConfig,
       );
@@ -159,7 +160,7 @@ void main() {
       // Assert
       expect(
         () => GoalsModuleConfig(
-          roles: [], // Empty list forbidden
+          getRoles: () => [], // Empty list forbidden
           getCurrentUser: () => generateUser(roleName: 'user'),
           remoteDataSrcConfig: firestoreConfig,
         ),
@@ -186,7 +187,7 @@ void main() {
       // Act & Assert
       expect(
         () => GoalsModuleConfig(
-          roles: duplicateRoles,
+          getRoles: () => duplicateRoles,
           getCurrentUser: () => generateUser(roleName: 'manager'),
           remoteDataSrcConfig: firestoreConfig,
         ),

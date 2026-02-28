@@ -1,27 +1,27 @@
 import 'package:bits_goals_module/strings/gen/goals_module_localizations.dart';
 import 'package:flutter/material.dart';
 
-class AppProvider<ST> extends InheritedWidget {
-  final ST store;
+class AppProvider<R> extends InheritedWidget {
+  final R resource;
 
   const AppProvider({
     super.key,
-    required this.store,
+    required this.resource,
     required super.child,
   });
 
-  static ST of<ST>(BuildContext context) {
+  static R of<R>(BuildContext context) {
     final provider =
-        context.dependOnInheritedWidgetOfExactType<AppProvider<ST>>();
+        context.dependOnInheritedWidgetOfExactType<AppProvider<R>>();
     if (provider == null) {
-      throw FlutterError('AppProvider<$ST> not found in context.');
+      throw FlutterError('AppProvider<$R> not found in context.');
     }
-    return provider.store;
+    return provider.resource;
   }
 
   @override
-  bool updateShouldNotify(AppProvider<ST> oldWidget) =>
-      store != oldWidget.store;
+  bool updateShouldNotify(AppProvider<R> oldWidget) =>
+      resource != oldWidget.resource;
 }
 
 extension AppProviderExtension on BuildContext {

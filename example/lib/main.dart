@@ -7,51 +7,54 @@ import 'package:bits_goals_module/bits_goals_module.dart';
 void main() {
   final firestore = FakeFirebaseFirestore();
   runApp(
-    MyApp(
-      config: GoalsModuleConfig(
-        remoteDataSrcConfig: FirestoreConfig(
-          firestore: firestore,
-          annualRevenueGoalsMetaCollectionName: 'annualRevenueGoalsMeta',
-          monthlyRevenueGoalsCollectionName: 'monthlyRevenueGoals',
-          goalsActionLogsCollectionName: 'goalsActionLogs',
-        ),
-        getCurrentUser: () => LoggedInUser.create(
-          displayName: 'Matheus',
-          email: 'matheus@example.com',
-          roleName: 'admin',
-          uid: 'my-unique-user-id',
-        ),
-        roles: [
-          UserRole(
-            roleName: 'admin',
-            rolePermissions: const [
-              GoalsModulePermission.createAnnualRevenueGoals,
-            ],
-          ),
-        ],
-      ),
-    ),
+    MyApp(firestoreInstance: firestore),
   );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
-    required this.config,
+    required this.firestoreInstance,
   });
 
-  final GoalsModuleConfig config;
+  final FakeFirebaseFirestore firestoreInstance;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        ...GoalsModuleLocalizations.localizationsDelegates,
+    final goalsModuleConfig = GoalsModuleConfig(
+      remoteDataSrcConfig: FirestoreConfig(
+        firestore: firestoreInstance,
+        annualRevenueGoalsMetaCollectionName: 'annual_revenue_goals_meta',
+        monthlyRevenueGoalsCollectionName: 'monthly_revenue_goals',
+        goalsActionLogsCollectionName: 'goals_action_logs',
+      ),
+      getCurrentUser: () => LoggedInUser.create(
+        displayName: 'Matheus',
+        email: 'matheus@example.com',
+        roleName: 'admin',
+        uid: 'my-unique-user-id',
+      ),
+      getRoles: () => [
+        UserRole(
+          roleName: 'admin',
+          rolePermissions: const [
+            GoalsModulePermission.createAnnualRevenueGoals,
+          ],
+        ),
       ],
-      supportedLocales: const [
-        ...GoalsModuleLocalizations.supportedLocales,
-      ], // Needed for the plugin localization
-      home: HomePage(config: config),
+    );
+
+    return BitsGoalsModule.init(
+      config: goalsModuleConfig,
+      child: const MaterialApp(
+        localizationsDelegates: [
+          ...GoalsModuleLocalizations.localizationsDelegates,
+        ],
+        supportedLocales: [
+          ...GoalsModuleLocalizations.supportedLocales,
+        ],
+        home: HomePage(),
+      ),
     );
   }
 }
