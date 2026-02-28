@@ -1,16 +1,21 @@
-import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
+import 'package:bits_goals_module/bits_goals_module.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
 import 'package:bits_goals_module/src/infra/config/data_sources/remote_data_source_config.dart';
+import 'package:flutter/material.dart';
 
 /// Configuration class for Goals Module access control.
 /// Defines roles and their associated permissions.
 /// Must be provided during module initialization.
+///
+/// Used in [BitsGoalsModule.init] to configure and initialize the module. Is accessed within the
+/// module via [BuildContext] and [AppProvider] to enforce access control based on user roles and
+/// permissions.
 class GoalsModuleConfig {
-  /// List of user roles and their permissions within the goals module.
+  /// Callback function to fetch the list of user roles and their permissions within the goals module.
   /// Usage example:
   /// ```dart
   /// final config = GoalsModuleConfig(
-  ///   roles: [
+  ///   getRoles: () => [
   ///     UserRole(
   ///       roleName: 'admin',
   ///       rolePermissions: [
@@ -27,7 +32,7 @@ class GoalsModuleConfig {
   /// ...
   /// );
   /// ```
-  final List<UserRole> roles;
+  final List<UserRole> Function() getRoles;
 
   /// Callback to fetch the current user's role and other details.
   /// Usage example:
@@ -53,10 +58,12 @@ class GoalsModuleConfig {
   final RemoteDataSourceConfig remoteDataSrcConfig;
 
   GoalsModuleConfig({
-    required this.roles,
+    required this.getRoles,
     required this.getCurrentUser,
     required this.remoteDataSrcConfig,
-  })  : assert(roles.isNotEmpty, 'roles cannot be empty'),
-        assert(roles.map((e) => e.roleName).toSet().length == roles.length,
+  })  : assert(getRoles().isNotEmpty, 'roles cannot be empty'),
+        assert(
+            getRoles().map((e) => e.roleName).toSet().length ==
+                getRoles().length,
             'Duplicate role names are not allowed');
 }

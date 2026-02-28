@@ -3,7 +3,7 @@ import 'package:bits_goals_module/src/core/domain/failures/value_objects/user_ro
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
 import 'package:equatable/equatable.dart';
 
-/// Entity representing a User Role and its associated permissions.
+/// Value Object representing a User Role and its associated permissions.
 ///
 /// Ensures strict validation: roles must have a name and at least one permission.
 class UserRole extends Equatable {

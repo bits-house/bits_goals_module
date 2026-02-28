@@ -35,6 +35,7 @@ import 'package:dartz/dartz.dart';
 /// * **Year:** Must be >= current year and unique in the database.
 /// * **Distribution:** The annual target is split across exactly 12 unique months.
 /// * **Financials:** All targets must be > 0. Sum of months == Annual Target.
+///     TODO: Handles currency
 /// * **Permission:** User must have rights to create annual goals.
 /// * **Logging:** An ActionLog is created for auditing.
 ///

@@ -14,30 +14,29 @@ class AccessControlServiceImpl implements AccessControlService {
   AccessControlServiceImpl(this._config);
 
   @override
+  LoggedInUser get loggedInUser => _config.getCurrentUser();
+
+  @override
   bool hasPermission(GoalsModulePermission permission) {
+    UserRole getFallbackRole() {
+      return UserRole(
+        roleName: 'undefined_fallback',
+        rolePermissions: const [GoalsModulePermission.none],
+      );
+    }
+
     if (permission == GoalsModulePermission.none) {
       return true;
     }
 
-    final currentRoleName = _config.getCurrentUser().roleName;
+    final currentUserRoleName = loggedInUser.roleName;
+    final userRole = _config.getRoles().firstWhere(
+          (role) => role.roleName == currentUserRoleName,
+          // Security Fallback: If the user has a role that is not defined in the config
+          // (e.g., 'deprecated_role'), we return a safe 'guest' role with NO permissions.
+          orElse: () => getFallbackRole(),
+        );
 
-    final userRoleEntity = _config.roles.firstWhere(
-      (role) => role.roleName == currentRoleName,
-      // Security Fallback: If the user has a role that is not defined in the config
-      // (e.g., 'deprecated_role'), we return a safe 'guest' role with NO permissions.
-      orElse: () => _getFallbackRole(),
-    );
-
-    return userRoleEntity.hasPermission(permission);
-  }
-
-  @override
-  LoggedInUser get loggedInUser => _config.getCurrentUser();
-
-  UserRole _getFallbackRole() {
-    return UserRole(
-      roleName: 'undefined_fallback',
-      rolePermissions: const [GoalsModulePermission.none],
-    );
+    return userRole.hasPermission(permission);
   }
 }

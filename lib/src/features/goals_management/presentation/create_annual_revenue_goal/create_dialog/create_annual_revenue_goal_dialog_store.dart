@@ -141,11 +141,13 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
 
   // Synchronous validation only for UX purposes.
+  // TODO: Centralize UI validations
   GoalRevenueTargetInputErrorReason? _validateMoneyInput(
     String input,
   ) {
     try {
-      final double value = double.parse(input);
+      final clearInput = input.replaceAll(',', '.').trim();
+      final double value = double.parse(clearInput);
       if (value <= 0) {
         return GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
       } else {

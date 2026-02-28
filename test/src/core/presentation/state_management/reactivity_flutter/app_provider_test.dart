@@ -22,7 +22,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: AppProvider<_MockStore>(
-            store: st,
+            resource: st,
             child: Builder(
               builder: (context) {
                 capturedSt = AppProvider.of<_MockStore>(context);
@@ -45,7 +45,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: AppProvider<_MockStore>(
-            store: st,
+            resource: st,
             child: Builder(
               builder: (context) {
                 capturedSt = context.get<_MockStore>();
@@ -97,9 +97,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: AppProvider<_MockStore>(
-            store: st1,
+            resource: st1,
             child: AppProvider<_AnotherStore>(
-              store: st2,
+              resource: st2,
               child: Builder(
                 builder: (context) {
                   capturedSt1 = context.get<_MockStore>();
@@ -123,17 +123,17 @@ void main() {
       final st2 = _MockStore('B');
 
       final provider1 = AppProvider<_MockStore>(
-        store: st1,
+        resource: st1,
         child: const SizedBox.shrink(),
       );
 
       final provider2 = AppProvider<_MockStore>(
-        store: st1,
+        resource: st1,
         child: const SizedBox.shrink(),
       );
 
       final provider3 = AppProvider<_MockStore>(
-        store: st2,
+        resource: st2,
         child: const SizedBox.shrink(),
       );
 

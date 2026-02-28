@@ -105,7 +105,7 @@ class _AppObserverState<ST extends Store<S, E>, S, E>
   @override
   Widget build(BuildContext context) {
     return AppProvider<ST>(
-      store: widget.store,
+      resource: widget.store,
       child: widget.builder(context, _currentState),
     );
   }

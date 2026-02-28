@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class HomePage extends StatelessWidget {
   const HomePage({
     super.key,
-    required this.config,
   });
-
-  final GoalsModuleConfig config;
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +12,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Goals Module Example'),
       ),
-      floatingActionButton: CreateAnnualRevenueGoalButton.fabLarge(
-        config: config,
-      ),
+      floatingActionButton: CreateAnnualRevenueGoalButton.fabLarge(),
     );
   }
 }
