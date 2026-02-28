@@ -18,7 +18,7 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
   final List<int> unavailableYears;
 
   /// [Key] is only required by [AppAnimatedDialog] for UI custom animation purposes,
-  /// it is NOT related to AppObserver/Store state management here.
+  /// it is NOT related to AppObserver/Store state management.
   Widget _buildByState(CreateAnnualRevenueGoalDialogStates state) {
     switch (state) {
       case LoadingCreateAnnualRevenueGoal():
