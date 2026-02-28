@@ -21,23 +21,24 @@ It was created to:
 
 ## Architecture
 
-This module adopts **Clean Architecture**.
+This module adopts `Clean Architecture`.
 
 📌 Architectural decisions are documented through **Architecture Decision Records (ADR)**, check: **[docs/architecture/adr](docs/architecture/adr)**
 
-### Main architectural decisions:
+## Main architectural decisions:
 
-Module Architecture overview:
-- **[ADR-0014](docs/architecture/adr/ADR-0014.md)**
+- **[ADR-0014](docs/architecture/adr/ADR-0014.md)** (module architecture overview)
 
-Use case integration with host applications:
-- **[ADR-0017](docs/architecture/adr/ADR-0017.md)** — TransactionRunner for cross-module/app transactional orchestration (integration use cases)
+    > Example Use Case implementation adhering to the architecture:
+    > - **[Use Case - Create Annual Revenue Goal](lib/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart)**
 
-Presentation layer architecture:
-- **[ADR-0019](docs/architecture/adr/ADR-0019.md)** — Store-driven Presentation Architecture (non-MVVM)
-- Example, adhering to the Store-driven Presentation Architecture defined:
-    - **[Flutter UI - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart)**
-    - **[Store - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart)**
+- **[ADR-0017](docs/architecture/adr/ADR-0017.md)** (use case integration with host applications)
+
+- **[ADR-0019](docs/architecture/adr/ADR-0019.md)** (presentation layer architecture)
+
+    > Examples adhering to the Store-driven Presentation Architecture:
+    > - **[Flutter UI - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog.dart)**
+    > - **[Store - Create Annual Revenue Goal](lib/src/features/goals_management/presentation/create_annual_revenue_goal/create_annual_revenue_goal_dialog/create_annual_revenue_goal_dialog_store.dart)**
 
 ---
 
