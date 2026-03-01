@@ -30,7 +30,7 @@ That means:
 
 ## 1) Initialize the module in your app
 
-Initializing the Goals module in your Flutter App is as simple as wrapping it with `BitsGoalsModule.init`, providing the `config`. Example:
+Initializing the module in your Flutter App is as simple as wrapping it with `BitsGoalsModule.init`, providing the `config`. Example:
 
 ```dart
 return BitsGoalsModule.init(
