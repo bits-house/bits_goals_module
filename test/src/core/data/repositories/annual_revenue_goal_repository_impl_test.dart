@@ -68,7 +68,7 @@ void main() {
     required GoalsModulePermission requiredPermission,
   }) {
     return ActionLog.create(
-      user: LoggedInUser.create(
+      user: LoggedInUser.ensureValid(
         uid: 'user-123',
         roleName: 'admin',
         email: 'test@example.com',

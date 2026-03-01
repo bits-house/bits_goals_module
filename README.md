@@ -62,7 +62,7 @@ return BitsGoalsModule.init(
 
 > Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. The features will be available throughout the widget tree (only within the subtree of the wrapped widget). You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` can be used independently of the `BitsGoalsModule` initialization.
 
-The `config` is a required parameter that provides the necessary configuration for the module to function properly. It requires only 3 things: `remoteDataSrcConfig`, `getCurrentUser`, and `getRoles`. Example:
+The `config` is a required parameter that provides the necessary configuration for the module to function properly. It requires only 4 things: `remoteDataSrcConfig`, `getCurrentUser`, `getRoles`, and `getCurrency`. Example:
 
 ```dart
 final goalsModuleConfig = GoalsModuleConfig(
@@ -84,7 +84,7 @@ final goalsModuleConfig = GoalsModuleConfig(
       // You MUST return a [LoggedInUser], which is the representation of the user.
       // So the module can enforce access control, logs and other features based on 
       // the user's identity, role and permissions.
-      getCurrentUser: () => LoggedInUser.create(
+      getCurrentUser: () => LoggedInUser.ensureValid(
         displayName: 'Matheus',
         email: 'matheus@example.com',
         roleName: 'admin',
@@ -104,6 +104,15 @@ final goalsModuleConfig = GoalsModuleConfig(
         ),
         // ... add other roles as needed
       ],
+      // 4) [getCurrency]
+      // This is a callback function that the module will call whenever it needs to
+      // get the currency to be used in the goals management features. You can implement
+      // it according to your app's logic, for example, returning the currency based on
+      // the user's locale, or a default currency for your app.
+      getCurrency: () => Currency(
+        code: 'USD', // <-- Currency code in ISO 4217 format
+        symbol: '\$', // <-- Currency symbol for display purposes
+      ),
     );
 ```
 
@@ -149,7 +158,7 @@ class HomePage extends StatelessWidget {
 
 ```
 
-> Note: Some features, like updating goals based on orders updates, might require additional configuration, such as setting up a `TransactionRunner` to ensure data consistency and atomicity between operations in the Host application and the module. Check the documentation and the usage example for more details: **[TransactionRunner](lib/src/core/application/ports/transaction/transaction_runner.dart)**
+> Note: Some features, like updating goals based on orders updates, might require additional configuration, such as setting up a `TransactionRunner` to ensure data consistency and atomicity between operations in the host application and this module. Check the documentation and the usage example for more details: **[TransactionRunner](lib/src/core/application/ports/transaction/transaction_runner.dart)**
 
 ---
 

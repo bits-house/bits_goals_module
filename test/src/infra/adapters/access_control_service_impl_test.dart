@@ -35,7 +35,7 @@ void main() {
       LoggedInUser generateMockUser({
         required String roleName,
       }) {
-        return LoggedInUser.create(
+        return LoggedInUser.ensureValid(
           uid: 'user_123',
           roleName: roleName,
           email: 'testuser@example.com',

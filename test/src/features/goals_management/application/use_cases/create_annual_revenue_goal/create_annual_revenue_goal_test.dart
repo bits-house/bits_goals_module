@@ -64,7 +64,7 @@ void main() {
     mockMapper = MockAnnualRevenueGoalActionLogMapper();
 
     when(() => mockAccessControlService.loggedInUser).thenReturn(
-      LoggedInUser.create(
+      LoggedInUser.ensureValid(
         uid: 'user-123',
         roleName: 'admin',
         email: 'test@example.com',
