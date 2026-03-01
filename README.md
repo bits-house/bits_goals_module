@@ -119,8 +119,8 @@ final goalsModuleConfig = GoalsModuleConfig(
     );
 ```
 
-## ⚠️ WARNINGS:
-- Permissions are only enforced by the UI components and use cases provided by this module. You MUST configure your backend to enforce the same permissions to ensure data integrity and security.
+## ⚠️ Warnings
+- Permissions are only enforced by the UI components and use cases provided by this module. You MUST configure your backend to enforce the same permissions to ensure data integrity and security (e.g., Firestore Security Rules).
 
 - These callbacks may throw runtime exceptions due to internal (domain) validations that ensure the provided data is consistent and valid. They are invoked by the module at runtime — if an invalid value is returned and not properly handled, it may cause your application to crash.
 
