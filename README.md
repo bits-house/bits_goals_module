@@ -136,7 +136,7 @@ final goalsModuleConfig = GoalsModuleConfig(
 
 And that's it! The module is now ready to be used in your app.
 
-## 2) Use the module's features in your app
+## 2) Use The Module's Features In Your App
 
 After initializing the module, you can start using its features in your app. The module provides a set of pre-built UI components and use cases that you can use directly in your app. 
 
