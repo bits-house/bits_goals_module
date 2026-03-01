@@ -27,7 +27,7 @@ void main() {
       required String roleName,
       String uid = 'user_123',
     }) {
-      return LoggedInUser.create(
+      return LoggedInUser.ensureValid(
         uid: uid,
         roleName: roleName,
         email: 'testuser@example.com',

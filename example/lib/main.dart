@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         monthlyRevenueGoalsCollectionName: 'monthly_revenue_goals',
         goalsActionLogsCollectionName: 'goals_action_logs',
       ),
-      getCurrentUser: () => LoggedInUser.create(
+      getCurrentUser: () => LoggedInUser.ensureValid(
         displayName: 'Matheus',
         email: 'matheus@example.com',
         roleName: 'admin',

@@ -138,7 +138,7 @@ class ActionLog extends Equatable {
       ? null
       : DateTime.fromMillisecondsSinceEpoch(_occurredAt.millisecondsSinceEpoch);
 
-  LoggedInUser get user => LoggedInUser.create(
+  LoggedInUser get user => LoggedInUser.ensureValid(
         uid: _user.uid,
         displayName: _user.displayName,
         email: _user.email.value,

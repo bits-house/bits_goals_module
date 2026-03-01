@@ -34,16 +34,16 @@ class LoggedInUser extends Equatable {
     this._displayName,
   );
 
-  /// Factory constructor to create a LoggedInUser with validation
+  /// Factory constructor to ensure a LoggedInUser is always created in a valid state.
   ///
   /// Performs domain validation to ensure the user object is in a valid state.
   ///
   /// Throws [LoggedInUserFailure] if:
   /// - [uid] is empty.
   /// - [email] is invalid or empty.
-  /// - [role] is empty.
+  /// - [roleName] is empty.
   /// - [displayName] is empty.
-  factory LoggedInUser.create({
+  factory LoggedInUser.ensureValid({
     required String uid,
     required String roleName,
     required String email,

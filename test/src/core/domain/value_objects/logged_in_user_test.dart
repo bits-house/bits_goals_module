@@ -11,12 +11,12 @@ void main() {
 
   group('LoggedInUser', () {
     group('Instantiation and Normalization', () {
-      test('should create a valid instance and normalize fields', () {
+      test('should ensureValid a valid instance and normalize fields', () {
         const dirtyEmailValue = '  Test@EXAMPLE.com  ';
         const dirtyDisplayName = '  Test  User  ';
 
         // Act
-        final user = LoggedInUser.create(
+        final user = LoggedInUser.ensureValid(
           uid: tUid,
           roleName: tRoleName,
           email: dirtyEmailValue,
@@ -34,7 +34,7 @@ void main() {
     group('Validation Failures', () {
       test('should throw LoggedInUserFailure (emptyUid) when uid is empty', () {
         expect(
-          () => LoggedInUser.create(
+          () => LoggedInUser.ensureValid(
             uid: '   ',
             roleName: tRoleName,
             email: tEmail,
@@ -54,7 +54,7 @@ void main() {
           'should throw LoggedInUserFailure (invalidEmail) when email is malformed',
           () {
         expect(
-          () => LoggedInUser.create(
+          () => LoggedInUser.ensureValid(
             uid: tUid,
             roleName: tRoleName,
             email: 'invalid-email',
@@ -74,7 +74,7 @@ void main() {
           'should throw LoggedInUserFailure (emptyDisplayName) when displayName is empty',
           () {
         expect(
-          () => LoggedInUser.create(
+          () => LoggedInUser.ensureValid(
             uid: tUid,
             roleName: tRoleName,
             email: tEmail,
@@ -95,7 +95,7 @@ void main() {
         'should throw LoggedInUserFailure (emptyRoleName) when roleName is empty',
         () {
       expect(
-        () => LoggedInUser.create(
+        () => LoggedInUser.ensureValid(
           uid: tUid,
           roleName: '   ',
           email: tEmail,
@@ -114,7 +114,7 @@ void main() {
     group('Getters', () {
       test('should return correct values from getters', () {
         // Arrange
-        final user = LoggedInUser.create(
+        final user = LoggedInUser.ensureValid(
           uid: tUid,
           roleName: tRoleName,
           email: tEmail,
@@ -131,13 +131,13 @@ void main() {
 
     group('Equality and Value Object properties', () {
       test('should be equal when all properties are identical', () {
-        final user1 = LoggedInUser.create(
+        final user1 = LoggedInUser.ensureValid(
           uid: tUid,
           roleName: tRoleName,
           email: tEmail,
           displayName: tDisplayName,
         );
-        final user2 = LoggedInUser.create(
+        final user2 = LoggedInUser.ensureValid(
           uid: tUid,
           roleName: tRoleName,
           email: tEmail,
@@ -149,13 +149,13 @@ void main() {
       });
 
       test('should not be equal when one property differs', () {
-        final user1 = LoggedInUser.create(
+        final user1 = LoggedInUser.ensureValid(
           uid: tUid,
           roleName: tRoleName,
           email: tEmail,
           displayName: tDisplayName,
         );
-        final user2 = LoggedInUser.create(
+        final user2 = LoggedInUser.ensureValid(
           uid: 'different_uid',
           roleName: tRoleName,
           email: tEmail,
@@ -166,7 +166,7 @@ void main() {
       });
 
       test('stringify should be true for better debug logs', () {
-        final user = LoggedInUser.create(
+        final user = LoggedInUser.ensureValid(
           uid: tUid,
           roleName: tRoleName,
           email: tEmail,
