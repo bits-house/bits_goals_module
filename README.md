@@ -15,7 +15,7 @@ It was created to:
 - Be reused in a second application planned for the near future  
 - Serve as a **showcase module** for a clean and scalable architecture  
 
-> Note: An example app will be developed and released in the future to demonstrate the module's capabilities without needing to integrate it into an existing codebase, as well as provide a list of all the features implemented in the module and how to use them.
+> Note: A standalone example app will be released in the future to demonstrate the module’s capabilities without needing integration into an existing codebase.
 
 ---
 
@@ -60,7 +60,7 @@ return BitsGoalsModule.init(
     );
 ```
 
-> Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` is independent of the `BitsGoalsModule` initialization.
+> Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. The features will be available throughout the widget tree (only within the subtree of the wrapped widget). You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` can be used independently of the `BitsGoalsModule` initialization.
 
 The `config` is a required parameter that provides the necessary configuration for the module to function properly. It requires only 3 things: `remoteDataSrcConfig`, `getCurrentUser`, and `getRoles`. Example:
 
@@ -69,8 +69,8 @@ final goalsModuleConfig = GoalsModuleConfig(
       // 1) [remoteDataSrcConfig]
       // In this case it uses [FirestoreConfig] for Firestore integration.
       // You need to provide the Firestore instance already initialized by your app, 
-      // and the collection names to be used by the module for storing 
-      // the goals data and logs. (must not conflict with your app's existing collections)
+      // and the collection names to be used by the module for storing the goals data 
+      // and logs. (must not conflict with your app's existing collections)
       remoteDataSrcConfig: FirestoreConfig(
         firestore: firestoreInstance, // <-- Provide your Firestore instance here
         monthlyRevenueGoalsCollectionName: 'monthly_revenue_goals',
@@ -78,9 +78,9 @@ final goalsModuleConfig = GoalsModuleConfig(
         // ... other collection names
       ),
       // 2) [getCurrentUser]
-      // This is a callback function that the module will call
-      // whenever it needs to know the current logged in user.
-      // You should implement it according to your app's authentication logic.
+      // This is a callback function that the module will call whenever it 
+      // needs to know the current logged in user. You should implement it 
+      // according to your app's authentication logic.
       // You MUST return a [LoggedInUser], which is the representation of the user.
       // So the module can enforce access control, logs and other features based on 
       // the user's identity, role and permissions.
@@ -91,9 +91,9 @@ final goalsModuleConfig = GoalsModuleConfig(
         uid: 'my-unique-user-id',
       ),
       // 3) [getRoles]
-      // This is a callback function that returns a list of [UserRole].
-      // You should define the roles and permissions according to your app's needs,
-      // mapping your app's specific roles to the module's features permissions.
+      // This is a callback function returning a list of [UserRole].
+      // You should define roles and permissions according to your app's needs,
+      // mapping your application's roles to the module's feature permissions.
       getRoles: () => [
         UserRole(
           roleName: 'admin',
@@ -107,13 +107,13 @@ final goalsModuleConfig = GoalsModuleConfig(
     );
 ```
 
-> Note: You can implement custom access control logic based on the user's state or other factors in your app. The module will call the callback functions every time it needs to check if the user has a specific permission, allowing you to implement dynamic permissions that can change based on the user's state or other factors in your app, without needing to hardcode it in the `getRoles` configuration.
+> Note: You can implement custom access control logic based on the user's state or other application-specific factors. The module invokes the provided callbacks whenever it needs to verify a permission, allowing you to support dynamic permissions without hardcoding them in the `getRoles` configuration.
 
-> `WARNING`: The permissions are only verified on the UI components and Use Cases provided by this Module. You MUST configure your backend to enforce the same permissions, ensuring data integrity and security.
+> `WARNING`: Permissions are only enforced by the UI components and use cases provided by this module. You MUST configure your backend to enforce the same permissions to ensure data integrity and security.
 
-> Tip: If your app doesn't have a role and permission management system, you can just create a single role with all `GoalsModulePermission` and assign it to every user as their `roleName`.
+> Tip: If your application does not have a role and permission management system, you can create a single role with all `GoalsModulePermission` permissions and assign it to every user.
 
-> Note: You can easily swipe between backends/databases (even different types) only by swapping the `remoteDataSrcConfig`. If your backend is not supported by the module yet, you can do so by implementing the `RemoteDataSourceConfig` interface, and then implementing the necessary data sources following the interface's contract (all that is centralized in the infra layer folder, no need to touch other parts of the module).
+> Note: If your backend is not yet supported by the module, you can add support by implementing the `RemoteDataSourceConfig` interface and creating the required data sources according to its contract (all the required implementation is centralized in the infra layer folder, no need to touch other parts of the module).
 
 And that's it! The module is now ready to be used in your app.
 

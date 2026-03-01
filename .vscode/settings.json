@@ -50,5 +50,6 @@
     "Test-Path": true,
     "dart": true,
     "ForEach-Object": true
-  }
+  },
+  "git.rebaseWhenSync": true
 }
