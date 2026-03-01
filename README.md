@@ -15,7 +15,7 @@ It was created to:
 - Be reused in a second application planned for the near future  
 - Serve as a **showcase module** for a clean and scalable architecture  
 
-> Note: A standalone example app will be released in the future to demonstrate the module’s capabilities without needing integration into an existing codebase, along with a list of all its use cases.
+> Note: A standalone example app will be released in the future to demonstrate the module’s capabilities without needing integration into an existing codebase.
 
 ---
 
@@ -113,9 +113,7 @@ final goalsModuleConfig = GoalsModuleConfig(
 
 > Tip: If your application does not have a role and permission management system, you can create a single role with all `GoalsModulePermission` permissions and assign it to every user.
 
-Note: You can easily switch between backends or databases (even different types) by simply swapping the `remoteDataSrcConfig`.
-
-> Note: If your backend is not yet supported by the module, you can add support by implementing the `RemoteDataSourceConfig` interface and creating the required data sources according to its contract. All related code is centralized in the infra layer folder, so no other parts of the module need to be modified.
+> Note: If your backend is not yet supported by the module, you can add support by implementing the `RemoteDataSourceConfig` interface and creating the required data sources according to its contract (all the required implementation is centralized in the infra layer folder, no need to touch other parts of the module).
 
 And that's it! The module is now ready to be used in your app.
 
