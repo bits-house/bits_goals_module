@@ -84,12 +84,18 @@ final goalsModuleConfig = GoalsModuleConfig(
       // You MUST return a [LoggedInUser], which is the representation of the user.
       // So the module can enforce access control, logs and other features based on 
       // the user's identity, role and permissions.
-      getCurrentUser: () => LoggedInUser.ensureValid(
-        displayName: 'Matheus',
-        email: 'matheus@example.com',
-        roleName: 'admin',
-        uid: 'my-unique-user-id',
-      ),
+      getCurrentUser: () { 
+        try {
+          return LoggedInUser.ensureValid(
+            displayName: 'Matheus',
+            email: 'matheus@example.com',
+            roleName: 'admin',
+            uid: 'my-unique-user-id',
+          );
+        } catch (e) {
+          // Handle the exception appropriately
+        }
+      },
       // 3) [getRoles]
       // This is a callback function returning a list of [UserRole].
       // You should define roles and permissions according to your app's needs,
@@ -99,26 +105,28 @@ final goalsModuleConfig = GoalsModuleConfig(
           roleName: 'admin',
           rolePermissions: const [
             GoalsModulePermission.createAnnualRevenueGoals,
-            // ... add other permissions for the role as needed
+            // Add other permissions for this role as needed
           ],
         ),
-        // ... add other roles as needed
+        // Add other roles as needed
       ],
       // 4) [getCurrency]
       // This is a callback function that the module will call whenever it needs to
       // get the currency to be used in the goals management features. You can implement
       // it according to your app's logic, for example, returning the currency based on
       // the user's locale, or a default currency for your app.
-      getCurrency: () => Currency(
-        code: 'USD', // <-- Currency code in ISO 4217 format
-        symbol: '\$', // <-- Currency symbol for display purposes
-      ),
+      getCurrency: () => Currency.fromISO4217('BRL');
     );
 ```
 
-> Note: You can implement custom access control logic based on the user's state or other application-specific factors. The module invokes the provided callbacks whenever it needs to verify a permission, allowing you to support dynamic permissions without hardcoding them in the `getRoles` configuration.
+## ⚠️ WARNINGS:
+- Permissions are only enforced by the UI components and use cases provided by this module. You MUST configure your backend to enforce the same permissions to ensure data integrity and security.
 
-> `WARNING`: Permissions are only enforced by the UI components and use cases provided by this module. You MUST configure your backend to enforce the same permissions to ensure data integrity and security.
+- These callbacks may throw runtime exceptions due to internal (domain) validations that ensure the provided data is consistent and valid. They are invoked by the module at runtime — if an invalid value is returned and not properly handled, it may cause your application to crash.
+
+- If your callbacks return only hardcoded values, exception handling is not strictly required. However, you must ensure those values are correct, tested, and domain-valid.
+
+> Note: You can implement custom access control logic based on the user's state or other application-specific factors. The module invokes the provided callbacks whenever it needs to verify a permission, allowing you to support dynamic permissions without hardcoding them in the `getRoles` configuration.
 
 > Tip: If your application does not have a role and permission management system, you can create a single role with all `GoalsModulePermission` permissions and assign it to every user.
 
