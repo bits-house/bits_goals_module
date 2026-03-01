@@ -132,6 +132,8 @@ final goalsModuleConfig = GoalsModuleConfig(
 
 > Note: If your backend is not yet supported by the module, you can add support by implementing the `RemoteDataSourceConfig` interface and creating the required data sources according to its contract (all the required implementation is centralized in the infra layer folder, no need to touch other parts of the module).
 
+> Tip: Although this module is initialized via a widget wrapper, its `config` callbacks can be implemented in architectural layers outside of the presentation.
+
 And that's it! The module is now ready to be used in your app.
 
 ## 2) Use the module's features in your app
