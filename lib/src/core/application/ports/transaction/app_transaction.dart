@@ -8,7 +8,7 @@ import 'package:bits_goals_module/src/core/application/ports/transaction/transac
 ///
 /// Used in conjunction with [TransactionRunner].
 abstract class AppTransaction {
-  /// Creates or replaces a resource.
+  /// [put] creates or replaces a resource.
   ///
   /// Semantically represents an **upsert** operation.
   ///
@@ -33,20 +33,20 @@ abstract class AppTransaction {
     required Map<String, dynamic> data,
   });
 
-  /// Updates an existing resource.
+  /// [update] updates an existing resource.
   Future<void> update({
     required String resource,
     required Object id,
     required Map<String, dynamic> data,
   });
 
-  /// Deletes a resource.
+  /// [delete] deletes a resource.
   Future<void> delete({
     required String resource,
     required Object id,
   });
 
-  /// Retrieves a resource by its identifier.
+  /// [get] retrieves a resource by its identifier.
   ///
   /// Returns `null` if the resource does not exist.
   Future<Map<String, dynamic>?> get({
