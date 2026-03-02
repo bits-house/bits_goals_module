@@ -49,12 +49,12 @@ abstract class TransactionRunner {
   ///
   /// ---
   ///
-  /// Example (Main App):
+  /// Example (Host App):
   ///
   /// ```dart
   /// final result = await transactionRunner.run((sharedTransaction) async {
   ///
-  ///   await mainAppRepository.updateOrder(updatedOrder, sharedTransaction);
+  ///   await hostAppRepository.updateOrder(updatedOrder, sharedTransaction);
   ///   await updateGoalsFromOrder(updatedOrder, sharedTransaction);
   ///
   ///   return someResult;
