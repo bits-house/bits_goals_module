@@ -190,7 +190,7 @@ This module adopts `Clean Architecture`.
 
 - **[ADR-0014](docs/architecture/adr/ADR-0014.md)** (Module architecture overview)
 
-    > Example Use Case implementation adhering to the architecture:
+    > Example use case implementation adhering to the architecture:
     > - **[Use Case - Create Annual Revenue Goal](lib/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart)**
 
 - **[ADR-0017](docs/architecture/adr/ADR-0017.md)** (Use case integration with host applications)
