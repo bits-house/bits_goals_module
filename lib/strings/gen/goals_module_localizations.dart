@@ -126,6 +126,37 @@ abstract class GoalsModuleLocalizations {
   /// In pt, this message translates to:
   /// **'Qual a meta de faturamento para {year}?'**
   String inputGoalTargetCreateAnnualRevenueGoalDialog_title(int year);
+
+  /// Mensagem de erro exibida quando o valor da meta de faturamento digitado é inválido
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite um número válido.'**
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_input_invalidTarget;
+
+  /// Mensagem de erro exibida quando o valor da meta de faturamento digitado é zero ou negativo
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite um valor maior que zero.'**
+  String
+      get inputGoalTargetCreateAnnualRevenueGoalDialog_input_zeroOrNegativeTarget;
+
+  /// Rótulo do campo de input do valor da meta de faturamento anual
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor da meta'**
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_input_label;
+
+  /// Rótulo do botão de confirmação para criar a meta anual de faturamento
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar'**
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_createButton_label;
+
+  /// Rótulo do botão de voltar no diálogo de criação de meta anual de faturamento
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar'**
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label;
 }
 
 class _GoalsModuleLocalizationsDelegate

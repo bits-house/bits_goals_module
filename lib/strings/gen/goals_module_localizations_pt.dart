@@ -30,4 +30,25 @@ class GoalsModuleLocalizationsPt extends GoalsModuleLocalizations {
   String inputGoalTargetCreateAnnualRevenueGoalDialog_title(int year) {
     return 'Qual a meta de faturamento para $year?';
   }
+
+  @override
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_input_invalidTarget =>
+      'Digite um número válido.';
+
+  @override
+  String
+      get inputGoalTargetCreateAnnualRevenueGoalDialog_input_zeroOrNegativeTarget =>
+          'Digite um valor maior que zero.';
+
+  @override
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_input_label =>
+      'Valor da meta';
+
+  @override
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_createButton_label =>
+      'Criar';
+
+  @override
+  String get inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label =>
+      'Voltar';
 }

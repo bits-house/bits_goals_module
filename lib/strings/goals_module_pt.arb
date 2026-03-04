@@ -31,5 +31,25 @@
                 "example": "2026"
             }
         }
+    },
+    "inputGoalTargetCreateAnnualRevenueGoalDialog_input_invalidTarget": "Digite um número válido.",
+    "@inputGoalTargetCreateAnnualRevenueGoalDialog_input_invalidTarget": {
+        "description": "Mensagem de erro exibida quando o valor da meta de faturamento digitado é inválido"
+    },
+    "inputGoalTargetCreateAnnualRevenueGoalDialog_input_zeroOrNegativeTarget": "Digite um valor maior que zero.",
+    "@inputGoalTargetCreateAnnualRevenueGoalDialog_input_zeroOrNegativeTarget": {
+        "description": "Mensagem de erro exibida quando o valor da meta de faturamento digitado é zero ou negativo"
+    },
+    "inputGoalTargetCreateAnnualRevenueGoalDialog_input_label": "Valor da meta",
+    "@inputGoalTargetCreateAnnualRevenueGoalDialog_input_label": {
+        "description": "Rótulo do campo de input do valor da meta de faturamento anual"
+    },
+    "inputGoalTargetCreateAnnualRevenueGoalDialog_createButton_label": "Criar",
+    "@inputGoalTargetCreateAnnualRevenueGoalDialog_createButton_label": {
+        "description": "Rótulo do botão de confirmação para criar a meta anual de faturamento"
+    },
+    "inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label": "Voltar",
+    "@inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label": {
+        "description": "Rótulo do botão de voltar no diálogo de criação de meta anual de faturamento"
     }
 }

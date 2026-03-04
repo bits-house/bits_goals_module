@@ -27,6 +27,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
       text: widget.state.revenueTargetInput,
     );
     _focusNode = FocusNode();
+    _focusNode.requestFocus();
   }
 
   @override
@@ -39,26 +40,37 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
   @override
   Widget build(BuildContext context) {
     final store = context.get<CreateAnnualRevenueGoalDialogStore>();
-    final titleString =
-        context.strings.inputGoalTargetCreateAnnualRevenueGoalDialog_title(
+    final strings = context.strings;
+    final errorReason = widget.state.inputErrorReason;
+
+    // Strings
+    final dialogTitleString =
+        strings.inputGoalTargetCreateAnnualRevenueGoalDialog_title(
       widget.state.selectedYear,
     );
-    final errorReason = widget.state.inputErrorReason;
-    final errorText = switch (errorReason) {
-      GoalRevenueTargetInputErrorReason.invalidTarget =>
-        "Digite um número válido.",
-      GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget =>
-        "Digite um valor maior que zero.",
+    final inputErrorString = switch (errorReason) {
+      GoalRevenueTargetInputErrorReason.invalidTarget => strings
+          .inputGoalTargetCreateAnnualRevenueGoalDialog_input_invalidTarget,
+      GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget => strings
+          .inputGoalTargetCreateAnnualRevenueGoalDialog_input_zeroOrNegativeTarget,
       null => null,
     };
-    _focusNode.requestFocus();
+    final inputLabelString =
+        strings.inputGoalTargetCreateAnnualRevenueGoalDialog_input_label;
+    final inputPrefixString = '${widget.state.currencySymbol} ';
+    final createButtonString =
+        strings.inputGoalTargetCreateAnnualRevenueGoalDialog_createButton_label;
+    final backButtonString =
+        strings.inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label;
+
+    // UI
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 32, 32, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            titleString,
+            dialogTitleString,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 32),
@@ -67,9 +79,9 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              labelText: "Valor da meta",
-              prefixText: "R\$ ",
-              errorText: errorText,
+              labelText: inputLabelString,
+              prefixText: inputPrefixString,
+              errorText: inputErrorString,
             ),
             controller: _controller,
             onChanged: (input) => store.onRevenueTargetInputChanged(
@@ -85,7 +97,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
                 onPressed: () {
                   store.initialize();
                 },
-                child: Text("Voltar"),
+                child: Text(backButtonString),
               ),
               const SizedBox(width: 8),
               FilledButton(
@@ -97,7 +109,7 @@ class _InputGoalTargetCreateAnnualRevenueGoalDialogState
                         );
                       }
                     : null,
-                child: Text("Criar"),
+                child: Text(createButtonString),
               ),
             ],
           ),

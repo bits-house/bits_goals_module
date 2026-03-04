@@ -9,6 +9,8 @@ import 'package:bits_goals_module/src/features/goals_management/presentation/cre
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/dialog_components/select_year_create_annual_revenue_goal_dialog.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../infra/config/goals_module_config.dart';
+
 class CreateAnnualRevenueGoalDialog extends StatelessWidget {
   const CreateAnnualRevenueGoalDialog({
     super.key,
@@ -43,13 +45,19 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get the current currency from the Host App, to be used in
+    // this creation UI/use case/persistence.
+    final config = context.get<GoalsModuleConfig>();
+    final currency = config.getCurrentCurrency();
+
     // Get the use case instance.
     // final CreateAnnualRevenueGoal useCase =
     //     context.get<CreateAnnualRevenueGoal>();
 
-    // Get Success AppSnackBar string (internationalization)
-    final snackBarSuccessMessage =
-        context.strings.createAnnualRevenueGoalDialog_snackBar_success;
+    // Get Success AppSnackBar string (internationalization).
+    final strings = context.strings;
+    final snackBarSuccessString =
+        strings.createAnnualRevenueGoalDialog_snackBar_success;
 
     return AppObserver<
         CreateAnnualRevenueGoalDialogStore,
@@ -60,6 +68,7 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
       // injection), and dispose the Store when this widget is removed from the tree.
       store: CreateAnnualRevenueGoalDialogStore(
         // useCase: useCase,
+        currency: currency,
         unavailableYears: unavailableYears,
       ),
 
@@ -79,7 +88,7 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
             AppSnackBar.build(
               context: context,
               content: Text(
-                snackBarSuccessMessage(effect.year),
+                snackBarSuccessString(effect.year),
               ),
             ),
           );

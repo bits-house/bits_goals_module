@@ -1,3 +1,4 @@
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
@@ -34,6 +35,7 @@ class SelectYearCreateAnnualRevenueGoal
 class InputGoalTargetCreateAnnualRevenueGoal
     extends CreateAnnualRevenueGoalDialogState {
   final int selectedYear;
+  final String currencySymbol;
   final String? revenueTargetInput;
   final GoalRevenueTargetInputErrorReason? inputErrorReason;
 
@@ -41,6 +43,7 @@ class InputGoalTargetCreateAnnualRevenueGoal
 
   InputGoalTargetCreateAnnualRevenueGoal({
     required this.selectedYear,
+    required this.currencySymbol,
     this.revenueTargetInput,
     this.inputErrorReason,
   });
@@ -86,18 +89,21 @@ class SuccessEffectCreateAnnualRevenueGoal
 class CreateAnnualRevenueGoalDialogStore extends AppStore<
     CreateAnnualRevenueGoalDialogState, CreateAnnualRevenueGoalDialogEffect> {
   CreateAnnualRevenueGoalDialogStore({
-    required List<int> unavailableYears,
     // required CreateAnnualRevenueGoal useCase,
-  })  : _unavailableYears = unavailableYears,
+    required Currency currency,
+    required List<int> unavailableYears,
+  })  :
         // _createAnnualRevenueGoal = useCase,
+        _currency = currency,
+        _unavailableYears = unavailableYears,
         super(
           initialState: LoadingCreateAnnualRevenueGoal(),
         ) {
     initialize();
   }
-
-  final List<int> _unavailableYears;
   // final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
+  final Currency _currency;
+  final List<int> _unavailableYears;
 
   // ---------------------------------------------------------------------
   // 1. Initialize the dialog
@@ -132,6 +138,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     setState(
       InputGoalTargetCreateAnnualRevenueGoal(
         selectedYear: year,
+        currencySymbol: _currency.symbol,
       ),
     );
   }
@@ -167,6 +174,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
       setState(
         InputGoalTargetCreateAnnualRevenueGoal(
           selectedYear: currentState.selectedYear,
+          currencySymbol: currentState.currencySymbol,
           revenueTargetInput: input,
           inputErrorReason: null,
         ),
@@ -214,6 +222,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
       setState(
         InputGoalTargetCreateAnnualRevenueGoal(
           selectedYear: year,
+          currencySymbol: _currency.symbol,
           revenueTargetInput: revenueTargetInput,
           inputErrorReason: errorReason,
         ),
