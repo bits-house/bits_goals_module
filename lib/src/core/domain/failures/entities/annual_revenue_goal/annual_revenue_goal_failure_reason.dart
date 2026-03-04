@@ -13,4 +13,7 @@ enum AnnualRevenueGoalFailureReason {
 
   /// The annual revenue target must be greater than zero
   zeroOrNegativeAnnualGoal,
+
+  /// All monthly goals must have the same currency
+  currencyMismatch,
 }

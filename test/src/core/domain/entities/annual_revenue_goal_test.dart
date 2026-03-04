@@ -2,6 +2,7 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
@@ -9,6 +10,11 @@ import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  final brl = Currency.fromISO4217('BRL');
+  Money money(num value) =>
+      Money.fromDouble(value: value.toDouble(), currency: brl);
+  Money cents(int value) => Money.fromCents(cents: value, currency: brl);
+
   group('AnnualRevenueGoal Aggregate |', () {
     // ============================================================
     /// FIXTURES
@@ -25,7 +31,7 @@ void main() {
         (index) => MonthlyRevenueGoal.create(
           year: testYear,
           month: Month.fromInt(index + 1),
-          target: Money.fromDouble(1000),
+          target: money(1000),
         ),
       );
     });
@@ -55,7 +61,7 @@ void main() {
           MonthlyRevenueGoal.create(
             month: Month.fromInt(i),
             year: year,
-            target: Money.fromCents(targetCents),
+            target: cents(targetCents),
           ),
         );
       }
@@ -109,7 +115,7 @@ void main() {
           (index) => MonthlyRevenueGoal.create(
             year: year2024,
             month: Month.fromInt(index + 1),
-            target: Money.fromDouble(1000),
+            target: money(1000),
           ),
         );
 
@@ -132,7 +138,7 @@ void main() {
           MonthlyRevenueGoal.create(
             year: testYear,
             month: Month.fromInt(2),
-            target: Money.fromDouble(5000),
+            target: money(5000),
           ),
           ...validMonthlyGoals.sublist(2),
         ];
@@ -298,7 +304,7 @@ void main() {
             goals[0] = MonthlyRevenueGoal.create(
               year: testYear,
               month: Month.fromInt(1),
-              target: Money.fromDouble(9999),
+              target: money(9999),
             );
           } catch (_) {
             // Ignore exception
@@ -330,7 +336,7 @@ void main() {
           mutableSource[0] = MonthlyRevenueGoal.create(
             year: testYear,
             month: Month.fromInt(1),
-            target: Money.fromDouble(9999),
+            target: money(9999),
           );
 
           // Assert: Annual goal unchanged
@@ -413,8 +419,8 @@ void main() {
             id: IdUuidV7.fromString(baseUuid),
             month: Month.fromInt(index + 1),
             year: year,
-            target: Money.fromCents(10000),
-            progress: Money.fromCents(0),
+            target: cents(10000),
+            progress: cents(0),
           ),
         );
         final goalsB = List.generate(
@@ -423,8 +429,8 @@ void main() {
             id: IdUuidV7.fromString(baseUuid),
             month: Month.fromInt(index + 1),
             year: year,
-            target: Money.fromCents(10000),
-            progress: Money.fromCents(0),
+            target: cents(10000),
+            progress: cents(0),
           ),
         );
 
@@ -485,7 +491,7 @@ void main() {
           MonthlyRevenueGoal.create(
             year: testYear,
             month: Month.fromInt(1),
-            target: Money.fromDouble(1000),
+            target: money(1000),
           ),
         ];
 
@@ -513,7 +519,7 @@ void main() {
         invalidGoals[1] = MonthlyRevenueGoal.create(
           year: testYear,
           month: Month.fromInt(1), // Duplicate January
-          target: Money.fromDouble(1000),
+          target: money(1000),
         );
 
         // Act & Assert
@@ -554,7 +560,7 @@ void main() {
         invalidGoals[5] = MonthlyRevenueGoal.create(
           year: Year.fromInt(2024), // Mismatched year
           month: Month.fromInt(6),
-          target: Money.fromDouble(1000),
+          target: money(1000),
         );
 
         // Act & Assert
@@ -586,6 +592,36 @@ void main() {
         // Assert
         expect(years.length, equals(1));
         expect(years.first.value, equals(testYear.value));
+      });
+    });
+
+    group('Invariant - Currency Consistency |', () {
+      test('should throw when monthly goals have mixed currencies', () {
+        // Arrange
+        final usd = Currency.fromISO4217('USD');
+        final invalidGoals = List<MonthlyRevenueGoal>.from(validMonthlyGoals);
+
+        // Changing June's target to USD
+        invalidGoals[5] = MonthlyRevenueGoal.create(
+          year: testYear,
+          month: Month.fromInt(6),
+          target: Money.fromDouble(value: 1000, currency: usd),
+        );
+
+        // Act & Assert
+        expect(
+          () => AnnualRevenueGoal.build(
+            year: testYear,
+            monthlyGoals: invalidGoals,
+          ),
+          throwsA(
+            isA<AnnualRevenueGoalFailure>().having(
+              (e) => e.reason,
+              'reason',
+              AnnualRevenueGoalFailureReason.currencyMismatch,
+            ),
+          ),
+        );
       });
     });
 
@@ -735,6 +771,35 @@ void main() {
         expect(annualGoal.year, isA<Year>());
         expect(annualGoal.monthlyGoals, isA<List<MonthlyRevenueGoal>>());
         expect(annualGoal.totalAnnualTarget, isA<Money>());
+      });
+
+      test(
+          'totalAnnualTarget should preserve the currency of the monthly goals',
+          () {
+        // Arrange
+        final usd = Currency.fromISO4217('USD');
+        final usdGoals = List.generate(
+          12,
+          (index) => MonthlyRevenueGoal.create(
+            year: testYear,
+            month: Month.fromInt(index + 1),
+            target: Money.fromDouble(value: 1500, currency: usd), // $1500.00
+          ),
+        );
+
+        final annualGoal = AnnualRevenueGoal.build(
+          year: testYear,
+          monthlyGoals: usdGoals,
+        );
+
+        // Act
+        final result = annualGoal.totalAnnualTarget;
+
+        // Assert
+        expect(result.currency, equals(usd)); // Ensures the currency matches
+        expect(result.currency.code, equals('USD'));
+        expect(result.cents,
+            equals(1800000)); // 1500.00 * 12 = 18000.00 -> 1800000 cents
       });
 
       test('props should contain correct types', () {

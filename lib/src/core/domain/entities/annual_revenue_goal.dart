@@ -38,6 +38,7 @@ class AnnualRevenueGoal extends Equatable {
     _validateMonthsCount(goals);
     _validateUniqueMonths(goals);
     _validateYearsConsistency(goals, year);
+    _validateCurrencyConsistency(goals);
 
     goals.sort(
       (a, b) => a.month.value.compareTo(b.month.value),
@@ -64,10 +65,13 @@ class AnnualRevenueGoal extends Equatable {
         .map((g) => g.target.cents)
         .reduce((value, element) => value + element);
 
-    return Money.fromCents(totalCents);
+    return Money.fromCents(
+      cents: totalCents,
+      currency: _monthlyGoals.first.target.currency,
+    );
   }
 
-  // ========================
+  // =========================
   // Domain Validations
   // =========================
 
@@ -99,6 +103,21 @@ class AnnualRevenueGoal extends Equatable {
     if (hasInvalidYear) {
       throw const AnnualRevenueGoalFailure(
         AnnualRevenueGoalFailureReason.yearMismatch,
+      );
+    }
+  }
+
+  static void _validateCurrencyConsistency(List<MonthlyRevenueGoal> goals) {
+    if (goals.isEmpty) return;
+
+    final expectedCurrency = goals.first.target.currency;
+    final hasCurrencyMismatch = goals.any(
+      (g) => g.target.currency != expectedCurrency,
+    );
+
+    if (hasCurrencyMismatch) {
+      throw const AnnualRevenueGoalFailure(
+        AnnualRevenueGoalFailureReason.currencyMismatch,
       );
     }
   }
