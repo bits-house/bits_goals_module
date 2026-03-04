@@ -21,6 +21,7 @@ void main() {
           <({String code, Currency expected, String symbol, String locale})>[
         (code: 'BRL', expected: Currency.brl, symbol: r'R$', locale: 'pt-BR'),
         (code: 'USD', expected: Currency.usd, symbol: r'$', locale: 'en-US'),
+        (code: 'PYG', expected: Currency.pyg, symbol: r'₲', locale: 'es-PY'),
       ];
 
       for (final currencyCase in cases) {
