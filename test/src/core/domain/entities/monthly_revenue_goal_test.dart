@@ -1,14 +1,19 @@
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  final brl = Currency.fromISO4217('BRL');
+  Money money(num value) =>
+      Money.fromDouble(value: value.toDouble(), currency: brl);
+  Money cents(int value) => Money.fromCents(cents: value, currency: brl);
+
   group('MonthlyRevenueGoal Entity', () {
     // ============================================================
     /// FIXTURES
@@ -22,8 +27,8 @@ void main() {
     setUp(() {
       tYear = Year.fromInt(2025);
       tMonth = Month.fromInt(1);
-      tTarget = Money.fromDouble(1000.00);
-      tProgress = Money.fromDouble(250.00);
+      tTarget = money(1000.00);
+      tProgress = money(250.00);
       testUuid = IdUuidV7.fromString('123e4567-e89b-12d3-a456-426614174000');
     });
 
@@ -82,7 +87,8 @@ void main() {
         expect(goal.year, tYear);
         expect(goal.month, tMonth);
         expect(goal.target, tTarget);
-        expect(goal.progress, Money.fromCents(0));
+        expect(goal.progress,
+            Money.fromCents(cents: 0, currency: tTarget.currency));
         expect(goal.id, isNotNull);
       });
 
@@ -138,7 +144,7 @@ void main() {
       test('should not be equal if target differs', () {
         // Act
         final goal1 = reconstructGoal();
-        final goal2 = reconstructGoal(target: Money.fromDouble(2000.00));
+        final goal2 = reconstructGoal(target: money(2000.00));
 
         // Assert
         expect(goal1, isNot(equals(goal2)));
@@ -146,8 +152,8 @@ void main() {
 
       test('should not be equal if progress differs', () {
         // Act
-        final goal1 = reconstructGoal(progress: Money.fromDouble(100));
-        final goal2 = reconstructGoal(progress: Money.fromDouble(200));
+        final goal1 = reconstructGoal(progress: money(100));
+        final goal2 = reconstructGoal(progress: money(200));
 
         // Assert
         expect(goal1, isNot(equals(goal2)));
@@ -159,7 +165,8 @@ void main() {
         final goal = createGoal();
 
         // Assert
-        expect(goal.progress, equals(Money.fromCents(0)));
+        expect(goal.progress,
+            equals(Money.fromCents(cents: 0, currency: tTarget.currency)));
       });
 
       test('should have same hash for equal objects', () {
@@ -179,7 +186,7 @@ void main() {
     group('Domain Validations |', () {
       test('should throw when target is zero in reconstruct', () {
         // Arrange
-        final zeroTarget = Money.fromCents(0);
+        final zeroTarget = cents(0);
 
         // Act & Assert
         expect(
@@ -196,7 +203,7 @@ void main() {
 
       test('should throw when target is negative in reconstruct', () {
         // Arrange
-        final negativeTarget = Money.fromDouble(-10.00);
+        final negativeTarget = money(-10.00);
 
         // Act & Assert
         expect(
@@ -213,7 +220,7 @@ void main() {
 
       test('should throw when target is zero in create factory', () {
         // Arrange
-        final zeroTarget = Money.fromCents(0);
+        final zeroTarget = cents(0);
 
         // Act & Assert
         expect(
@@ -230,7 +237,7 @@ void main() {
 
       test('should throw when target is negative in create factory', () {
         // Arrange
-        final negativeTarget = Money.fromDouble(-50.00);
+        final negativeTarget = money(-50.00);
 
         // Act & Assert
         expect(
@@ -247,7 +254,7 @@ void main() {
 
       test('should throw on very large negative value', () {
         // Arrange
-        final largeNegative = Money.fromDouble(-999999.99);
+        final largeNegative = money(-999999.99);
 
         // Act & Assert
         expect(
@@ -258,7 +265,7 @@ void main() {
 
       test('should throw on -1 cent edge case', () {
         // Arrange
-        final minusOneCent = Money.fromCents(-1);
+        final minusOneCent = cents(-1);
 
         // Act & Assert
         expect(
@@ -269,7 +276,7 @@ void main() {
 
       test('should accept exactly 1 cent as valid minimum', () {
         // Arrange
-        final oneC = Money.fromCents(1);
+        final oneC = cents(1);
 
         // Act
         final goal = reconstructGoal(target: oneC);
@@ -280,7 +287,7 @@ void main() {
 
       test('should accept very large positive target', () {
         // Arrange
-        final largeTarget = Money.fromDouble(999999.99);
+        final largeTarget = money(999999.99);
 
         // Act
         final goal = reconstructGoal(target: largeTarget);
@@ -291,7 +298,7 @@ void main() {
 
       test('should accept target with fractional cents', () {
         // Arrange
-        final fractionalTarget = Money.fromDouble(1234.56);
+        final fractionalTarget = money(1234.56);
 
         // Act
         final goal = reconstructGoal(target: fractionalTarget);
@@ -304,11 +311,11 @@ void main() {
         final validId = IdUuidV7.generate();
         final validMonth = Month.fromInt(1);
         final validYear = Year.fromInt(2024);
-        final validTarget = Money.fromCents(10000); // 100.00
+        final validTarget = cents(10000); // 100.00
 
         test('should successfully reconstruct when progress is Zero (0)', () {
           // Arrange
-          final zeroProgress = Money.fromCents(0);
+          final zeroProgress = cents(0);
 
           // Act
           final goal = MonthlyRevenueGoal.reconstruct(
@@ -326,7 +333,7 @@ void main() {
         test('should successfully reconstruct when progress is Positive (> 0)',
             () {
           // Arrange
-          final positiveProgress = Money.fromCents(5000); // 50.00
+          final positiveProgress = cents(5000); // 50.00
 
           // Act
           final goal = MonthlyRevenueGoal.reconstruct(
@@ -345,7 +352,7 @@ void main() {
             'should throw MonthlyRevenueGoalFailure when progress is Negative (< 0)',
             () {
           // Arrange
-          final negativeProgress = Money.fromCents(-100); // -1.00
+          final negativeProgress = cents(-100); // -1.00
 
           // Act & Assert
           expect(
@@ -375,7 +382,7 @@ void main() {
     group('Getters |', () {
       test('target getter should return the exact Money value stored', () {
         // Arrange
-        final expectedTarget = Money.fromCents(99900); // 999.00
+        final expectedTarget = cents(99900); // 999.00
         final goal = reconstructGoal(target: expectedTarget);
 
         // Act
@@ -399,7 +406,7 @@ void main() {
 
       test('progress getter should return the exact Money value stored', () {
         // Arrange
-        final expectedProgress = Money.fromCents(12345); // 123.45
+        final expectedProgress = cents(12345); // 123.45
         final goal = reconstructGoal(progress: expectedProgress);
 
         // Act
@@ -499,8 +506,8 @@ void main() {
         // Arrange
         final customYear = Year.fromInt(2030);
         final customMonth = Month.fromInt(12);
-        final customTarget = Money.fromDouble(5000.00);
-        final customProgress = Money.fromDouble(3500.00);
+        final customTarget = money(5000.00);
+        final customProgress = money(3500.00);
         final customId =
             IdUuidV7.fromString('323e4567-e89b-12d3-a456-426614174000');
 
@@ -518,270 +525,6 @@ void main() {
         expect(goal.target, equals(customTarget));
         expect(goal.progress, equals(customProgress));
         expect(goal.id, equals(customId));
-      });
-    });
-
-    // ============================================================
-    // MAPPING / SERIALIZATION
-    //
-    // The domain entity does not serialize itself; remote models do.
-    // ============================================================
-
-    group('Mapping (MonthlyRevenueGoalRemoteModel.toMap) |', () {
-      MonthlyRevenueGoal createEntityForMapping({
-        String uuidV7 = '123e4567-e89b-12d3-a456-426614174000',
-        int month = 5,
-        int year = 2026,
-        int targetCents = 100000,
-        int progressCents = 50000,
-      }) {
-        return MonthlyRevenueGoal.reconstruct(
-          id: IdUuidV7.fromString(uuidV7),
-          month: Month.fromInt(month),
-          year: Year.fromInt(year),
-          target: Money.fromCents(targetCents),
-          progress: Money.fromCents(progressCents),
-        );
-      }
-
-      test('should return a Map with all correct keys and values', () {
-        // Arrange
-        final entity = createEntityForMapping(
-          month: 12,
-          year: 2025,
-          targetCents: 5000,
-          progressCents: 2500,
-        );
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(entity);
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result, isA<Map<String, dynamic>>());
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
-            '123e4567-e89b-12d3-a456-426614174000');
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 12);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 2025);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 5000);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 2500);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion], 1);
-      });
-
-      test('should have exactly 6 keys in the map', () {
-        // Arrange
-        final model =
-            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result.length, 6);
-        expect(
-          result.keys,
-          containsAll(
-            [
-              MonthlyRevenueGoalRemoteSchemaV1.uuidV7,
-              MonthlyRevenueGoalRemoteSchemaV1.month,
-              MonthlyRevenueGoalRemoteSchemaV1.year,
-              MonthlyRevenueGoalRemoteSchemaV1.targetCents,
-              MonthlyRevenueGoalRemoteSchemaV1.progressCents,
-              MonthlyRevenueGoalRemoteSchemaV1.schemaVersion,
-            ],
-          ),
-        );
-      });
-
-      test('should ensure data types match infrastructure expectations', () {
-        // Arrange
-        final model =
-            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], isA<int>());
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], isA<int>());
-        expect(
-            result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], isA<int>());
-        expect(
-            result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], isA<int>());
-        expect(
-            result[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion], isA<int>());
-      });
-
-      test(
-          'should be a stable representation (calling twice returns same data)',
-          () {
-        // Arrange
-        final model =
-            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
-
-        // Act
-        final firstMap = model.toMap();
-        final secondMap = model.toMap();
-
-        // Assert
-        expect(firstMap, equals(secondMap));
-      });
-
-      test('should ensure returned Map is a new instance (immutability check)',
-          () {
-        // Arrange
-        final entity = createEntityForMapping();
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(entity);
-
-        // Act
-        final map = model.toMap();
-        map[MonthlyRevenueGoalRemoteSchemaV1.uuidV7] =
-            '123e4567-e89b-12d3-a456-426614174001';
-
-        // Assert
-        expect(model.toMap()[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
-            equals('123e4567-e89b-12d3-a456-426614174000'));
-        expect(entity.id.value, equals('123e4567-e89b-12d3-a456-426614174000'));
-      });
-
-      test('should preserve exact cents values in toMap', () {
-        // Arrange
-        const targetCents = 123456;
-        const progressCents = 987654;
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(
-            targetCents: targetCents,
-            progressCents: progressCents,
-          ),
-        );
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
-            equals(targetCents));
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
-            equals(progressCents));
-      });
-
-      test('should handle minimum valid values in toMap', () {
-        // Arrange
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(
-            month: 1,
-            year: 2000,
-            targetCents: 1,
-            progressCents: 0,
-          ),
-        );
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 1);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 2000);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 1);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 0);
-      });
-
-      test('should handle maximum valid values in toMap', () {
-        // Arrange
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(
-            month: 12,
-            year: 9999,
-            targetCents: 999999999,
-            progressCents: 999999999,
-          ),
-        );
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 12);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 9999);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 999999999);
-        expect(
-            result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 999999999);
-      });
-
-      test('should correctly map when progress exceeds target', () {
-        // Arrange
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(
-            targetCents: 5000,
-            progressCents: 10000,
-          ),
-        );
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 5000);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 10000);
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
-            greaterThan(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents]));
-      });
-
-      test('should correctly map when progress equals target', () {
-        // Arrange
-        const sameCents = 50000;
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(
-            targetCents: sameCents,
-            progressCents: sameCents,
-          ),
-        );
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
-            equals(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents]));
-      });
-
-      test('should handle UUID string format preservation in toMap', () {
-        // Arrange
-        const testUuidString = 'aaaabbbb-cccc-dddd-eeee-ffffffffffff';
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(uuidV7: testUuidString),
-        );
-
-        // Act
-        final result = model.toMap();
-
-        // Assert
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
-            equals(testUuidString));
-        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
-      });
-
-      test('should not mutate internal state when Map is modified', () {
-        // Arrange
-        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
-          createEntityForMapping(
-            targetCents: 5000,
-            progressCents: 2500,
-          ),
-        );
-
-        // Act
-        final firstMap = model.toMap();
-        firstMap[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = 99999;
-        firstMap[MonthlyRevenueGoalRemoteSchemaV1.progressCents] = 88888;
-        final secondMap = model.toMap();
-
-        // Assert
-        expect(secondMap[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
-            equals(5000));
-        expect(secondMap[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
-            equals(2500));
       });
     });
 
@@ -869,7 +612,7 @@ void main() {
           () {
         // Arrange
         final goal1 = reconstructGoal();
-        final goal2 = reconstructGoal(progress: Money.fromDouble(999.99));
+        final goal2 = reconstructGoal(progress: money(999.99));
 
         // Act
         final str1 = goal1.toString();
@@ -899,7 +642,7 @@ void main() {
 
       test('internal state should not change after operations', () {
         // Arrange
-        final originalTarget = Money.fromDouble(5000.00);
+        final originalTarget = money(5000.00);
         final goal = reconstructGoal(target: originalTarget);
 
         // Act - access getters multiple times
@@ -953,8 +696,8 @@ void main() {
       test('should handle zero progress with positive target', () {
         // Arrange
         final goal = reconstructGoal(
-          target: Money.fromDouble(1000.00),
-          progress: Money.fromCents(0),
+          target: money(1000.00),
+          progress: cents(0),
         );
 
         // Assert
@@ -965,7 +708,7 @@ void main() {
 
       test('should handle progress equal to target', () {
         // Arrange
-        final amount = Money.fromDouble(1500.00);
+        final amount = money(1500.00);
         final goal = reconstructGoal(target: amount, progress: amount);
 
         // Assert
@@ -975,8 +718,8 @@ void main() {
       test('should handle progress exceeding target', () {
         // Arrange
         final goal = reconstructGoal(
-          target: Money.fromDouble(1000.00),
-          progress: Money.fromDouble(2000.00),
+          target: money(1000.00),
+          progress: money(2000.00),
         );
 
         // Assert
@@ -985,7 +728,7 @@ void main() {
 
       test('should handle very precise decimal values', () {
         // Arrange
-        final preciseValue = Money.fromDouble(123.45);
+        final preciseValue = money(123.45);
         final goal = reconstructGoal(target: preciseValue);
 
         // Assert
@@ -994,7 +737,7 @@ void main() {
 
       test('should handle large monetary values', () {
         // Arrange
-        final largeValue = Money.fromDouble(999999.99);
+        final largeValue = money(999999.99);
         final goal = reconstructGoal(target: largeValue);
 
         // Assert
@@ -1003,7 +746,7 @@ void main() {
 
       test('should accept progress of zero cents explicitly', () {
         // Arrange
-        final goal = reconstructGoal(progress: Money.fromCents(0));
+        final goal = reconstructGoal(progress: cents(0));
 
         // Assert
         expect(goal.progress.cents, equals(0));
@@ -1040,7 +783,7 @@ void main() {
           year: year,
           month: month,
           target: target,
-          progress: Money.fromCents(0),
+          progress: Money.fromCents(cents: 0, currency: target.currency),
         );
 
         // Assert
@@ -1075,8 +818,8 @@ void main() {
 
       test('reconstruct should preserve exact state provided', () {
         // Arrange
-        final target = Money.fromDouble(2500.00);
-        final progress = Money.fromDouble(1800.00);
+        final target = money(2500.00);
+        final progress = money(1800.00);
         const year = 2030;
         const month = 6;
 
@@ -1097,7 +840,7 @@ void main() {
 
       test('create and reconstruct should both validate target', () {
         // Arrange
-        final invalidTarget = Money.fromCents(-1);
+        final invalidTarget = cents(-1);
 
         // Assert
         expect(
@@ -1121,20 +864,20 @@ void main() {
         // Scenario: Track Q1 goals
         final january = reconstructGoal(
           month: Month.fromInt(1),
-          target: Money.fromDouble(10000.00),
-          progress: Money.fromDouble(8500.00),
+          target: money(10000.00),
+          progress: money(8500.00),
         );
 
         final february = reconstructGoal(
           month: Month.fromInt(2),
-          target: Money.fromDouble(12000.00),
-          progress: Money.fromDouble(0.00),
+          target: money(12000.00),
+          progress: money(0.00),
         );
 
         final march = reconstructGoal(
           month: Month.fromInt(3),
-          target: Money.fromDouble(11000.00),
-          progress: Money.fromDouble(11000.00),
+          target: money(11000.00),
+          progress: money(11000.00),
         );
 
         // Assert

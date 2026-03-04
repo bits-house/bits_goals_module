@@ -47,7 +47,10 @@ class MonthlyRevenueGoal extends Equatable {
     required Money target,
   }) {
     final uid = IdUuidV7.generate();
-    final prog = Money.fromCents(0);
+    final prog = Money.fromCents(
+      cents: 0,
+      currency: target.currency,
+    );
 
     _validateGoalTarget(target);
 
@@ -83,9 +86,15 @@ class MonthlyRevenueGoal extends Equatable {
   // Getters
   // =========================
 
-  Money get target => Money.fromCents(_target.cents);
+  Money get target => Money.fromCents(
+        cents: _target.cents,
+        currency: _target.currency,
+      );
 
-  Money get progress => Money.fromCents(_progress.cents);
+  Money get progress => Money.fromCents(
+        cents: _progress.cents,
+        currency: _progress.currency,
+      );
 
   IdUuidV7 get id => IdUuidV7.fromString(_id.value);
 
