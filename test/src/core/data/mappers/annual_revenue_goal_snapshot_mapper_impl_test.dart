@@ -3,6 +3,7 @@ import 'package:bits_goals_module/src/core/data/models/annual_revenue_goal_meta_
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
@@ -16,6 +17,7 @@ void main() {
     int yearValue = 2030,
     int monthlyTargetCents = 10000,
   }) {
+    final currency = Currency.fromISO4217('BRL');
     final year = Year.fromInt(yearValue);
 
     final goals = List.generate(12, (index) {
@@ -23,8 +25,14 @@ void main() {
         id: IdUuidV7.generate(),
         year: year,
         month: Month.fromInt(index + 1),
-        target: Money.fromCents(monthlyTargetCents),
-        progress: Money.fromCents(0),
+        target: Money.fromCents(
+          cents: monthlyTargetCents,
+          currency: currency,
+        ),
+        progress: Money.fromCents(
+          cents: 0,
+          currency: currency,
+        ),
       );
     });
 

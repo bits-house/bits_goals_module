@@ -12,6 +12,7 @@ import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/repositories/annual_revenue_goal/annual_revenue_goal_rep_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
@@ -89,7 +90,10 @@ void main() {
     final months = List.generate(12, (index) {
       return MonthlyRevenueGoal.create(
         month: Month.fromInt(index + 1),
-        target: Money.fromCents(100000),
+        target: Money.fromCents(
+          cents: 100000,
+          currency: Currency.fromISO4217('BRL'),
+        ),
         year: tYear,
       );
     });
