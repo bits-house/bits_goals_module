@@ -1,5 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_reason.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:equatable/equatable.dart';
 
 /// Money Value Object
@@ -12,25 +13,34 @@ class Money extends Equatable {
   /// Monetary value represented in cents (e.g. R$10.50 -> 1050)
   final int _cents;
 
+  final Currency currency;
+
   /// Private constructor to enforce invariants
-  const Money._(this._cents);
-  // TODO: Add currency -> code in ISO 4217 format + symbol for display purposes
-  //  Currency.fromISO4217('USD')
+  const Money._({
+    required int cents,
+    required this.currency,
+  }) : _cents = cents;
 
   /// Factory constructor to create Money from a double value
   ///
   /// The value is rounded to the nearest cent.
-  factory Money.fromDouble(double value) {
+  factory Money.fromDouble({
+    required double value,
+    required Currency currency,
+  }) {
     final int cents = (value * 100).round();
-    return Money._(cents);
+    return Money._(cents: cents, currency: currency);
   }
 
   /// Gets the monetary value in cents
   int get cents => _cents;
 
   /// Factory constructor to create Money from integer cents
-  factory Money.fromCents(int cents) {
-    return Money._(cents);
+  factory Money.fromCents({
+    required int cents,
+    required Currency currency,
+  }) {
+    return Money._(cents: cents, currency: currency);
   }
 
   /// Converts the monetary value back to double
@@ -45,14 +55,24 @@ class Money extends Equatable {
   /// Returns a new Money instance.
   /// Original instances remain unchanged.
   Money operator +(Money other) {
-    return Money._(_cents + other._cents);
+    if (currency != other.currency) {
+      throw const InvalidMoneyFailure(InvalidMoneyReason.currencyMismatch);
+    }
+
+    final result = _cents + other._cents;
+
+    return Money._(cents: result, currency: currency);
   }
 
   /// Subtracts another Money value
   Money operator -(Money other) {
+    if (currency != other.currency) {
+      throw const InvalidMoneyFailure(InvalidMoneyReason.currencyMismatch);
+    }
+
     final result = _cents - other._cents;
 
-    return Money._(result);
+    return Money._(cents: result, currency: currency);
   }
 
   /// Splits the money into [partsCount] chunks, distributing the remainder
@@ -66,7 +86,7 @@ class Money extends Equatable {
   ///
   /// Usage:
   /// ```dart
-  /// final money = Money.fromCents(100);
+  /// final money = Money.fromCents(cents: 100, ...);
   /// final splits = money.split(3);
   /// // splits is [Money(34), Money(33), Money(33)]
   /// ```
@@ -83,12 +103,12 @@ class Money extends Equatable {
 
     return List.generate(partsCount, (index) {
       final amount = baseCents + (index < remainder ? 1 : 0);
-      return Money._(amount);
+      return Money._(cents: amount, currency: currency);
     });
   }
 
   @override
-  List<Object> get props => [_cents];
+  List<Object> get props => [_cents, currency];
 
   @override
   bool? get stringify => true;
