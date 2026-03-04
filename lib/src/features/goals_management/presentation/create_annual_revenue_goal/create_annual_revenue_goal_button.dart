@@ -1,10 +1,12 @@
 import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
 import 'package:bits_goals_module/src/core/presentation/widgets/show_if_permitted.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog.dart';
 import 'package:flutter/material.dart';
 
 enum _CreateAnnualRevenueGoalButtonType {
   fabLarge,
+  filledButton,
 }
 
 class CreateAnnualRevenueGoalButton extends StatelessWidget {
@@ -20,6 +22,10 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
   /// The icon to display inside the FAB. If not provided,
   /// it will default to the "add" icon.
   final IconData? iconData;
+
+  /// The label to display next to the icon in the filled button variant. If not
+  /// provided, it will use the default label from the localization strings.
+  final String? label;
 
   /// The color of the icon and text inside the FAB. If not provided, it will use
   /// the default FAB foreground color from the current theme.
@@ -46,9 +52,23 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
     );
   }
 
+  factory CreateAnnualRevenueGoalButton.filledButton({
+    List<int>? unavailableYears,
+    IconData? iconData,
+    String? label,
+  }) {
+    return CreateAnnualRevenueGoalButton._internal(
+      unavailableYears: unavailableYears,
+      iconData: iconData,
+      label: label,
+      type: _CreateAnnualRevenueGoalButtonType.filledButton,
+    );
+  }
+
   const CreateAnnualRevenueGoalButton._internal({
     this.unavailableYears,
     this.iconData,
+    this.label,
     this.foregroundColor,
     this.backgroundColor,
     required _CreateAnnualRevenueGoalButtonType type,
@@ -69,6 +89,11 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine the button label, using the provided label or falling back to the
+    // default localized string.
+    final buttonLabel =
+        label ?? context.strings.createAnnualRevenueGoalButton_label;
+
     // If no custom icon is provided, default to the "add" icon.
     final buttonIconData = iconData ?? Icons.add;
 
@@ -84,7 +109,13 @@ class CreateAnnualRevenueGoalButton extends StatelessWidget {
             onPressed: () => _onPressed(context: context),
             backgroundColor: backgroundColor,
             foregroundColor: foregroundColor,
+            tooltip: buttonLabel,
             child: Icon(buttonIconData),
+          ),
+        _CreateAnnualRevenueGoalButtonType.filledButton => FilledButton.icon(
+            onPressed: () => _onPressed(context: context),
+            icon: Icon(buttonIconData),
+            label: Text(buttonLabel),
           ),
       },
     );

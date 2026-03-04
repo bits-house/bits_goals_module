@@ -11,6 +11,9 @@ class GoalsModuleLocalizationsPt extends GoalsModuleLocalizations {
   GoalsModuleLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String get createAnnualRevenueGoalButton_label => 'Meta Anual';
+
+  @override
   String createAnnualRevenueGoalDialog_snackBar_success(int year) {
     return 'Meta de faturamento para \$$year criada! Metas mensais foram geradas e estão disponíveis para edição.';
   }

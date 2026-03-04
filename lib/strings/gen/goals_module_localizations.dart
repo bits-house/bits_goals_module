@@ -64,15 +64,13 @@ import 'goals_module_localizations_pt.dart';
 /// property.
 abstract class GoalsModuleLocalizations {
   GoalsModuleLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static GoalsModuleLocalizations of(BuildContext context) {
     return Localizations.of<GoalsModuleLocalizations>(
-      context,
-      GoalsModuleLocalizations,
-    )!;
+        context, GoalsModuleLocalizations)!;
   }
 
   static const LocalizationsDelegate<GoalsModuleLocalizations> delegate =
@@ -90,14 +88,20 @@ abstract class GoalsModuleLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('pt')];
+
+  /// Rótulo do botão de criação de meta anual de faturamento
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta Anual'**
+  String get createAnnualRevenueGoalButton_label;
 
   /// Mensagem de sucesso exibida no AppSnackBar após criar uma meta anual de faturamento
   ///
@@ -131,8 +135,7 @@ class _GoalsModuleLocalizationsDelegate
   @override
   Future<GoalsModuleLocalizations> load(Locale locale) {
     return SynchronousFuture<GoalsModuleLocalizations>(
-      lookupGoalsModuleLocalizations(locale),
-    );
+        lookupGoalsModuleLocalizations(locale));
   }
 
   @override
@@ -151,9 +154,8 @@ GoalsModuleLocalizations lookupGoalsModuleLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'GoalsModuleLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'GoalsModuleLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }
