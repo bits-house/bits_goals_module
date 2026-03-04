@@ -22,6 +22,16 @@ void main() {
         (code: 'BRL', expected: Currency.brl, symbol: r'R$', locale: 'pt-BR'),
         (code: 'USD', expected: Currency.usd, symbol: r'$', locale: 'en-US'),
         (code: 'PYG', expected: Currency.pyg, symbol: r'₲', locale: 'es-PY'),
+        (code: 'EUR', expected: Currency.eur, symbol: '€', locale: 'de-DE'),
+        (code: 'GBP', expected: Currency.gbp, symbol: '£', locale: 'en-GB'),
+        (code: 'JPY', expected: Currency.jpy, symbol: '¥', locale: 'ja-JP'),
+        (code: 'CNY', expected: Currency.cny, symbol: 'CN¥', locale: 'zh-CN'),
+        (code: 'CHF', expected: Currency.chf, symbol: 'CHF', locale: 'de-CH'),
+        (code: 'CAD', expected: Currency.cad, symbol: r'C$', locale: 'en-CA'),
+        (code: 'AUD', expected: Currency.aud, symbol: r'A$', locale: 'en-AU'),
+        (code: 'INR', expected: Currency.inr, symbol: '₹', locale: 'en-IN'),
+        (code: 'MXN', expected: Currency.mxn, symbol: r'MX$', locale: 'es-MX'),
+        (code: 'KRW', expected: Currency.krw, symbol: '₩', locale: 'ko-KR'),
       ];
 
       for (final currencyCase in cases) {
@@ -86,7 +96,7 @@ void main() {
         );
 
         expect(
-          () => Currency.fromISO4217('EUR'),
+          () => Currency.fromISO4217('SEK'),
           throwsA(
             isA<CurrencyFailure>().having(
               (e) => e.reason,

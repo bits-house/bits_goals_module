@@ -6,7 +6,17 @@ import 'package:bits_goals_module/src/core/domain/failures/enums/currency/curren
 enum Currency {
   brl(symbol: r'R$', locale: 'pt-BR'),
   pyg(symbol: r'₲', locale: 'es-PY'),
-  usd(symbol: r'$', locale: 'en-US');
+  usd(symbol: r'$', locale: 'en-US'),
+  eur(symbol: '€', locale: 'de-DE'),
+  gbp(symbol: '£', locale: 'en-GB'),
+  jpy(symbol: '¥', locale: 'ja-JP'),
+  cny(symbol: 'CN¥', locale: 'zh-CN'),
+  chf(symbol: 'CHF', locale: 'de-CH'),
+  cad(symbol: r'C$', locale: 'en-CA'),
+  aud(symbol: r'A$', locale: 'en-AU'),
+  inr(symbol: '₹', locale: 'en-IN'),
+  mxn(symbol: r'MX$', locale: 'es-MX'),
+  krw(symbol: '₩', locale: 'ko-KR');
 
   /// The currency symbol (e.g., "$", "R$").
   final String symbol;
