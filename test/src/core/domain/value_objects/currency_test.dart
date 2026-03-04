@@ -7,7 +7,7 @@ void main() {
   group('Currency', () {
     group('Instantiation and Normalization', () {
       test('should fromISO4217 a valid instance and normalize code', () {
-        final currency = Currency.fromISO4217(code: '  brl  ');
+        final currency = Currency.fromISO4217('  brl  ');
 
         expect(currency.code, equals('BRL'));
         expect(currency.symbol, equals(r'R$'));
@@ -45,7 +45,7 @@ void main() {
           'should create ${currencyCase.code} and keep expected symbol',
           () {
             final currency = Currency.fromISO4217(
-              code: currencyCase.code.toLowerCase(),
+              currencyCase.code.toLowerCase(),
             );
 
             expect(currency.code, equals(currencyCase.code));
@@ -58,7 +58,7 @@ void main() {
     group('Validation Failures', () {
       test('should throw CurrencyFailure (emptyCode) when code is empty', () {
         expect(
-          () => Currency.fromISO4217(code: '   '),
+          () => Currency.fromISO4217('   '),
           throwsA(
             isA<CurrencyFailure>().having(
               (e) => e.reason,
@@ -73,7 +73,7 @@ void main() {
           'should throw CurrencyFailure (invalidCode) when code is not supported',
           () {
         expect(
-          () => Currency.fromISO4217(code: 'US'),
+          () => Currency.fromISO4217('US'),
           throwsA(
             isA<CurrencyFailure>().having(
               (e) => e.reason,
@@ -84,7 +84,7 @@ void main() {
         );
 
         expect(
-          () => Currency.fromISO4217(code: 'USDx'),
+          () => Currency.fromISO4217('USDx'),
           throwsA(
             isA<CurrencyFailure>().having(
               (e) => e.reason,
@@ -95,7 +95,7 @@ void main() {
         );
 
         expect(
-          () => Currency.fromISO4217(code: r'12$'),
+          () => Currency.fromISO4217(r'12$'),
           throwsA(
             isA<CurrencyFailure>().having(
               (e) => e.reason,
@@ -109,15 +109,15 @@ void main() {
 
     group('Equality and Value Object properties', () {
       test('should be equal when all properties are identical', () {
-        final c1 = Currency.fromISO4217(code: 'usd');
-        final c2 = Currency.fromISO4217(code: 'USD');
+        final c1 = Currency.fromISO4217('usd');
+        final c2 = Currency.fromISO4217('USD');
 
         expect(c1, equals(c2));
         expect(c1.hashCode, equals(c2.hashCode));
       });
 
       test('stringify should be true for better debug logs', () {
-        final c = Currency.fromISO4217(code: 'EUR');
+        final c = Currency.fromISO4217('EUR');
 
         expect(c.toString(), contains('EUR'));
         expect(c.stringify, isTrue);
@@ -131,7 +131,7 @@ void main() {
         final currenciesWithoutSymbol = ['AED', 'AFN', 'ALL', 'AMD', 'ANG'];
 
         for (final code in currenciesWithoutSymbol) {
-          final currency = Currency.fromISO4217(code: code);
+          final currency = Currency.fromISO4217(code);
 
           expect(currency.code, equals(code));
           expect(currency.symbol, equals(r'$'));
@@ -140,8 +140,8 @@ void main() {
     });
 
     test('should not be equal when currency codes are different', () {
-      final c1 = Currency.fromISO4217(code: 'USD');
-      final c2 = Currency.fromISO4217(code: 'EUR');
+      final c1 = Currency.fromISO4217('USD');
+      final c2 = Currency.fromISO4217('EUR');
 
       expect(c1, isNot(equals(c2)));
       expect(c1.hashCode, isNot(equals(c2.hashCode)));
