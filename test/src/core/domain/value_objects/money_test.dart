@@ -432,6 +432,14 @@ void main() {
         expect(map[Money.fromCents(cents: 1000, currency: usd)], 'USD');
       });
 
+      test('should enable Equatable stringify/toString output', () {
+        final money = Money.fromCents(cents: 1050, currency: brl);
+
+        expect(money.stringify, true);
+        expect(money.toString(), contains('1050'));
+        expect(money.toString(), contains('BRL'));
+      });
+
       // ============================================================
       // SPLIT
       // ============================================================
