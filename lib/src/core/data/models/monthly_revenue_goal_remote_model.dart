@@ -1,5 +1,6 @@
 import 'package:bits_goals_module/src/core/data/extensions/map_parsing_extension.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
@@ -15,6 +16,7 @@ class MonthlyRevenueGoalRemoteSchemaV1 {
   static const String year = 'year';
   static const String targetCents = 'target_cents';
   static const String progressCents = 'progress_cents';
+  static const String currencyCode = 'currency_code';
   static const String schemaVersion = 'schema_version';
 }
 
@@ -39,6 +41,8 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
   // FROM ENTITY
   // ===========================================================================
 
+  static const int currentSchemaVersion = 1;
+
   factory MonthlyRevenueGoalRemoteModel.fromEntity(MonthlyRevenueGoal entity) {
     return MonthlyRevenueGoalRemoteModel._(
       uuidV7: entity.id,
@@ -46,7 +50,7 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
       year: entity.year,
       target: entity.target,
       progress: entity.progress,
-      schemaVersion: 1,
+      schemaVersion: currentSchemaVersion,
     );
   }
 
@@ -76,17 +80,27 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
         key: MonthlyRevenueGoalRemoteSchemaV1.progressCents,
       );
 
+      final currencyCode = map.getString(
+        key: MonthlyRevenueGoalRemoteSchemaV1.currencyCode,
+      );
+
       final schemaVer = map.getInt(
         key: MonthlyRevenueGoalRemoteSchemaV1.schemaVersion,
-        defaultValue: 0,
+        defaultValue: currentSchemaVersion,
       );
 
       return MonthlyRevenueGoalRemoteModel._(
         uuidV7: IdUuidV7.fromString(idString),
         month: Month.fromInt(monthInt),
         year: Year.fromInt(yearInt),
-        target: Money.fromCents(targetVal),
-        progress: Money.fromCents(progressVal),
+        target: Money.fromCents(
+          cents: targetVal,
+          currency: Currency.fromISO4217(currencyCode),
+        ),
+        progress: Money.fromCents(
+          cents: progressVal,
+          currency: Currency.fromISO4217(currencyCode),
+        ),
         schemaVersion: schemaVer,
       );
     } catch (e) {
@@ -106,6 +120,7 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
       MonthlyRevenueGoalRemoteSchemaV1.year: year.value,
       MonthlyRevenueGoalRemoteSchemaV1.targetCents: target.cents,
       MonthlyRevenueGoalRemoteSchemaV1.progressCents: progress.cents,
+      MonthlyRevenueGoalRemoteSchemaV1.currencyCode: target.currency.code,
       MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: schemaVersion,
     };
   }

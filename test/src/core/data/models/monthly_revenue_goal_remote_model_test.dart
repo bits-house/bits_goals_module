@@ -1,5 +1,6 @@
 import 'package:bits_goals_module/src/core/data/models/monthly_revenue_goal_remote_model.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
@@ -15,13 +16,16 @@ void main() {
   const tYearInt = 2026;
   const tTargetCents = 500000;
   const tProgressCents = 150000;
+  const tCurrencyCode = 'BRL';
   const tSchemaVersion = 1;
 
+  final brl = Currency.fromISO4217(tCurrencyCode);
+  Money cents(int value) => Money.fromCents(cents: value, currency: brl);
   final tUuid = IdUuidV7.fromString(tUuidString);
   final tMonth = Month.fromInt(tMonthInt);
   final tYear = Year.fromInt(tYearInt);
-  final tTarget = Money.fromCents(tTargetCents);
-  final tProgress = Money.fromCents(tProgressCents);
+  final tTarget = Money.fromCents(cents: tTargetCents, currency: brl);
+  final tProgress = Money.fromCents(cents: tProgressCents, currency: brl);
 
   final tEntity = MonthlyRevenueGoal.reconstruct(
     id: tUuid,
@@ -39,6 +43,7 @@ void main() {
       MonthlyRevenueGoalRemoteSchemaV1.year: tYearInt,
       MonthlyRevenueGoalRemoteSchemaV1.targetCents: tTargetCents,
       MonthlyRevenueGoalRemoteSchemaV1.progressCents: tProgressCents,
+      MonthlyRevenueGoalRemoteSchemaV1.currencyCode: tCurrencyCode,
       MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: tSchemaVersion,
     };
   }
@@ -122,6 +127,24 @@ void main() {
           expect(result.month.value, equals(10));
         },
       );
+
+      test(
+          'should default schemaVersion to currentSchemaVersion when missing from the map',
+          () {
+        // Arrange
+        final map = createValidMap();
+        map.remove(MonthlyRevenueGoalRemoteSchemaV1.schemaVersion);
+
+        // Act
+        final result = MonthlyRevenueGoalRemoteModel.fromMap(map);
+
+        // Assert
+        expect(
+            result.schemaVersion,
+            equals(
+              MonthlyRevenueGoalRemoteModel.currentSchemaVersion,
+            ));
+      });
     });
 
     // =========================================================================
@@ -183,6 +206,39 @@ void main() {
           );
         },
       );
+
+      test('should throw [FormatException] when currencyCode is missing', () {
+        // Arrange
+        final map = createValidMap();
+        map.remove(MonthlyRevenueGoalRemoteSchemaV1.currencyCode);
+
+        // Act & Assert
+        expect(
+          () => MonthlyRevenueGoalRemoteModel.fromMap(map),
+          throwsA(isA<FormatException>()),
+        );
+      });
+
+      test('should throw [FormatException] when currencyCode is invalid', () {
+        // Arrange
+        final map = createValidMap();
+        map[MonthlyRevenueGoalRemoteSchemaV1.currencyCode] = 'INVALID_COIN';
+
+        // Act & Assert
+        expect(
+          () => MonthlyRevenueGoalRemoteModel.fromMap(map),
+          throwsA(isA<FormatException>()),
+        );
+      });
+
+      test('should throw [FormatException] when parsing an entirely empty map',
+          () {
+        // Act & Assert
+        expect(
+          () => MonthlyRevenueGoalRemoteModel.fromMap(const {}),
+          throwsA(isA<FormatException>()),
+        );
+      });
     });
 
     test(
@@ -229,6 +285,274 @@ void main() {
         // Assert
         final expectedMap = createValidMap();
         expect(result, equals(expectedMap));
+      });
+    });
+
+    // ============================================================
+    // MAPPING / SERIALIZATION
+    //
+    // The domain entity does not serialize itself; remote models do.
+    // ============================================================
+
+    group('Mapping (MonthlyRevenueGoalRemoteModel.toMap) |', () {
+      MonthlyRevenueGoal createEntityForMapping({
+        String uuidV7 = '123e4567-e89b-12d3-a456-426614174000',
+        int month = 5,
+        int year = 2026,
+        int targetCents = 100000,
+        int progressCents = 50000,
+      }) {
+        return MonthlyRevenueGoal.reconstruct(
+          id: IdUuidV7.fromString(uuidV7),
+          month: Month.fromInt(month),
+          year: Year.fromInt(year),
+          target: cents(targetCents),
+          progress: cents(progressCents),
+        );
+      }
+
+      test('should return a Map with all correct keys and values', () {
+        // Arrange
+        final entity = createEntityForMapping(
+          month: 12,
+          year: 2025,
+          targetCents: 5000,
+          progressCents: 2500,
+        );
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(entity);
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result, isA<Map<String, dynamic>>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
+            '123e4567-e89b-12d3-a456-426614174000');
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 12);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 2025);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 5000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 2500);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.currencyCode], 'BRL');
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion], 1);
+      });
+
+      test('should have exactly 7 keys in the map', () {
+        // Arrange
+        final model =
+            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result.length, 7);
+        expect(
+          result.keys,
+          containsAll(
+            [
+              MonthlyRevenueGoalRemoteSchemaV1.uuidV7,
+              MonthlyRevenueGoalRemoteSchemaV1.month,
+              MonthlyRevenueGoalRemoteSchemaV1.year,
+              MonthlyRevenueGoalRemoteSchemaV1.targetCents,
+              MonthlyRevenueGoalRemoteSchemaV1.progressCents,
+              MonthlyRevenueGoalRemoteSchemaV1.currencyCode,
+              MonthlyRevenueGoalRemoteSchemaV1.schemaVersion,
+            ],
+          ),
+        );
+      });
+
+      test('should ensure data types match infrastructure expectations', () {
+        // Arrange
+        final model =
+            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], isA<int>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], isA<int>());
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], isA<int>());
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], isA<int>());
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.currencyCode],
+            isA<String>());
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.schemaVersion], isA<int>());
+      });
+
+      test(
+          'should be a stable representation (calling twice returns same data)',
+          () {
+        // Arrange
+        final model =
+            MonthlyRevenueGoalRemoteModel.fromEntity(createEntityForMapping());
+
+        // Act
+        final firstMap = model.toMap();
+        final secondMap = model.toMap();
+
+        // Assert
+        expect(firstMap, equals(secondMap));
+      });
+
+      test('should ensure returned Map is a new instance (immutability check)',
+          () {
+        // Arrange
+        final entity = createEntityForMapping();
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(entity);
+
+        // Act
+        final map = model.toMap();
+        map[MonthlyRevenueGoalRemoteSchemaV1.uuidV7] =
+            '123e4567-e89b-12d3-a456-426614174001';
+
+        // Assert
+        expect(model.toMap()[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
+            equals('123e4567-e89b-12d3-a456-426614174000'));
+        expect(entity.id.value, equals('123e4567-e89b-12d3-a456-426614174000'));
+      });
+
+      test('should preserve exact cents values in toMap', () {
+        // Arrange
+        const targetCents = 123456;
+        const progressCents = 987654;
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: targetCents,
+            progressCents: progressCents,
+          ),
+        );
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+            equals(targetCents));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+            equals(progressCents));
+      });
+
+      test('should handle minimum valid values in toMap', () {
+        // Arrange
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            month: 1,
+            year: 2000,
+            targetCents: 1,
+            progressCents: 0,
+          ),
+        );
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 1);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 2000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 1);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 0);
+      });
+
+      test('should handle maximum valid values in toMap', () {
+        // Arrange
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            month: 12,
+            year: 9999,
+            targetCents: 999999999,
+            progressCents: 999999999,
+          ),
+        );
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.month], 12);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.year], 9999);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 999999999);
+        expect(
+            result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 999999999);
+      });
+
+      test('should correctly map when progress exceeds target', () {
+        // Arrange
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: 5000,
+            progressCents: 10000,
+          ),
+        );
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents], 5000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents], 10000);
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+            greaterThan(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents]));
+      });
+
+      test('should correctly map when progress equals target', () {
+        // Arrange
+        const sameCents = 50000;
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: sameCents,
+            progressCents: sameCents,
+          ),
+        );
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+            equals(result[MonthlyRevenueGoalRemoteSchemaV1.progressCents]));
+      });
+
+      test('should handle UUID string format preservation in toMap', () {
+        // Arrange
+        const testUuidString = 'aaaabbbb-cccc-dddd-eeee-ffffffffffff';
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(uuidV7: testUuidString),
+        );
+
+        // Act
+        final result = model.toMap();
+
+        // Assert
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7],
+            equals(testUuidString));
+        expect(result[MonthlyRevenueGoalRemoteSchemaV1.uuidV7], isA<String>());
+      });
+
+      test('should not mutate internal state when Map is modified', () {
+        // Arrange
+        final model = MonthlyRevenueGoalRemoteModel.fromEntity(
+          createEntityForMapping(
+            targetCents: 5000,
+            progressCents: 2500,
+          ),
+        );
+
+        // Act
+        final firstMap = model.toMap();
+        firstMap[MonthlyRevenueGoalRemoteSchemaV1.targetCents] = 99999;
+        firstMap[MonthlyRevenueGoalRemoteSchemaV1.progressCents] = 88888;
+        final secondMap = model.toMap();
+
+        // Assert
+        expect(secondMap[MonthlyRevenueGoalRemoteSchemaV1.targetCents],
+            equals(5000));
+        expect(secondMap[MonthlyRevenueGoalRemoteSchemaV1.progressCents],
+            equals(2500));
       });
     });
 
