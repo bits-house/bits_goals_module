@@ -16,6 +16,7 @@ import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
@@ -100,12 +101,15 @@ void main() {
     const tValidYear = 2026;
     const tPastYear = 2024;
     const tMoney = 12000.00;
+    const tCurrencyCode = 'BRL';
 
     AnnualRevenueGoal createValidAnnualGoal({
       required int year,
       required double target,
+      String currencyISO4217Code = tCurrencyCode,
     }) {
       final yearVo = Year.fromInt(year);
+      final currency = Currency.fromISO4217(currencyISO4217Code);
       return AnnualRevenueGoal.build(
         year: yearVo,
         monthlyGoals: <MonthlyRevenueGoal>[
@@ -113,7 +117,10 @@ void main() {
             MonthlyRevenueGoal.create(
               year: yearVo,
               month: Month.fromInt(i),
-              target: Money.fromDouble(1000.00),
+              target: Money.fromDouble(
+                value: 1000.00,
+                currency: currency,
+              ),
             ),
         ],
       );
@@ -152,6 +159,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -159,11 +167,30 @@ void main() {
 
         // Assert
         expect(result.isRight(), true);
+        final captured = verify(
+          () => mockRepository.create(
+            goal: captureAny(named: 'goal'),
+            log: any(named: 'log'),
+          ),
+        ).captured;
+        final createdGoal = captured.single as AnnualRevenueGoal;
+        expect(
+          createdGoal.monthlyGoals.every(
+            (m) => m.target.currency.code == tCurrencyCode,
+          ),
+          true,
+        );
         result.fold(
           (l) => fail('Should be Right: $l'),
           (r) {
             expect(r.year, Year.fromInt(tValidYear));
             expect(r.monthlyGoals.length, 12);
+            expect(
+              r.monthlyGoals.every(
+                (m) => m.target.currency.code == tCurrencyCode,
+              ),
+              true,
+            );
           },
         );
       },
@@ -185,6 +212,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tPastYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -212,6 +240,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: -1200.00,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -239,6 +268,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: 0.0,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -263,6 +293,7 @@ void main() {
       const params = CreateAnnualRevenueGoalParams(
         year: tValidYear,
         annualRevenueTarget: tMoney,
+        currencyISO4217Code: tCurrencyCode,
       );
 
       // Act
@@ -302,6 +333,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -339,6 +371,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -376,6 +409,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -421,6 +455,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -464,6 +499,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -502,6 +538,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -571,6 +608,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: annualTarget,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -613,6 +651,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tCurrentYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -643,6 +682,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: minTarget,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -672,6 +712,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: largeTarget,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -694,6 +735,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: 1990,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -735,6 +777,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act
@@ -768,6 +811,7 @@ void main() {
         const params = CreateAnnualRevenueGoalParams(
           year: tValidYear,
           annualRevenueTarget: tMoney,
+          currencyISO4217Code: tCurrencyCode,
         );
 
         // Act

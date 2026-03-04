@@ -12,6 +12,7 @@ import 'package:bits_goals_module/src/core/domain/policies/goals_module_permissi
 import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_goal_repository.dart';
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/application/use_cases/params_use_case.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
@@ -35,7 +36,6 @@ import 'package:dartz/dartz.dart';
 /// * **Year:** Must be >= current year and unique in the database.
 /// * **Distribution:** The annual target is split across exactly 12 unique months.
 /// * **Financials:** All targets must be > 0. Sum of months == Annual Target.
-///     TODO: Handles currency
 /// * **Permission:** User must have rights to create annual goals.
 /// * **Logging:** An ActionLog is created for auditing.
 ///
@@ -87,7 +87,11 @@ class CreateAnnualRevenueGoal
 
       /// Convert params to Value Objects, validating invariants in the process
       final year = Year.fromInt(params.year);
-      final target = Money.fromDouble(params.annualRevenueTarget);
+      final currency = Currency.fromISO4217(params.currencyISO4217Code);
+      final target = Money.fromDouble(
+        value: params.annualRevenueTarget,
+        currency: currency,
+      );
 
       /// Annual revenue target must be greater than zero
       if (target.cents <= 0) {
