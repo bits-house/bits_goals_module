@@ -10,6 +10,7 @@ export 'src/infra/config/data_sources/firestore_config.dart';
 // Domain Value Objects exports
 export 'src/core/domain/value_objects/logged_in_user.dart';
 export 'src/core/domain/value_objects/user_role.dart';
+export 'src/core/domain/value_objects/currency.dart';
 
 // Domain Policies exports
 export 'src/core/domain/policies/goals_module_permission.dart';

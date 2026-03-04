@@ -1,4 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
 import 'package:bits_goals_module/src/infra/config/data_sources/firestore_config.dart';
 import 'package:bits_goals_module/src/infra/config/goals_module_config.dart';
@@ -59,6 +60,7 @@ void main() {
         getRoles: () => [adminRole],
         getCurrentUser: () => generateUser(roleName: 'admin'),
         remoteDataSrcConfig: firestoreConfig,
+        getCurrentCurrency: () => Currency.fromISO4217('BRL'),
       );
 
       // Assert
@@ -80,6 +82,7 @@ void main() {
             simpleRoleList, // Config roles don't strictly need to match the user here
         getCurrentUser: () => expectedUser,
         remoteDataSrcConfig: firestoreConfig,
+        getCurrentCurrency: () => Currency.fromISO4217('BRL'),
       );
 
       // Act
@@ -98,6 +101,7 @@ void main() {
         getRoles: () => simpleRoleList,
         getCurrentUser: () => generateUser(roleName: 'user'),
         remoteDataSrcConfig: firestoreConfig,
+        getCurrentCurrency: () => Currency.fromISO4217('BRL'),
       );
 
       // Assert
@@ -119,6 +123,7 @@ void main() {
         getRoles: () => [editorRole],
         getCurrentUser: () => generateUser(roleName: 'editor'),
         remoteDataSrcConfig: firestoreConfig,
+        getCurrentCurrency: () => Currency.fromISO4217('BRL'),
       );
 
       // Act
@@ -146,6 +151,7 @@ void main() {
         getRoles: () => simpleRoleList,
         getCurrentUser: () => generateUser(roleName: currentRoleName),
         remoteDataSrcConfig: firestoreConfig,
+        getCurrentCurrency: () => Currency.fromISO4217('BRL'),
       );
 
       // Act & Assert 1
@@ -163,9 +169,27 @@ void main() {
           getRoles: () => [], // Empty list forbidden
           getCurrentUser: () => generateUser(roleName: 'user'),
           remoteDataSrcConfig: firestoreConfig,
+          getCurrentCurrency: () => Currency.fromISO4217('BRL'),
         ),
         throwsA(isA<AssertionError>()),
       );
+    });
+
+    test('should execute the getCurrentCurrency callback', () {
+      // Arrange
+      final config = GoalsModuleConfig(
+        getRoles: () => simpleRoleList,
+        getCurrentUser: () => generateUser(roleName: 'user'),
+        remoteDataSrcConfig: firestoreConfig,
+        getCurrentCurrency: () => Currency.fromISO4217('USD'),
+      );
+
+      // Act
+      final currency = config.getCurrentCurrency();
+
+      // Assert
+      expect(currency, isA<Currency>());
+      expect(currency.code, equals('USD'));
     });
 
     // ============================================================
@@ -190,6 +214,7 @@ void main() {
           getRoles: () => duplicateRoles,
           getCurrentUser: () => generateUser(roleName: 'manager'),
           remoteDataSrcConfig: firestoreConfig,
+          getCurrentCurrency: () => Currency.fromISO4217('BRL'),
         ),
         throwsA(anyOf(isA<AssertionError>(), isA<ArgumentError>())),
         reason: 'GoalsModuleConfig must not allow two roles with the same name',

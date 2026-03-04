@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
           ],
         ),
       ],
+      getCurrentCurrency: () => Currency.fromISO4217('BRL'),
     );
 
     return BitsGoalsModule.init(

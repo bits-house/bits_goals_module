@@ -57,10 +57,21 @@ class GoalsModuleConfig {
   /// ```
   final RemoteDataSourceConfig remoteDataSrcConfig;
 
+  /// Callback to fetch the current currency used in the goals module.
+  /// Usage example:
+  /// ```dart
+  /// final config = GoalsModuleConfig(
+  /// ...
+  ///   getCurrentCurrency: () => Currency.fromISO4217('BRL'),
+  /// );
+  /// ```
+  final Currency Function() getCurrentCurrency;
+
   GoalsModuleConfig({
     required this.getRoles,
     required this.getCurrentUser,
     required this.remoteDataSrcConfig,
+    required this.getCurrentCurrency,
   })  : assert(getRoles().isNotEmpty, 'roles cannot be empty'),
         assert(
             getRoles().map((e) => e.roleName).toSet().length ==
