@@ -24,9 +24,9 @@ class Currency extends Equatable {
   /// Throws [CurrencyFailure] if:
   /// - [code] is empty
   /// - [code] is not supported by this module
-  factory Currency.fromISO4217({
-    required String code,
-  }) {
+  factory Currency.fromISO4217(
+    String code,
+  ) {
     final validCode = _getValidIso4217Code(code);
     final symbol = _symbolFromIso4217(validCode);
     return Currency._(validCode, symbol);
