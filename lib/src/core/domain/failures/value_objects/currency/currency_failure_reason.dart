@@ -1,0 +1,4 @@
+enum CurrencyFailureReason {
+  emptyCode,
+  invalidCode,
+}
