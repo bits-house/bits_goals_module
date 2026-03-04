@@ -1,9 +1,12 @@
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/utils/input_parser.dart';
+import 'package:bits_goals_module/src/core/presentation/utils/ux_validate.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/widgets.dart';
 
 // ==================================================================
 // Possible States
@@ -148,20 +151,13 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
 
   // Synchronous validation only for UX purposes.
-  // TODO: Centralize UI validations
-  GoalRevenueTargetInputErrorReason? _validateMoneyInput(
-    String input,
-  ) {
-    try {
-      final clearInput = input.replaceAll(',', '.').trim();
-      final double value = double.parse(clearInput);
-      if (value <= 0) {
-        return GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
-      } else {
-        return null;
-      }
-    } catch (e) {
+  GoalRevenueTargetInputErrorReason? _validate(double? target) {
+    if (target == null) {
       return GoalRevenueTargetInputErrorReason.invalidTarget;
+    } else {
+      return UxValidate.isMoneyGreaterThanZero(target)
+          ? null
+          : GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
     }
   }
 
@@ -186,13 +182,17 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     required int year,
     required String revenueTargetInput,
   }) async {
-    final errorReason = _validateMoneyInput(
-      revenueTargetInput,
+    final goalTarget = InputParser.tryParseMoneyString(
+      input: revenueTargetInput,
+      locale: _currency.locale,
     );
-    final isValidMoney = errorReason == null;
-    if (isValidMoney) {
+    final errorReason = _validate(goalTarget);
+    final isValidInput = errorReason == null;
+    if (isValidInput) {
+      debugPrint("==========================================================");
+      debugPrint("Input value: $goalTarget");
+      debugPrint("==========================================================");
       setState(LoadingCreateAnnualRevenueGoal());
-
       // -------------------------------------------------------------------------
       // TODO: use use case
       final creationResult = await Future.delayed(
@@ -204,7 +204,6 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
         ),
       );
       // -------------------------------------------------------------------------
-
       creationResult.fold(
         (failure) => setState(
           FailureCreateAnnualRevenueGoal(

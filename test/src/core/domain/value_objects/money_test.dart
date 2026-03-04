@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_reason.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -65,7 +65,7 @@ void main() {
         final money = Money.fromDouble(value: 10, currency: usd);
 
         expect(money.currency, usd);
-        expect(money.currency.code, 'USD');
+        expect(money.currency.iso4217Code, 'USD');
       });
 
       // ============================================================
@@ -437,7 +437,7 @@ void main() {
 
         expect(money.stringify, true);
         expect(money.toString(), contains('1050'));
-        expect(money.toString(), contains('BRL'));
+        expect(money.toString(), contains('Currency.brl'));
       });
 
       // ============================================================

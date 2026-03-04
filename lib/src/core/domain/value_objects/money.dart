@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/money/invalid_money_reason.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:equatable/equatable.dart';
 
 /// Money Value Object

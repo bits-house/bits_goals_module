@@ -115,7 +115,7 @@ final goalsModuleConfig = GoalsModuleConfig(
       // get the currency to be used in the goals management features. You can implement
       // it according to your app's logic, for example, returning the currency based on
       // the user's locale, or a default currency for your app.
-      getCurrency: () => Currency.fromISO4217('BRL');
+      getCurrency: () => Currency.fromISO4217('BRL'),
     );
 ```
 
@@ -125,6 +125,8 @@ final goalsModuleConfig = GoalsModuleConfig(
 - These callbacks may throw runtime exceptions due to internal (domain) validations that ensure the provided data is consistent and valid. They are invoked by the module at runtime — if an invalid value is returned and not properly handled, it may cause your application to crash.
 
 - If your callbacks return only hardcoded values, exception handling is not strictly required. However, you must ensure those values are correct, tested, and domain-valid.
+
+- You must ensure that the `Currency` code provided is supported by the module. Otherwise, it will result in a runtime exception. Check the supported currencies here: **[Currency](lib/src/core/domain/enums/currency.dart)**.
 
 > Note: You can implement custom access control logic based on the user's state or other application-specific factors. The module invokes the provided callbacks whenever it needs to verify a permission, allowing you to support dynamic permissions without hardcoding them in the `getRoles` configuration.
 

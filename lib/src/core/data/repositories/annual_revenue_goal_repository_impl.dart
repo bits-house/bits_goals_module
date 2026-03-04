@@ -67,12 +67,14 @@ class AnnualRevenueGoalRepositoryImpl implements AnnualRevenueGoalRepository {
 
       throw AnnualRevenueGoalRepFailure(
         reason: AnnualRevenueGoalRepFailureReason.connectionError,
-        cause: e,
+        message:
+            'ServerException caught by AnnualRevenueGoalRepositoryImpl: ${e.error}',
       );
     } catch (e) {
       throw AnnualRevenueGoalRepFailure(
         reason: AnnualRevenueGoalRepFailureReason.connectionError,
-        cause: e,
+        message:
+            'Unexpected error caught by AnnualRevenueGoalRepositoryImpl: $e',
       );
     }
   }

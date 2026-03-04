@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/domain/enums/goals_module_permission.dart';
 
 /// Central interface for all Use Cases types in the application.
 /// MUST only be extended by other Use Case interfaces.

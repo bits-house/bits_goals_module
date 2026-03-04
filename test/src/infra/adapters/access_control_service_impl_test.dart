@@ -1,6 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/user_role.dart';
-import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/domain/enums/goals_module_permission.dart';
 import 'package:bits_goals_module/src/infra/config/goals_module_config.dart';
 import 'package:bits_goals_module/src/infra/adapters/access_control_service_impl.dart';
 import 'package:flutter_test/flutter_test.dart';

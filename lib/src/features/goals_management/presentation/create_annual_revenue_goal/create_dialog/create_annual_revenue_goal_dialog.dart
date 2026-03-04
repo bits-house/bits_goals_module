@@ -48,7 +48,7 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
     // Get the current currency from the Host App, to be used in
     // this creation UI/use case/persistence.
     final config = context.get<GoalsModuleConfig>();
-    final currency = config.getCurrentCurrency();
+    final currency = config.getCurrency();
 
     // Get the use case instance.
     // final CreateAnnualRevenueGoal useCase =

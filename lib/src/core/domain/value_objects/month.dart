@@ -1,7 +1,6 @@
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_reason.dart';
 import 'package:equatable/equatable.dart';
-import 'month_name.dart';
 
 /// Month Value Object
 ///
@@ -31,16 +30,8 @@ class Month extends Equatable {
     return Month._(value);
   }
 
-  /// Factory constructor to create a Month from a [MonthName]
-  factory Month.fromMonthName(MonthName monthName) {
-    return Month._(monthName.index + 1);
-  }
-
   /// Numeric value of the month (1 to 12)
   int get value => _value;
-
-  /// Semantic name of the month
-  MonthName get name => MonthName.values[_value - 1];
 
   /// Returns true if this month comes before [other]
   bool isBefore(Month other) => _value < other._value;

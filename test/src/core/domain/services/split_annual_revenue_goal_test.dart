@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart'; // Ajuste o caminho se necessário
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';

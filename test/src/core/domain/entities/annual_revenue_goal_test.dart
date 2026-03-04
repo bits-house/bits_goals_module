@@ -2,10 +2,10 @@ import 'package:bits_goals_module/src/core/domain/entities/annual_revenue_goal.d
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -797,7 +797,7 @@ void main() {
 
         // Assert
         expect(result.currency, equals(usd)); // Ensures the currency matches
-        expect(result.currency.code, equals('USD'));
+        expect(result.currency.iso4217Code, equals('USD'));
         expect(result.cents,
             equals(1800000)); // 1500.00 * 12 = 18000.00 -> 1800000 cents
       });

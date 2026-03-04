@@ -10,15 +10,15 @@ import 'package:bits_goals_module/src/core/domain/repositories/annual_revenue_go
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/action_log_metadata_provider.dart';
 import 'package:bits_goals_module/src/core/domain/entities/action_log/action_log.dart';
-import 'package:bits_goals_module/src/core/domain/policies/goals_module_permission.dart';
+import 'package:bits_goals_module/src/core/domain/enums/goals_module_permission.dart';
 import 'package:bits_goals_module/src/core/application/ports/data_mappers/annual_revenue_goal_action_log_mapper.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/app_version.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/device_info.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/ip_address.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/logged_in_user.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
@@ -176,7 +176,7 @@ void main() {
         final createdGoal = captured.single as AnnualRevenueGoal;
         expect(
           createdGoal.monthlyGoals.every(
-            (m) => m.target.currency.code == tCurrencyCode,
+            (m) => m.target.currency.iso4217Code == tCurrencyCode,
           ),
           true,
         );
@@ -187,7 +187,7 @@ void main() {
             expect(r.monthlyGoals.length, 12);
             expect(
               r.monthlyGoals.every(
-                (m) => m.target.currency.code == tCurrencyCode,
+                (m) => m.target.currency.iso4217Code == tCurrencyCode,
               ),
               true,
             );

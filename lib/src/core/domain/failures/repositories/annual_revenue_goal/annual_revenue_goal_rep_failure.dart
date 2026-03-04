@@ -13,20 +13,17 @@ class AnnualRevenueGoalRepFailure extends Failure {
 
   /// Optional field to provide additional context about the failure
   final Duration? rateLimitRemainingDuration;
-  final Object? cause;
 
   const AnnualRevenueGoalRepFailure({
     super.message,
     required this.reason,
     this.rateLimitRemainingDuration,
-    this.cause,
   });
 
   @override
   String toString() {
     return 'AnnualRevenueGoalRepFailure{'
         'reason: $reason, '
-        'cause: $cause, '
         'rateLimitRemainingDuration: $rateLimitRemainingDuration, '
         'message: $message,'
         '}';

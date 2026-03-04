@@ -4,8 +4,8 @@ import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_ver
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/value_objects/currency/currency_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/value_objects/currency/currency_failure_reason.dart';
+import 'package:bits_goals_module/src/core/domain/failures/enums/currency/currency_failure.dart';
+import 'package:bits_goals_module/src/core/domain/failures/enums/currency/currency_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/email/email_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/email/email_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/ip_address/ip_address_failure.dart';
@@ -185,14 +185,12 @@ void main() {
     // CurrencyFailure
     // =========================================================================
     test('CurrencyFailure', () {
-      const failure1 = CurrencyFailure(CurrencyFailureReason.emptyCode);
-      const failure2 = CurrencyFailure(CurrencyFailureReason.emptyCode);
-      const failureDiff = CurrencyFailure(CurrencyFailureReason.invalidCode);
+      const failure =
+          CurrencyFailure(CurrencyFailureReason.unsupportedOrInvalidCurrency);
 
-      expect(failure1, equals(failure2));
-      expect(failure1, isNot(equals(failureDiff)));
-      expect(failure1.toString(), contains('CurrencyFailure'));
-      expect(failure1.toString(), contains('emptyCode'));
+      expect(failure, equals(failure));
+      expect(failure.toString(), contains('CurrencyFailure'));
+      expect(failure.toString(), contains('unsupportedOrInvalidCurrency'));
     });
 
     // =========================================================================

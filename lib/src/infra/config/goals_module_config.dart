@@ -62,16 +62,16 @@ class GoalsModuleConfig {
   /// ```dart
   /// final config = GoalsModuleConfig(
   /// ...
-  ///   getCurrentCurrency: () => Currency.fromISO4217('BRL'),
+  ///   getCurrency: () => Currency.brl,
   /// );
   /// ```
-  final Currency Function() getCurrentCurrency;
+  final Currency Function() getCurrency;
 
   GoalsModuleConfig({
     required this.getRoles,
     required this.getCurrentUser,
     required this.remoteDataSrcConfig,
-    required this.getCurrentCurrency,
+    required this.getCurrency,
   })  : assert(getRoles().isNotEmpty, 'roles cannot be empty'),
         assert(
             getRoles().map((e) => e.roleName).toSet().length ==

@@ -2,9 +2,9 @@ import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.
 import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/monthly_revenue_goal/monthly_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';
 

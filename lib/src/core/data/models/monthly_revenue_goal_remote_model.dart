@@ -1,9 +1,9 @@
 import 'package:bits_goals_module/src/core/data/extensions/map_parsing_extension.dart';
 import 'package:bits_goals_module/src/core/domain/entities/monthly_revenue_goal.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
+import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/id_uuid_v7.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/month.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:equatable/equatable.dart';
 
@@ -120,7 +120,8 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
       MonthlyRevenueGoalRemoteSchemaV1.year: year.value,
       MonthlyRevenueGoalRemoteSchemaV1.targetCents: target.cents,
       MonthlyRevenueGoalRemoteSchemaV1.progressCents: progress.cents,
-      MonthlyRevenueGoalRemoteSchemaV1.currencyCode: target.currency.code,
+      MonthlyRevenueGoalRemoteSchemaV1.currencyCode:
+          target.currency.iso4217Code,
       MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: schemaVersion,
     };
   }

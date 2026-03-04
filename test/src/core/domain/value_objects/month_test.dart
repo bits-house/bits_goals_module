@@ -1,5 +1,4 @@
-import 'package:bits_goals_module/src/core/domain/value_objects/month/month.dart';
-import 'package:bits_goals_module/src/core/domain/value_objects/month/month_name.dart';
+import 'package:bits_goals_module/src/core/domain/value_objects/month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/month/invalid_month_reason.dart';
@@ -65,78 +64,6 @@ void main() {
           throwsA(isA<InvalidMonthFailure>()),
         );
       }
-    });
-
-    group('Month.fromMonthName', () {
-      test('should create Month(1) when MonthName.january is provided', () {
-        // Arrange
-        const monthName = MonthName.january;
-
-        // Act
-        final month = Month.fromMonthName(monthName);
-
-        // Assert
-        // Assuming Month exposes a getter 'value' or is Equatable
-        expect(month.value, equals(1));
-      });
-
-      test('should create Month(6) when MonthName.june is provided', () {
-        // Arrange
-        const monthName = MonthName.june;
-
-        // Act
-        final month = Month.fromMonthName(monthName);
-
-        // Assert
-        expect(month.value, equals(6));
-      });
-
-      test('should create Month(12) when MonthName.december is provided', () {
-        // Arrange
-        const monthName = MonthName.december;
-
-        // Act
-        final month = Month.fromMonthName(monthName);
-
-        // Assert
-        expect(month.value, equals(12));
-      });
-
-      test(
-          'should correctly map all MonthName enum values to their corresponding integer values',
-          () {
-        // This iterates through every single enum value to guarantee the index+1 logic holds true for all
-        for (final name in MonthName.values) {
-          final month = Month.fromMonthName(name);
-          expect(month.value, equals(name.index + 1));
-        }
-      });
-    });
-
-    // ============================================================
-    /// MONTH NAME MAPPING
-    // ============================================================
-
-    test('should map all month values to correct MonthName', () {
-      final mapping = {
-        1: MonthName.january,
-        2: MonthName.february,
-        3: MonthName.march,
-        4: MonthName.april,
-        5: MonthName.may,
-        6: MonthName.june,
-        7: MonthName.july,
-        8: MonthName.august,
-        9: MonthName.september,
-        10: MonthName.october,
-        11: MonthName.november,
-        12: MonthName.december,
-      };
-
-      mapping.forEach((value, expectedName) {
-        final month = Month.fromInt(value);
-        expect(month.name, expectedName);
-      });
     });
 
     // ============================================================
