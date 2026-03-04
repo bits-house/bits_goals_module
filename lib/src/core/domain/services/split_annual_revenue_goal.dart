@@ -11,11 +11,15 @@ class SplitAnnualRevenueGoal {
   ///```dart
   /// final split = SplitAnnualRevenueGoal();
   /// final monthlyGoals = split(
-  ///   year: Year(2026),
-  ///  annualGoalTarget: Money.fromCents(120),
+  ///   year: Year.fromInt(2026),
+  ///   annualGoalTarget: Money.fromCents(
+  ///     cents: 120,
+  ///     currency: Currency.fromISO4217('BRL'),
+  ///   ),
   /// );
   /// // This results in 12 MonthlyRevenueGoal instances, each with a target of
-  /// // Money.fromCents(10) and progress of Money.fromCents(0)
+  /// // Money.fromCents(cents: 10, currency: Currency.fromISO4217('BRL'))
+  /// // and progress of Money.fromCents(cents: 0, currency: Currency.fromISO4217('BRL'))
   /// // for months January to December of the year 2026.
   /// ```
   const SplitAnnualRevenueGoal();

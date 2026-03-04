@@ -1,4 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/services/split_annual_revenue_goal.dart'; // Ajuste o caminho se necessário
+import 'package:bits_goals_module/src/core/domain/value_objects/currency.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/money.dart';
 import 'package:bits_goals_module/src/core/domain/value_objects/year.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,12 +8,14 @@ void main() {
   group('SplitAnnualRevenueGoal Service', () {
     const splitService = SplitAnnualRevenueGoal();
     final tYear = Year.fromInt(2026);
+    final brl = Currency.fromISO4217('BRL');
 
     test(
       'should generate exactly 12 monthly goals for the correct year',
       () {
         // Arrange
-        final annualTarget = Money.fromCents(1200); // 12.00
+        final annualTarget =
+            Money.fromCents(cents: 1200, currency: brl); // 12.00
 
         // Act
         final result = splitService(
@@ -32,7 +35,7 @@ void main() {
       'should initialize all monthly goals with zero progress',
       () {
         // Arrange
-        final annualTarget = Money.fromCents(100);
+        final annualTarget = Money.fromCents(cents: 100, currency: brl);
 
         // Act
         final result = splitService(
@@ -41,7 +44,10 @@ void main() {
         );
 
         // Assert
-        final zeroMoney = Money.fromCents(0);
+        final zeroMoney = Money.fromCents(
+          cents: 0,
+          currency: annualTarget.currency,
+        );
         expect(
           result.every((goal) => goal.progress == zeroMoney),
           isTrue,
@@ -54,7 +60,7 @@ void main() {
       'should map months sequentially from January (1) to December (12)',
       () {
         // Arrange
-        final annualTarget = Money.fromCents(1200);
+        final annualTarget = Money.fromCents(cents: 1200, currency: brl);
 
         // Act
         final result = splitService(
@@ -76,7 +82,7 @@ void main() {
         // Arrange
         // 100 cents / 12 = 8 cents with remainder 4.
         // Expectation: Jan-Apr = 9 cents, May-Dec = 8 cents.
-        final annualTarget = Money.fromCents(100);
+        final annualTarget = Money.fromCents(cents: 100, currency: brl);
 
         // Act
         final result = splitService(
@@ -103,7 +109,7 @@ void main() {
       'should ensure the sum of all monthly targets equals the original annual target (Integrity Check)',
       () {
         // Arrange
-        final annualTarget = Money.fromCents(98765);
+        final annualTarget = Money.fromCents(cents: 98765, currency: brl);
 
         // Act
         final result = splitService(
@@ -117,6 +123,51 @@ void main() {
             .reduce((total, current) => total + current);
 
         expect(totalSum, equals(annualTarget));
+      },
+    );
+
+    test(
+      'should preserve currency for all monthly targets',
+      () {
+        // Arrange
+        final usd = Currency.fromISO4217('USD');
+        final annualTarget = Money.fromCents(cents: 1200, currency: usd);
+
+        // Act
+        final result = splitService(
+          year: tYear,
+          annualGoalTarget: annualTarget,
+        );
+
+        // Assert
+        expect(
+          result.every((g) => g.target.currency == usd),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'should initialize progress with the same currency as target',
+      () {
+        // Arrange
+        final annualTarget = Money.fromCents(cents: 1200, currency: brl);
+
+        // Act
+        final result = splitService(
+          year: tYear,
+          annualGoalTarget: annualTarget,
+        );
+
+        // Assert
+        expect(
+          result.every((g) => g.progress.currency == g.target.currency),
+          isTrue,
+        );
+        expect(
+          result.every((g) => g.progress.cents == 0),
+          isTrue,
+        );
       },
     );
   });
