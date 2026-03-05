@@ -157,6 +157,63 @@ abstract class GoalsModuleLocalizations {
   /// In pt, this message translates to:
   /// **'Voltar'**
   String get inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label;
+
+  /// Título do diálogo exibido quando ocorre erro ao criar meta anual de faturamento
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao criar'**
+  String get failureCreateAnnualRevenueGoalDialog_title;
+
+  /// Rótulo do botão de tentar novamente no diálogo de falha ao criar meta anual de faturamento
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar novamente'**
+  String get failureCreateAnnualRevenueGoalDialog_retryButton_label;
+
+  /// Mensagem de erro quando já existe meta anual criada para o ano informado
+  ///
+  /// In pt, this message translates to:
+  /// **'Já existe uma meta anual para {year}. Selecione outro ano ou edite a meta existente.'**
+  String
+      failureCreateAnnualRevenueGoalDialog_message_annualGoalForYearAlreadyExists(
+          int year);
+
+  /// Mensagem de erro quando ocorre uma falha inesperada ao criar meta anual
+  ///
+  /// In pt, this message translates to:
+  /// **'Ocorreu um erro inesperado. Tente novamente.'**
+  String get failureCreateAnnualRevenueGoalDialog_message_unexpected;
+
+  /// Mensagem de erro quando ocorre falha de conexão ao criar meta anual
+  ///
+  /// In pt, this message translates to:
+  /// **'Ocorreu um erro de conexão. Verifique sua internet e tente novamente.'**
+  String get failureCreateAnnualRevenueGoalDialog_message_connectionError;
+
+  /// Mensagem de erro quando o usuário seleciona um ano passado
+  ///
+  /// In pt, this message translates to:
+  /// **'Não é possível criar meta para um ano passado. Selecione outro ano.'**
+  String get failureCreateAnnualRevenueGoalDialog_message_pastYear;
+
+  /// Mensagem de erro quando o usuário não tem permissão para criar meta anual
+  ///
+  /// In pt, this message translates to:
+  /// **'Você não possui permissão para criar metas anuais. Solicite com o administrador.'**
+  String get failureCreateAnnualRevenueGoalDialog_message_permissionDenied;
+
+  /// Mensagem de erro quando o limite de tentativas foi excedido. Mostra um tempo de espera antes de tentar novamente.
+  ///
+  /// In pt, this message translates to:
+  /// **'Muitas tentativas. Tente novamente em {retryAfterMinutes, plural, =0{alguns instantes} =1{1 minuto} other{{retryAfterMinutes} minutos}}.'**
+  String failureCreateAnnualRevenueGoalDialog_message_rateLimitExceeded(
+      int retryAfterMinutes);
+
+  /// Mensagem de erro quando o valor da meta anual é zero ou negativo
+  ///
+  /// In pt, this message translates to:
+  /// **'O valor da meta deve ser maior que zero.'**
+  String get failureCreateAnnualRevenueGoalDialog_message_zeroOrNegativeTarget;
 }
 
 class _GoalsModuleLocalizationsDelegate

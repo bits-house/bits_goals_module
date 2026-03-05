@@ -12,14 +12,10 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = context.get<CreateAnnualRevenueGoalDialogStore>();
     final state = store.state as FailureCreateAnnualRevenueGoal;
+    final strings = context.strings;
     final retryAfterMinutes = state.failure.retryAfter != null
         ? state.failure.retryAfter!.inMinutes
         : 0;
-    final durationText = retryAfterMinutes < 1
-        ? 'alguns instantes'
-        : retryAfterMinutes == 1
-            ? '$retryAfterMinutes minuto'
-            : '$retryAfterMinutes minutos';
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 32, 32, 16),
       child: Column(
@@ -27,7 +23,7 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Erro ao criar',
+            strings.failureCreateAnnualRevenueGoalDialog_title,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 32),
@@ -35,19 +31,22 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
             switch (state.failure.reason) {
               CreateAnnualRevenueGoalFailureReason
                     .annualGoalForYearAlreadyExists =>
-                'Já existe uma meta anual para ${state.year}. Selecione outro ano ou edite a meta existente.',
+                strings
+                    .failureCreateAnnualRevenueGoalDialog_message_annualGoalForYearAlreadyExists(
+                        state.year),
               CreateAnnualRevenueGoalFailureReason.unexpected =>
-                'Ocorreu um erro inesperado. Tente novamente.',
-              CreateAnnualRevenueGoalFailureReason.connectionError =>
-                'Ocorreu um erro de conexão. Verifique sua internet e tente novamente.',
+                strings.failureCreateAnnualRevenueGoalDialog_message_unexpected,
+              CreateAnnualRevenueGoalFailureReason.connectionError => strings
+                  .failureCreateAnnualRevenueGoalDialog_message_connectionError,
               CreateAnnualRevenueGoalFailureReason.pastYear =>
-                'Não é possível criar meta para um ano passado. Selecione outro ano.',
-              CreateAnnualRevenueGoalFailureReason.permissionDenied =>
-                'Você não possui permissão para criar metas anuais. Solicite com o administrador.',
-              CreateAnnualRevenueGoalFailureReason.rateLimitExceeded =>
-                'Muitas tentativas. Tente novamente em $durationText.',
-              CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget =>
-                'O valor da meta deve ser maior que zero.',
+                strings.failureCreateAnnualRevenueGoalDialog_message_pastYear,
+              CreateAnnualRevenueGoalFailureReason.permissionDenied => strings
+                  .failureCreateAnnualRevenueGoalDialog_message_permissionDenied,
+              CreateAnnualRevenueGoalFailureReason.rateLimitExceeded => strings
+                  .failureCreateAnnualRevenueGoalDialog_message_rateLimitExceeded(
+                      retryAfterMinutes),
+              CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget => strings
+                  .failureCreateAnnualRevenueGoalDialog_message_zeroOrNegativeTarget,
             },
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -59,7 +58,10 @@ class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
                 onPressed: () {
                   store.initialize();
                 },
-                child: Text("Tentar novamente"),
+                child: Text(
+                  strings
+                      .failureCreateAnnualRevenueGoalDialog_retryButton_label,
+                ),
               ),
             ],
           ),

@@ -51,5 +51,53 @@
     "inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label": "Voltar",
     "@inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label": {
         "description": "Rótulo do botão de voltar no diálogo de criação de meta anual de faturamento"
+    },
+    "failureCreateAnnualRevenueGoalDialog_title": "Erro ao criar",
+    "@failureCreateAnnualRevenueGoalDialog_title": {
+        "description": "Título do diálogo exibido quando ocorre erro ao criar meta anual de faturamento"
+    },
+    "failureCreateAnnualRevenueGoalDialog_retryButton_label": "Tentar novamente",
+    "@failureCreateAnnualRevenueGoalDialog_retryButton_label": {
+        "description": "Rótulo do botão de tentar novamente no diálogo de falha ao criar meta anual de faturamento"
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_annualGoalForYearAlreadyExists": "Já existe uma meta anual para {year}. Selecione outro ano ou edite a meta existente.",
+    "@failureCreateAnnualRevenueGoalDialog_message_annualGoalForYearAlreadyExists": {
+        "description": "Mensagem de erro quando já existe meta anual criada para o ano informado",
+        "placeholders": {
+            "year": {
+                "type": "int",
+                "example": "2026"
+            }
+        }
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_unexpected": "Ocorreu um erro inesperado. Tente novamente.",
+    "@failureCreateAnnualRevenueGoalDialog_message_unexpected": {
+        "description": "Mensagem de erro quando ocorre uma falha inesperada ao criar meta anual"
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_connectionError": "Ocorreu um erro de conexão. Verifique sua internet e tente novamente.",
+    "@failureCreateAnnualRevenueGoalDialog_message_connectionError": {
+        "description": "Mensagem de erro quando ocorre falha de conexão ao criar meta anual"
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_pastYear": "Não é possível criar meta para um ano passado. Selecione outro ano.",
+    "@failureCreateAnnualRevenueGoalDialog_message_pastYear": {
+        "description": "Mensagem de erro quando o usuário seleciona um ano passado"
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_permissionDenied": "Você não possui permissão para criar metas anuais. Solicite com o administrador.",
+    "@failureCreateAnnualRevenueGoalDialog_message_permissionDenied": {
+        "description": "Mensagem de erro quando o usuário não tem permissão para criar meta anual"
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_rateLimitExceeded": "Muitas tentativas. Tente novamente em {retryAfterMinutes, plural, =0{alguns instantes} =1{1 minuto} other{{retryAfterMinutes} minutos}}.",
+    "@failureCreateAnnualRevenueGoalDialog_message_rateLimitExceeded": {
+        "description": "Mensagem de erro quando o limite de tentativas foi excedido. Mostra um tempo de espera antes de tentar novamente.",
+        "placeholders": {
+            "retryAfterMinutes": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+    "failureCreateAnnualRevenueGoalDialog_message_zeroOrNegativeTarget": "O valor da meta deve ser maior que zero.",
+    "@failureCreateAnnualRevenueGoalDialog_message_zeroOrNegativeTarget": {
+        "description": "Mensagem de erro quando o valor da meta anual é zero ou negativo"
     }
 }

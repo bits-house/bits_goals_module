@@ -51,4 +51,52 @@ class GoalsModuleLocalizationsPt extends GoalsModuleLocalizations {
   @override
   String get inputGoalTargetCreateAnnualRevenueGoalDialog_backButton_label =>
       'Voltar';
+
+  @override
+  String get failureCreateAnnualRevenueGoalDialog_title => 'Erro ao criar';
+
+  @override
+  String get failureCreateAnnualRevenueGoalDialog_retryButton_label =>
+      'Tentar novamente';
+
+  @override
+  String
+      failureCreateAnnualRevenueGoalDialog_message_annualGoalForYearAlreadyExists(
+          int year) {
+    return 'Já existe uma meta anual para $year. Selecione outro ano ou edite a meta existente.';
+  }
+
+  @override
+  String get failureCreateAnnualRevenueGoalDialog_message_unexpected =>
+      'Ocorreu um erro inesperado. Tente novamente.';
+
+  @override
+  String get failureCreateAnnualRevenueGoalDialog_message_connectionError =>
+      'Ocorreu um erro de conexão. Verifique sua internet e tente novamente.';
+
+  @override
+  String get failureCreateAnnualRevenueGoalDialog_message_pastYear =>
+      'Não é possível criar meta para um ano passado. Selecione outro ano.';
+
+  @override
+  String get failureCreateAnnualRevenueGoalDialog_message_permissionDenied =>
+      'Você não possui permissão para criar metas anuais. Solicite com o administrador.';
+
+  @override
+  String failureCreateAnnualRevenueGoalDialog_message_rateLimitExceeded(
+      int retryAfterMinutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      retryAfterMinutes,
+      locale: localeName,
+      other: '$retryAfterMinutes minutos',
+      one: '1 minuto',
+      zero: 'alguns instantes',
+    );
+    return 'Muitas tentativas. Tente novamente em $_temp0.';
+  }
+
+  @override
+  String
+      get failureCreateAnnualRevenueGoalDialog_message_zeroOrNegativeTarget =>
+          'O valor da meta deve ser maior que zero.';
 }
