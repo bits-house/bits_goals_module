@@ -1,7 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/entities/annual_revenue_goal/annual_revenue_goal_failure_reason.dart';
-import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure.dart';
-import 'package:bits_goals_module/src/core/domain/failures/value_objects/app_version/app_version_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure.dart';
 import 'package:bits_goals_module/src/core/domain/failures/value_objects/device_info/device_info_failure_reason.dart';
 import 'package:bits_goals_module/src/core/domain/failures/enums/currency/currency_failure.dart';
@@ -155,17 +153,6 @@ void main() {
 
       expect(failure1, equals(failure2));
       expect(failure1.toString(), contains('EmailFailure'));
-    });
-
-    // =========================================================================
-    // AppVersionFailure
-    // =========================================================================
-    test('AppVersionFailure', () {
-      const failure1 = AppVersionFailure(AppVersionFailureReason.invalidFormat);
-      const failure2 = AppVersionFailure(AppVersionFailureReason.invalidFormat);
-
-      expect(failure1, equals(failure2));
-      expect(failure1.toString(), contains('AppVersionFailure'));
     });
 
     // =========================================================================
