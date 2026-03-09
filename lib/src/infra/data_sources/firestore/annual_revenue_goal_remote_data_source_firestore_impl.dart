@@ -75,7 +75,12 @@ class AnnualRevenueGoalRemoteDataSourceFirestoreImpl
             final logRef = _firestore.collection(_logsCollection).doc(
                   log.uuidV7.value,
                 );
-            transaction.set(logRef, log.toMap());
+            final logWithTimestamp = {
+              ...log.toMap(),
+              ActionLogModelCurrentSchema.occurredAt:
+                  FieldValue.serverTimestamp(),
+            };
+            transaction.set(logRef, logWithTimestamp);
           });
         },
       );

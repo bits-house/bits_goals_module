@@ -37,10 +37,6 @@ class ManualMockRateLimiterService implements RateLimiterService {
   }
 }
 
-// Mocks
-class MockMonthlyRevenueGoalRemoteModel extends Mock
-    implements MonthlyRevenueGoalRemoteModel {}
-
 class MockActionLogModel extends Mock implements ActionLogModel {}
 
 // Fakes
@@ -89,7 +85,7 @@ void main() {
 
   // Test Data
   late MockActionLogModel mockLog;
-  late List<MockMonthlyRevenueGoalRemoteModel> validGoalsList;
+  late List<MonthlyRevenueGoalRemoteModel> validGoalsList;
 
   setUpAll(() {
     registerFallbackValue(FakeIdUuidV7());
@@ -110,15 +106,41 @@ void main() {
     );
 
     mockLog = MockActionLogModel();
-    when(() => mockLog.uuidV7).thenReturn(FakeIdUuidV7('log-id'));
-    when(() => mockLog.toMap()).thenReturn({'action': 'create'});
+    when(() => mockLog.uuidV7).thenReturn(
+        IdUuidV7.fromString('00000000-0000-0000-0000-000000000001'));
+    when(() => mockLog.toMap()).thenReturn({
+      ActionLogModelCurrentSchema.id: '00000000-0000-0000-0000-000000000001',
+      ActionLogModelCurrentSchema.occurredAt: null,
+      ActionLogModelCurrentSchema.userId: 'user-id-1',
+      ActionLogModelCurrentSchema.userEmail: 'user@email.com',
+      ActionLogModelCurrentSchema.userDisplayName: 'User Display Name',
+      ActionLogModelCurrentSchema.userRoleName: 'admin',
+      ActionLogModelCurrentSchema.userIpAddress: '127.0.0.1',
+      ActionLogModelCurrentSchema.userDeviceInfo: 'test-device',
+      ActionLogModelCurrentSchema.appVersion: '1.0.0',
+      ActionLogModelCurrentSchema.requiredPermission: 'goals.write',
+      ActionLogModelCurrentSchema.actionType: 'create',
+      ActionLogModelCurrentSchema.useCaseId: 'createMonthlyGoalsForYear',
+      ActionLogModelCurrentSchema.oldDataMapped: null,
+      ActionLogModelCurrentSchema.newDataMapped: {'action': 'create'},
+      ActionLogModelCurrentSchema.schemaVersion:
+          ActionLogModelCurrentSchema.version,
+    });
 
-    // Create a list of 12 goals
+    // Create a list of 12 goals with the full remote schema.
     validGoalsList = List.generate(12, (index) {
-      final goal = MockMonthlyRevenueGoalRemoteModel();
-      when(() => goal.uuidV7).thenReturn(FakeIdUuidV7('goal-$index'));
-      when(() => goal.toMap()).thenReturn({'month': index + 1});
-      return goal;
+      final uuid =
+          '00000000-0000-0000-0000-${(index + 2).toString().padLeft(12, '0')}';
+      return MonthlyRevenueGoalRemoteModel.fromMap({
+        MonthlyRevenueGoalRemoteSchemaV1.uuidV7: uuid,
+        MonthlyRevenueGoalRemoteSchemaV1.month: index + 1,
+        MonthlyRevenueGoalRemoteSchemaV1.year: 2025,
+        MonthlyRevenueGoalRemoteSchemaV1.targetCents: 100000,
+        MonthlyRevenueGoalRemoteSchemaV1.progressCents: 0,
+        MonthlyRevenueGoalRemoteSchemaV1.currencyCode: 'USD',
+        MonthlyRevenueGoalRemoteSchemaV1.schemaVersion:
+            MonthlyRevenueGoalCurrentSchema.version,
+      });
     });
   });
 
@@ -226,6 +248,81 @@ void main() {
     });
 
     group('Transaction & Atomicity', () {
+      group('Created Document Fields', () {
+        test('should write every field for meta, goals, and log', () async {
+          const year = 2030;
+
+          // Use a set of goals tied to this test's year.
+          final goalsForThisYear = List.generate(12, (index) {
+            final uuid =
+                '10000000-0000-0000-0000-${(index + 1).toString().padLeft(12, '0')}';
+            return MonthlyRevenueGoalRemoteModel.fromMap({
+              MonthlyRevenueGoalRemoteSchemaV1.uuidV7: uuid,
+              MonthlyRevenueGoalRemoteSchemaV1.month: index + 1,
+              MonthlyRevenueGoalRemoteSchemaV1.year: year,
+              MonthlyRevenueGoalRemoteSchemaV1.targetCents: 50000 + index,
+              MonthlyRevenueGoalRemoteSchemaV1.progressCents: 100 + index,
+              MonthlyRevenueGoalRemoteSchemaV1.currencyCode: 'USD',
+              MonthlyRevenueGoalRemoteSchemaV1.schemaVersion:
+                  MonthlyRevenueGoalCurrentSchema.version,
+            });
+          });
+
+          await dataSource.createMonthlyGoalsForYear(
+            year: year,
+            goals: goalsForThisYear,
+            log: mockLog,
+          );
+
+          // 1) Meta doc: assert the whole payload.
+          final metaSnap = await fakeFirestore
+              .collection(fakeConfig.annualRevenueGoalsMetaCollection)
+              .doc('$year')
+              .get();
+          expect(metaSnap.exists, isTrue);
+          expect(
+            metaSnap.data(),
+            equals({
+              'year': year,
+              'schema_version': 1,
+            }),
+          );
+
+          // 2) Goals docs: assert ids and full map.
+          for (final goal in goalsForThisYear) {
+            final goalSnap = await fakeFirestore
+                .collection(fakeConfig.monthlyRevenueGoalsCollection)
+                .doc(goal.uuidV7.value)
+                .get();
+            expect(goalSnap.exists, isTrue);
+            expect(goalSnap.data(), equals(goal.toMap()));
+          }
+
+          // 3) Log doc: assert all fields and that occurred_at is set.
+          final logId = mockLog.uuidV7.value;
+          final logSnap = await fakeFirestore
+              .collection(fakeConfig.goalsActionLogsCollection)
+              .doc(logId)
+              .get();
+          expect(logSnap.exists, isTrue);
+          final logData = logSnap.data()!;
+
+          expect(logData.keys.toSet(), equals(mockLog.toMap().keys.toSet()));
+
+          // Everything except occurred_at should be exactly what the model sent.
+          final expectedLogData = Map<String, dynamic>.from(mockLog.toMap())
+            ..remove(ActionLogModelCurrentSchema.occurredAt);
+          final actualLogData = Map<String, dynamic>.from(logData)
+            ..remove(ActionLogModelCurrentSchema.occurredAt);
+          expect(actualLogData, equals(expectedLogData));
+
+          // The data source must set the server timestamp.
+          expect(logData[ActionLogModelCurrentSchema.occurredAt], isNotNull);
+          expect(logData[ActionLogModelCurrentSchema.occurredAt],
+              isA<Timestamp>());
+        });
+      });
+
       test('should succeed writing meta, goals, and log', () async {
         const year = 2024;
         await dataSource.createMonthlyGoalsForYear(
@@ -251,10 +348,11 @@ void main() {
         // Verify Log
         final logSnap = await fakeFirestore
             .collection(fakeConfig.goalsActionLogsCollection)
-            .doc('log-id')
+            .doc(mockLog.uuidV7.value)
             .get();
         expect(logSnap.exists, isTrue);
-        expect(logSnap.data()!['action'], 'create');
+        expect(
+            logSnap.data()![ActionLogModelCurrentSchema.actionType], 'create');
       });
 
       test('should throw ServerException(conflict) if meta already exists',
