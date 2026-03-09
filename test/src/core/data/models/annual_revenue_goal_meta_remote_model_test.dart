@@ -44,8 +44,8 @@ void main() {
     group('fromMap factory', () {
       test('should parse valid map with all fields', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2024,
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+          AnnualRevenueGoalMetaCurrentSchema.year: 2024,
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 1,
         };
 
         final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
@@ -56,8 +56,8 @@ void main() {
 
       test('should parse map with different version values', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2025,
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 5,
+          AnnualRevenueGoalMetaCurrentSchema.year: 2025,
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 5,
         };
 
         final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
@@ -67,7 +67,7 @@ void main() {
 
       test('should throw FormatException when year key missing', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 1,
         };
 
         expect(
@@ -78,7 +78,7 @@ void main() {
 
       test('should throw FormatException when version key missing', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2024,
+          AnnualRevenueGoalMetaCurrentSchema.year: 2024,
         };
 
         expect(
@@ -98,8 +98,8 @@ void main() {
 
       test('should throw FormatException when year is null', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: null,
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+          AnnualRevenueGoalMetaCurrentSchema.year: null,
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 1,
         };
 
         expect(
@@ -110,8 +110,8 @@ void main() {
 
       test('should throw FormatException when year is non-numeric string', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: 'not_a_number',
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+          AnnualRevenueGoalMetaCurrentSchema.year: 'not_a_number',
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 1,
         };
 
         expect(
@@ -128,9 +128,9 @@ void main() {
         final map = model.toMap();
 
         expect(
-            map.containsKey(AnnualRevenueGoalMetaRemoteSchemaV1.year), isTrue);
+            map.containsKey(AnnualRevenueGoalMetaCurrentSchema.year), isTrue);
         expect(
-          map.containsKey(AnnualRevenueGoalMetaRemoteSchemaV1.version),
+          map.containsKey(AnnualRevenueGoalMetaCurrentSchema.schemaVersion),
           isTrue,
         );
       });
@@ -140,8 +140,9 @@ void main() {
 
         final map = model.toMap();
 
-        expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.year], equals(2024));
-        expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.version], equals(1));
+        expect(map[AnnualRevenueGoalMetaCurrentSchema.year], equals(2024));
+        expect(
+            map[AnnualRevenueGoalMetaCurrentSchema.schemaVersion], equals(1));
       });
 
       test('should preserve values in round-trip conversion', () {
@@ -216,8 +217,8 @@ void main() {
 
       test('should preserve numeric string years from map', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: '2024',
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+          AnnualRevenueGoalMetaCurrentSchema.year: '2024',
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 1,
         };
 
         final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);
@@ -227,8 +228,8 @@ void main() {
 
       test('should handle floating point years by truncating', () {
         final map = {
-          AnnualRevenueGoalMetaRemoteSchemaV1.year: 2024.9,
-          AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+          AnnualRevenueGoalMetaCurrentSchema.year: 2024.9,
+          AnnualRevenueGoalMetaCurrentSchema.schemaVersion: 1,
         };
 
         final model = AnnualRevenueGoalMetaRemoteModel.fromMap(map);

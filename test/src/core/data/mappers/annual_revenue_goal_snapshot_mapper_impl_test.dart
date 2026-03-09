@@ -46,7 +46,7 @@ void main() {
       final map = mapper.map(entity);
 
       expect(
-        map.containsKey(AnnualRevenueGoalMetaRemoteSchemaV1.year),
+        map.containsKey(AnnualRevenueGoalMetaCurrentSchema.year),
         isTrue,
       );
       expect(map.containsKey('monthly_goals'), isTrue);
@@ -61,7 +61,7 @@ void main() {
 
       final map = mapper.map(entity);
 
-      expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.year], equals(2025));
+      expect(map[AnnualRevenueGoalMetaCurrentSchema.year], equals(2025));
     });
 
     test('should recursively map all MonthlyRevenueGoals', () {
@@ -101,7 +101,7 @@ void main() {
 
       final map = mapper.map(entity);
 
-      expect(map[AnnualRevenueGoalMetaRemoteSchemaV1.year], isA<int>());
+      expect(map[AnnualRevenueGoalMetaCurrentSchema.year], isA<int>());
       expect(map['monthly_goals'], isA<List>());
 
       final firstGoal = (map['monthly_goals'] as List).first as Map;
@@ -126,7 +126,7 @@ void main() {
       final entity = createValidAnnualGoal(yearValue: 2030);
 
       final map = mapper.map(entity);
-      map[AnnualRevenueGoalMetaRemoteSchemaV1.year] = 1999;
+      map[AnnualRevenueGoalMetaCurrentSchema.year] = 1999;
       final goals = map['monthly_goals'] as List;
       final firstGoal = goals.first as Map<String, dynamic>;
       firstGoal[MonthlyRevenueGoalRemoteSchemaV1.month] = 99;

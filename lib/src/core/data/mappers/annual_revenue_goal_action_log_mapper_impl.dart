@@ -18,21 +18,23 @@ class AnnualRevenueGoalActionLogMapperImpl
     final monthlyGoals = goal.monthlyGoals
         .map(
           (g) => {
-            MonthlyRevenueGoalRemoteSchemaV1.uuidV7: g.id.value,
-            MonthlyRevenueGoalRemoteSchemaV1.month: g.month.value,
-            MonthlyRevenueGoalRemoteSchemaV1.year: g.year.value,
-            MonthlyRevenueGoalRemoteSchemaV1.targetCents: g.target.cents,
-            MonthlyRevenueGoalRemoteSchemaV1.progressCents: g.progress.cents,
+            MonthlyRevenueGoalCurrentSchema.uuidV7: g.id.value,
+            MonthlyRevenueGoalCurrentSchema.month: g.month.value,
+            MonthlyRevenueGoalCurrentSchema.year: g.year.value,
+            MonthlyRevenueGoalCurrentSchema.targetCents: g.target.cents,
+            MonthlyRevenueGoalCurrentSchema.progressCents: g.progress.cents,
             // Current schema
-            MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: 1,
+            MonthlyRevenueGoalCurrentSchema.schemaVersion:
+                MonthlyRevenueGoalCurrentSchema.version,
           },
         )
         .toList(growable: false);
 
     return {
-      AnnualRevenueGoalMetaRemoteSchemaV1.year: goal.year.value,
+      AnnualRevenueGoalMetaCurrentSchema.year: goal.year.value,
       // Current schema
-      AnnualRevenueGoalMetaRemoteSchemaV1.version: 1,
+      AnnualRevenueGoalMetaCurrentSchema.schemaVersion:
+          AnnualRevenueGoalMetaCurrentSchema.version,
       // Nested monthly goals
       'monthly_goals': monthlyGoals,
     };

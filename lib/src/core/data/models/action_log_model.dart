@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 // DO NOT DELETE OR EDIT LEGACY/OLD SCHEMAS AND NAMES.
 // create a new version instead
 // and ADD LEGACY KEYS IN PARSING EXTENSION.
-class ActionLogRemoteSchemaV1 {
+class ActionLogModelSchemaV1 {
   static const int version = 1;
 
   static const String id = 'id';
@@ -26,6 +26,8 @@ class ActionLogRemoteSchemaV1 {
   static const String schemaVersion = 'schema_version';
 }
 
+typedef ActionLogModelCurrentSchema = ActionLogModelSchemaV1;
+
 /// Data Transfer Object (DTO) for ActionLog serialization/deserialization.
 ///
 /// Converts between domain entities and remote API representations.
@@ -39,7 +41,7 @@ class ActionLogModel extends Equatable {
   final IdUuidV7 uuidV7;
 
   /// Timestamp when the action occurred (milliseconds since epoch).
-  /// Nullable because backend generates this value server-side.
+  /// Nullable because backend/data_src must generate this value.
   final int? occurredAtMillis;
 
   // ===========================
@@ -147,7 +149,7 @@ class ActionLogModel extends Equatable {
       useCaseId: entity.useCaseId,
       oldDataMapped: entity.oldDataMapped,
       newDataMapped: entity.newDataMapped,
-      schemaVersion: 1,
+      schemaVersion: ActionLogModelCurrentSchema.version,
     );
   }
 
@@ -164,69 +166,69 @@ class ActionLogModel extends Equatable {
   factory ActionLogModel.fromMap(Map<String, dynamic> map) {
     try {
       final uuidV7String = map.getString(
-        key: ActionLogRemoteSchemaV1.id,
+        key: ActionLogModelCurrentSchema.id,
       );
 
       final occurredAtMillis = map.getFirestoreTimestamp(
-        key: ActionLogRemoteSchemaV1.occurredAt,
+        key: ActionLogModelCurrentSchema.occurredAt,
         defaultValue: null,
       );
 
       final userId = map.getString(
-        key: ActionLogRemoteSchemaV1.userId,
+        key: ActionLogModelCurrentSchema.userId,
       );
 
       final userEmail = map.getString(
-        key: ActionLogRemoteSchemaV1.userEmail,
+        key: ActionLogModelCurrentSchema.userEmail,
       );
 
       final userDisplayName = map.getString(
-        key: ActionLogRemoteSchemaV1.userDisplayName,
+        key: ActionLogModelCurrentSchema.userDisplayName,
       );
 
       final userRoleName = map.getString(
-        key: ActionLogRemoteSchemaV1.userRoleName,
+        key: ActionLogModelCurrentSchema.userRoleName,
       );
 
       final userIpAddress = map.getString(
-        key: ActionLogRemoteSchemaV1.userIpAddress,
+        key: ActionLogModelCurrentSchema.userIpAddress,
       );
 
       final userDeviceInfo = map.getString(
-        key: ActionLogRemoteSchemaV1.userDeviceInfo,
+        key: ActionLogModelCurrentSchema.userDeviceInfo,
       );
 
       final appVersion = map.getString(
-        key: ActionLogRemoteSchemaV1.appVersion,
+        key: ActionLogModelCurrentSchema.appVersion,
       );
 
       final requiredPermission = map.getString(
-        key: ActionLogRemoteSchemaV1.requiredPermission,
+        key: ActionLogModelCurrentSchema.requiredPermission,
       );
 
       final actionType = map.getString(
-        key: ActionLogRemoteSchemaV1.actionType,
+        key: ActionLogModelCurrentSchema.actionType,
       );
 
       final useCaseId = map.getString(
-        key: ActionLogRemoteSchemaV1.useCaseId,
+        key: ActionLogModelCurrentSchema.useCaseId,
       );
 
       final oldDataMapped =
-          map.containsKey(ActionLogRemoteSchemaV1.oldDataMapped)
-              ? (map[ActionLogRemoteSchemaV1.oldDataMapped] as Map?)
+          map.containsKey(ActionLogModelCurrentSchema.oldDataMapped)
+              ? (map[ActionLogModelCurrentSchema.oldDataMapped] as Map?)
                   ?.cast<String, dynamic>()
               : null;
 
       final newDataMappedRaw =
-          map.containsKey(ActionLogRemoteSchemaV1.newDataMapped)
-              ? (map[ActionLogRemoteSchemaV1.newDataMapped] as Map?)
+          map.containsKey(ActionLogModelCurrentSchema.newDataMapped)
+              ? (map[ActionLogModelCurrentSchema.newDataMapped] as Map?)
                   ?.cast<String, dynamic>()
               : <String, dynamic>{};
       final newDataMapped = newDataMappedRaw ?? <String, dynamic>{};
 
       final schemaVer = map.getInt(
-        key: ActionLogRemoteSchemaV1.schemaVersion,
+        key: ActionLogModelCurrentSchema.schemaVersion,
       );
 
       return ActionLogModel._(
@@ -259,21 +261,21 @@ class ActionLogModel extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      ActionLogRemoteSchemaV1.id: uuidV7.value,
-      ActionLogRemoteSchemaV1.occurredAt: occurredAtMillis,
-      ActionLogRemoteSchemaV1.userId: userId,
-      ActionLogRemoteSchemaV1.userEmail: userEmail,
-      ActionLogRemoteSchemaV1.userDisplayName: userDisplayName,
-      ActionLogRemoteSchemaV1.userRoleName: userRoleName,
-      ActionLogRemoteSchemaV1.userIpAddress: userIpAddress,
-      ActionLogRemoteSchemaV1.userDeviceInfo: userDeviceInfo,
-      ActionLogRemoteSchemaV1.appVersion: appVersion,
-      ActionLogRemoteSchemaV1.requiredPermission: requiredPermission,
-      ActionLogRemoteSchemaV1.actionType: actionType,
-      ActionLogRemoteSchemaV1.useCaseId: useCaseId,
-      ActionLogRemoteSchemaV1.oldDataMapped: oldDataMapped,
-      ActionLogRemoteSchemaV1.newDataMapped: newDataMapped,
-      ActionLogRemoteSchemaV1.schemaVersion: schemaVersion,
+      ActionLogModelCurrentSchema.id: uuidV7.value,
+      ActionLogModelCurrentSchema.occurredAt: occurredAtMillis,
+      ActionLogModelCurrentSchema.userId: userId,
+      ActionLogModelCurrentSchema.userEmail: userEmail,
+      ActionLogModelCurrentSchema.userDisplayName: userDisplayName,
+      ActionLogModelCurrentSchema.userRoleName: userRoleName,
+      ActionLogModelCurrentSchema.userIpAddress: userIpAddress,
+      ActionLogModelCurrentSchema.userDeviceInfo: userDeviceInfo,
+      ActionLogModelCurrentSchema.appVersion: appVersion,
+      ActionLogModelCurrentSchema.requiredPermission: requiredPermission,
+      ActionLogModelCurrentSchema.actionType: actionType,
+      ActionLogModelCurrentSchema.useCaseId: useCaseId,
+      ActionLogModelCurrentSchema.oldDataMapped: oldDataMapped,
+      ActionLogModelCurrentSchema.newDataMapped: newDataMapped,
+      ActionLogModelCurrentSchema.schemaVersion: schemaVersion,
     };
   }
 

@@ -142,7 +142,7 @@ void main() {
         expect(
             result.schemaVersion,
             equals(
-              MonthlyRevenueGoalRemoteModel.currentSchemaVersion,
+              MonthlyRevenueGoalCurrentSchema.version,
             ));
       });
     });

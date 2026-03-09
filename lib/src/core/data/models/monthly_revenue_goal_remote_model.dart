@@ -11,6 +11,8 @@ import 'package:equatable/equatable.dart';
 // create a new version instead
 // and ADD LEGACY KEYS IN PARSING EXTENSION.
 class MonthlyRevenueGoalRemoteSchemaV1 {
+  static const int version = 1;
+
   static const String uuidV7 = 'uuid_v7';
   static const String month = 'month';
   static const String year = 'year';
@@ -19,6 +21,8 @@ class MonthlyRevenueGoalRemoteSchemaV1 {
   static const String currencyCode = 'currency_code';
   static const String schemaVersion = 'schema_version';
 }
+
+typedef MonthlyRevenueGoalCurrentSchema = MonthlyRevenueGoalRemoteSchemaV1;
 
 class MonthlyRevenueGoalRemoteModel extends Equatable {
   final IdUuidV7 uuidV7;
@@ -41,8 +45,6 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
   // FROM ENTITY
   // ===========================================================================
 
-  static const int currentSchemaVersion = 1;
-
   factory MonthlyRevenueGoalRemoteModel.fromEntity(MonthlyRevenueGoal entity) {
     return MonthlyRevenueGoalRemoteModel._(
       uuidV7: entity.id,
@@ -50,7 +52,7 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
       year: entity.year,
       target: entity.target,
       progress: entity.progress,
-      schemaVersion: currentSchemaVersion,
+      schemaVersion: MonthlyRevenueGoalCurrentSchema.version,
     );
   }
 
@@ -61,32 +63,32 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
   factory MonthlyRevenueGoalRemoteModel.fromMap(Map<String, dynamic> map) {
     try {
       final idString = map.getString(
-        key: MonthlyRevenueGoalRemoteSchemaV1.uuidV7,
+        key: MonthlyRevenueGoalCurrentSchema.uuidV7,
       );
 
       final monthInt = map.getInt(
-        key: MonthlyRevenueGoalRemoteSchemaV1.month,
+        key: MonthlyRevenueGoalCurrentSchema.month,
       );
 
       final yearInt = map.getInt(
-        key: MonthlyRevenueGoalRemoteSchemaV1.year,
+        key: MonthlyRevenueGoalCurrentSchema.year,
       );
 
       final targetVal = map.getInt(
-        key: MonthlyRevenueGoalRemoteSchemaV1.targetCents,
+        key: MonthlyRevenueGoalCurrentSchema.targetCents,
       );
 
       final progressVal = map.getInt(
-        key: MonthlyRevenueGoalRemoteSchemaV1.progressCents,
+        key: MonthlyRevenueGoalCurrentSchema.progressCents,
       );
 
       final currencyCode = map.getString(
-        key: MonthlyRevenueGoalRemoteSchemaV1.currencyCode,
+        key: MonthlyRevenueGoalCurrentSchema.currencyCode,
       );
 
       final schemaVer = map.getInt(
-        key: MonthlyRevenueGoalRemoteSchemaV1.schemaVersion,
-        defaultValue: currentSchemaVersion,
+        key: MonthlyRevenueGoalCurrentSchema.schemaVersion,
+        defaultValue: MonthlyRevenueGoalCurrentSchema.version,
       );
 
       return MonthlyRevenueGoalRemoteModel._(
@@ -115,14 +117,13 @@ class MonthlyRevenueGoalRemoteModel extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      MonthlyRevenueGoalRemoteSchemaV1.uuidV7: uuidV7.value,
-      MonthlyRevenueGoalRemoteSchemaV1.month: month.value,
-      MonthlyRevenueGoalRemoteSchemaV1.year: year.value,
-      MonthlyRevenueGoalRemoteSchemaV1.targetCents: target.cents,
-      MonthlyRevenueGoalRemoteSchemaV1.progressCents: progress.cents,
-      MonthlyRevenueGoalRemoteSchemaV1.currencyCode:
-          target.currency.iso4217Code,
-      MonthlyRevenueGoalRemoteSchemaV1.schemaVersion: schemaVersion,
+      MonthlyRevenueGoalCurrentSchema.uuidV7: uuidV7.value,
+      MonthlyRevenueGoalCurrentSchema.month: month.value,
+      MonthlyRevenueGoalCurrentSchema.year: year.value,
+      MonthlyRevenueGoalCurrentSchema.targetCents: target.cents,
+      MonthlyRevenueGoalCurrentSchema.progressCents: progress.cents,
+      MonthlyRevenueGoalCurrentSchema.currencyCode: target.currency.iso4217Code,
+      MonthlyRevenueGoalCurrentSchema.schemaVersion: schemaVersion,
     };
   }
 

@@ -2,9 +2,14 @@ import 'package:bits_goals_module/src/core/data/extensions/map_parsing_extension
 import 'package:equatable/equatable.dart';
 
 class AnnualRevenueGoalMetaRemoteSchemaV1 {
+  static const int version = 1;
+
   static const String year = 'year';
-  static const String version = 'schema_version';
+  static const String schemaVersion = 'schema_version';
 }
+
+typedef AnnualRevenueGoalMetaCurrentSchema
+    = AnnualRevenueGoalMetaRemoteSchemaV1;
 
 class AnnualRevenueGoalMetaRemoteModel extends Equatable {
   final int year;
@@ -17,7 +22,7 @@ class AnnualRevenueGoalMetaRemoteModel extends Equatable {
   factory AnnualRevenueGoalMetaRemoteModel.fromYear(int year) {
     return AnnualRevenueGoalMetaRemoteModel._(
       year: year,
-      schemaVersion: 1,
+      schemaVersion: AnnualRevenueGoalMetaCurrentSchema.version,
     );
   }
 
@@ -29,11 +34,11 @@ class AnnualRevenueGoalMetaRemoteModel extends Equatable {
   factory AnnualRevenueGoalMetaRemoteModel.fromMap(Map<String, dynamic> map) {
     try {
       final yearInt = map.getInt(
-        key: AnnualRevenueGoalMetaRemoteSchemaV1.year,
+        key: AnnualRevenueGoalMetaCurrentSchema.year,
       );
 
       final schemaVersionInt = map.getInt(
-        key: AnnualRevenueGoalMetaRemoteSchemaV1.version,
+        key: AnnualRevenueGoalMetaCurrentSchema.schemaVersion,
       );
 
       return AnnualRevenueGoalMetaRemoteModel._(
@@ -51,8 +56,8 @@ class AnnualRevenueGoalMetaRemoteModel extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      AnnualRevenueGoalMetaRemoteSchemaV1.year: year,
-      AnnualRevenueGoalMetaRemoteSchemaV1.version: schemaVersion,
+      AnnualRevenueGoalMetaCurrentSchema.year: year,
+      AnnualRevenueGoalMetaCurrentSchema.schemaVersion: schemaVersion,
     };
   }
 

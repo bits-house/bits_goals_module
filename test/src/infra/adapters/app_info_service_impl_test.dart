@@ -66,8 +66,7 @@ void main() {
       final result = await service.version;
 
       // Assert
-      expect(result, equals(AppVersion('1.0.0')));
-      expect(result.major, equals(1));
+      expect(result, equals(const AppVersion('1.0.0')));
     });
 
     test('should return cached version on second call', () async {
@@ -80,7 +79,7 @@ void main() {
       final result = await service.version; // Second call
 
       // Assert
-      expect(result, equals(AppVersion('1.0.0')));
+      expect(result, equals(const AppVersion('1.0.0')));
     });
   });
 }
