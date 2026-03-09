@@ -2,11 +2,10 @@ import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
 import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
 import 'package:bits_goals_module/src/core/presentation/utils/input_parser.dart';
 import 'package:bits_goals_module/src/core/presentation/utils/ux_validate.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal_params.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure.dart';
-import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/failures/create_annual_revenue_goal_failure_reason.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog.dart';
-import 'package:dartz/dartz.dart';
-import 'package:flutter/widgets.dart';
 
 // ==================================================================
 // Possible States
@@ -92,11 +91,10 @@ class SuccessEffectCreateAnnualRevenueGoal
 class CreateAnnualRevenueGoalDialogStore extends AppStore<
     CreateAnnualRevenueGoalDialogState, CreateAnnualRevenueGoalDialogEffect> {
   CreateAnnualRevenueGoalDialogStore({
-    // required CreateAnnualRevenueGoal useCase,
+    required CreateAnnualRevenueGoal useCase,
     required Currency currency,
     required List<int> unavailableYears,
-  })  :
-        // _createAnnualRevenueGoal = useCase,
+  })  : _createAnnualRevenueGoal = useCase,
         _currency = currency,
         _unavailableYears = unavailableYears,
         super(
@@ -104,7 +102,7 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
         ) {
     initialize();
   }
-  // final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
+  final CreateAnnualRevenueGoal _createAnnualRevenueGoal;
   final Currency _currency;
   final List<int> _unavailableYears;
 
@@ -188,22 +186,15 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     );
     final errorReason = _validate(goalTarget);
     final isValidInput = errorReason == null;
-    if (isValidInput) {
-      debugPrint("==========================================================");
-      debugPrint("Input value: $goalTarget");
-      debugPrint("==========================================================");
+    if (isValidInput && goalTarget != null) {
       setState(LoadingCreateAnnualRevenueGoal());
-      // -------------------------------------------------------------------------
-      // TODO: use use case
-      final creationResult = await Future.delayed(
-        const Duration(seconds: 1),
-        () => const Left(
-          CreateAnnualRevenueGoalFailure(
-            reason: CreateAnnualRevenueGoalFailureReason.zeroOrNegativeTarget,
-          ),
+      final creationResult = await _createAnnualRevenueGoal(
+        CreateAnnualRevenueGoalParams(
+          year: year,
+          annualRevenueTarget: goalTarget,
+          currencyISO4217Code: _currency.iso4217Code,
         ),
       );
-      // -------------------------------------------------------------------------
       creationResult.fold(
         (failure) => setState(
           FailureCreateAnnualRevenueGoal(

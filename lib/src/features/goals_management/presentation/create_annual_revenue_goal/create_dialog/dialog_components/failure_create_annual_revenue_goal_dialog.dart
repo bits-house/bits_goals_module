@@ -4,14 +4,16 @@ import 'package:bits_goals_module/src/features/goals_management/presentation/cre
 import 'package:flutter/material.dart';
 
 class FailureCreateAnnualRevenueGoalDialog extends StatelessWidget {
-  const FailureCreateAnnualRevenueGoalDialog({
+  const FailureCreateAnnualRevenueGoalDialog(
+    this.state, {
     super.key,
   });
+
+  final FailureCreateAnnualRevenueGoal state;
 
   @override
   Widget build(BuildContext context) {
     final store = context.get<CreateAnnualRevenueGoalDialogStore>();
-    final state = store.state as FailureCreateAnnualRevenueGoal;
     final strings = context.strings;
     final retryAfterMinutes = state.failure.retryAfter != null
         ? state.failure.retryAfter!.inMinutes

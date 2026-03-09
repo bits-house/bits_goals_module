@@ -4,15 +4,17 @@ import 'package:bits_goals_module/src/features/goals_management/presentation/cre
 import 'package:flutter/material.dart';
 
 class SelectYearCreateAnnualRevenueGoalDialog extends StatelessWidget {
-  const SelectYearCreateAnnualRevenueGoalDialog({
+  const SelectYearCreateAnnualRevenueGoalDialog(
+    this.state, {
     super.key,
   });
+
+  final SelectYearCreateAnnualRevenueGoal state;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final store = context.get<CreateAnnualRevenueGoalDialogStore>();
-    final state = store.state as SelectYearCreateAnnualRevenueGoal;
     final titleString =
         context.strings.selectYearCreateAnnualRevenueGoalDialog_title;
     return Padding(

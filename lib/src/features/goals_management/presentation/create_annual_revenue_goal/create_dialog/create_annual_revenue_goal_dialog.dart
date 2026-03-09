@@ -2,6 +2,7 @@ import 'package:bits_goals_module/src/core/presentation/state_management/reactiv
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_provider.dart';
 import 'package:bits_goals_module/src/core/presentation/widgets/app_animated_dialog.dart';
 import 'package:bits_goals_module/src/core/presentation/widgets/app_snack_bar.dart';
+import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/create_annual_revenue_goal_dialog_store.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/dialog_components/failure_create_annual_revenue_goal_dialog.dart';
 import 'package:bits_goals_module/src/features/goals_management/presentation/create_annual_revenue_goal/create_dialog/dialog_components/input_goal_target_create_annual_revenue_goal_dialog.dart';
@@ -28,8 +29,9 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
           key: Key("loading_create_annual_revenue_goal_dialog"),
         );
       case SelectYearCreateAnnualRevenueGoal():
-        return const SelectYearCreateAnnualRevenueGoalDialog(
-          key: Key("select_year_create_annual_revenue_goal_dialog"),
+        return SelectYearCreateAnnualRevenueGoalDialog(
+          state,
+          key: const Key("select_year_create_annual_revenue_goal_dialog"),
         );
       case InputGoalTargetCreateAnnualRevenueGoal():
         return InputGoalTargetCreateAnnualRevenueGoalDialog(
@@ -37,8 +39,9 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
           key: const Key("input_goal_target_create_annual_revenue_goal_dialog"),
         );
       case FailureCreateAnnualRevenueGoal():
-        return const FailureCreateAnnualRevenueGoalDialog(
-          key: Key("failure_create_annual_revenue_goal_dialog"),
+        return FailureCreateAnnualRevenueGoalDialog(
+          state,
+          key: const Key("failure_create_annual_revenue_goal_dialog"),
         );
     }
   }
@@ -50,9 +53,9 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
     final config = context.get<GoalsModuleConfig>();
     final currency = config.getCurrency();
 
-    // Get the use case instance.
-    // final CreateAnnualRevenueGoal useCase =
-    //     context.get<CreateAnnualRevenueGoal>();
+    // Get the use case (dependency injection).
+    final CreateAnnualRevenueGoal useCase =
+        context.get<CreateAnnualRevenueGoal>();
 
     // Get Success AppSnackBar string (internationalization).
     final strings = context.strings;
@@ -67,7 +70,7 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
       // states, handle emitted effects, provide the store to the widget tree (dependency
       // injection), and dispose the Store when this widget is removed from the tree.
       store: CreateAnnualRevenueGoalDialogStore(
-        // useCase: useCase,
+        useCase: useCase,
         currency: currency,
         unavailableYears: unavailableYears,
       ),
