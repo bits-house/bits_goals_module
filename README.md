@@ -1,7 +1,6 @@
 # bits_goals_module
 
-> ⚠️ **Project status:**  
-> This plugin **does not have a stable release yet** and is in **active development**.
+> **Project status:** This plugin is **in development** and **does not have a stable release yet**.
 
 ---
 
@@ -11,11 +10,10 @@
 
 It was created to:
 
-- Fulfill an urgent requirement of an existing application  
-- Be reused in a second application planned for the near future  
+- Fulfill a requirement of a personal project
 - Serve as a **showcase module** for a clean and scalable architecture  
 
-> Note: A standalone example app will be released in the future to demonstrate the module’s capabilities without needing integration into an existing codebase.
+> Note: A standalone example app and a list of features will be released in the future to demonstrate the module’s capabilities without needing integration into an existing codebase.
 
 ---
 
@@ -23,10 +21,9 @@ It was created to:
 
 This plugin is intentionally **application-agnostic**.
 
-That means:
+All dependencies are **injected from the host application**, so the module doesn't need to know about the host application's implementation details, and can be reused across multiple applications without creating circular dependencies.
 
-- No SDK initialization happens inside the plugin
-- All dependencies are **injected from the host application**
+Here is a guide on how to integrate the module into your host application:
 
 ## 1) Initialize the module in your app
 
@@ -41,7 +38,7 @@ return BitsGoalsModule.init(
     );
 ```
 
-In order for the localization strings provided by the module to work, you need to include the `localizationsDelegates` and `supportedLocales` in your `MaterialApp`:
+In order for the UI provided by the module to work, you need to include the `localizationsDelegates` and `supportedLocales` in your `MaterialApp`:
 
 ```dart
 return BitsGoalsModule.init(
@@ -53,14 +50,13 @@ return BitsGoalsModule.init(
         ],
         supportedLocales: [
           ...GoalsModuleLocalizations.supportedLocales, // <-- And this
-          // ... your app's other supported locales
         ],
         home: HomePage(),
       ),
     );
 ```
 
-> Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. The features will be available throughout the widget tree (only within the subtree of the wrapped widget). You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` can be used independently of the `BitsGoalsModule` initialization.
+> Note: You can wrap any widget with `BitsGoalsModule.init`, it doesn't have to be the root of your app. The features will be available throughout the widget tree (only within the subtree of the wrapped widget). You can also wrap it in another module if you want to integrate multiple modules together. `GoalsModuleLocalizations` can be used independently of the `BitsGoalsModule` initialization, but the UI features will only work if the localization delegates and supported locales are included in your root `MaterialApp`.
 
 The `config` is a required parameter that provides the necessary configuration for the module to function properly. It requires only 4 things: `remoteDataSrcConfig`, `getCurrentUser`, `getRoles`, and `getCurrency`. Example:
 
@@ -68,7 +64,7 @@ The `config` is a required parameter that provides the necessary configuration f
 final goalsModuleConfig = GoalsModuleConfig(
       // 1) [remoteDataSrcConfig]
       // In this case it uses [FirestoreConfig] for Firestore integration.
-      // You need to provide the Firestore instance already initialized by your app, 
+      // You need to provide the Firestore instance already initialized by your app 
       // and the collection names to be used by the module for storing the goals data 
       // and logs. (must not conflict with your app's existing collections)
       remoteDataSrcConfig: FirestoreConfig(
@@ -84,7 +80,7 @@ final goalsModuleConfig = GoalsModuleConfig(
       // You MUST return a [LoggedInUser], which is the representation of the user.
       // So the module can enforce access control, logs and other features based on 
       // the user's identity, role and permissions.
-      getCurrentUser: () { 
+      getCurrentUser: () {
         try {
           return LoggedInUser.ensureValid(
             displayName: 'Matheus',
@@ -128,13 +124,13 @@ final goalsModuleConfig = GoalsModuleConfig(
 
 - You must ensure that the `Currency` code provided is supported by the module. Otherwise, it will result in a runtime exception. Check the supported currencies here: **[Currency](lib/src/core/domain/enums/currency.dart)**.
 
-> Note: You can implement custom access control logic based on the user's state or other application-specific factors. The module invokes the provided callbacks whenever it needs to verify a permission, allowing you to support dynamic permissions without hardcoding them in the `getRoles` configuration.
+> Note: You can implement custom access control logic based on the user's state or other application-specific factors. The module invokes the provided callbacks whenever it needs to verify a permission, allowing you to support real-time dynamic permissions without hardcoding them in the `getRoles` configuration.
 
 > Tip: If your application does not have a role and permission management system, you can create a single role with all `GoalsModulePermission` permissions and assign it to every user.
 
 > Note: If your backend is not yet supported by the module, you can add support by implementing the `RemoteDataSourceConfig` interface and creating the required data sources according to its contract (all the required implementation is centralized in the infra layer folder, no need to touch other parts of the module).
 
-> Tip: Although this module is initialized via a widget wrapper, its `config` callbacks can be implemented in architectural layers outside of the presentation.
+> Tip: Although this module is initialized via a widget wrapper, its `config` callbacks can be implemented in architectural layers outside of the presentation, according to your app's architecture.
 
 And that's it! The module is now ready to be used in your app.
 

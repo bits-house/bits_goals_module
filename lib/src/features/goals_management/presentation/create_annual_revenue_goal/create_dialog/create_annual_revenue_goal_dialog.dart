@@ -48,14 +48,12 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the current currency from the Host App, to be used in
-    // this creation UI/use case/persistence.
+    // Get the current currency from the Host App.
     final config = context.get<GoalsModuleConfig>();
     final currency = config.getCurrency();
 
     // Get the use case (dependency injection).
-    final CreateAnnualRevenueGoal useCase =
-        context.get<CreateAnnualRevenueGoal>();
+    final useCase = context.get<CreateAnnualRevenueGoal>();
 
     // Get Success AppSnackBar string (internationalization).
     final strings = context.strings;
@@ -66,9 +64,8 @@ class CreateAnnualRevenueGoalDialog extends StatelessWidget {
         CreateAnnualRevenueGoalDialogStore,
         CreateAnnualRevenueGoalDialogState,
         CreateAnnualRevenueGoalDialogEffect>(
-      // Provide the store to the AppObserver, which will rebuild the UI based on the store
-      // states, handle emitted effects, provide the store to the widget tree (dependency
-      // injection), and dispose the Store when this widget is removed from the tree.
+      // The store is created and provided to the widget tree.
+      // It is automatically disposed when the widget is removed from the tree.
       store: CreateAnnualRevenueGoalDialogStore(
         useCase: useCase,
         currency: currency,

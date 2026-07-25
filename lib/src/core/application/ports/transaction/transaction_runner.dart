@@ -15,12 +15,12 @@ import 'package:bits_goals_module/src/core/application/ports/transaction/app_tra
 ///
 /// The underlying implementation may map to:
 /// - Firestore transactions: firestore.runTransaction(...)
-/// - SQL database transactions: db.transaction(...)
 /// - In-memory transactional contexts: for testing purposes (e.g., FakeTransactionRunner)
+/// - Any other transactional mechanism provided by the host application or infrastructure.
 ///
 /// Why use this?
-/// - **Cross-Module Consistency:** Allows you to update an *Order* (Module A / Main App) and
-///   a *Goal* (Module B) in the same split second. Either both update, or neither does.
+/// - **Cross-Module Consistency:** Allows you to update an *Order* (e.g. Main App) and
+///   a *Goal* (this module) in the same split second. Either both update, or neither does.
 /// - **Decoupling:** One module can update its data without needing to know about the other
 ///   module's implementation details. The caller doesn't need to know infrastructure details.
 abstract class TransactionRunner {
@@ -42,7 +42,7 @@ abstract class TransactionRunner {
   ///    (reading operations are generally safe, but be mindful of side effects from reads as well)
   /// 3. **Transaction Outcome:**
   ///     If the action throws:
-  ///       - the transaction MUST be rolled back by the implementation
+  ///       - the transaction MUST be rolled back by the implementation (e.g., Firestore automatically rolls back on exceptions)
   ///       - the exception is rethrown to the caller/use case as-is
   /// 4. **Use Only The `sharedTransaction`.** All transaction-aware methods called within [action]
   ///     MUST receive and use the provided `sharedTransaction` argument to ensure atomicity.

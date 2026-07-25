@@ -1,4 +1,3 @@
-import 'package:bits_goals_module/src/core/application/dtos/action_log_metadata_dto.dart';
 import 'package:bits_goals_module/src/core/application/ports/access_control_service.dart';
 import 'package:bits_goals_module/src/core/application/ports/action_log_metadata_provider.dart';
 import 'package:bits_goals_module/src/core/application/ports/real_time_service.dart';
@@ -71,7 +70,7 @@ class CreateAnnualRevenueGoal
   Future<Either<CreateAnnualRevenueGoalFailure, AnnualRevenueGoal>> call(
     CreateAnnualRevenueGoalParams params,
   ) async {
-    const useCaseId = 'create_annual_revenue_goal';
+    const useCaseId = 'CreateAnnualRevenueGoal';
     try {
       /// User must have permission to create annual revenue goals
       final hasPermission = accessControl.hasPermission(
@@ -128,7 +127,7 @@ class CreateAnnualRevenueGoal
       );
 
       /// Create ActionLog
-      final ActionLogMetadataDto metadata = await metadataCollector.metadata;
+      final metadata = await metadataCollector.metadata;
       final log = ActionLog.create(
         actionType: ActionType.create,
         useCaseId: useCaseId,
@@ -153,7 +152,6 @@ class CreateAnnualRevenueGoal
     /// Error handling
     /// =============================
 
-    /// RepositoryFailure
     on AnnualRevenueGoalRepFailure catch (repositoryFailure) {
       switch (repositoryFailure.reason) {
         case AnnualRevenueGoalRepFailureReason.annualGoalForYearAlreadyExists:
