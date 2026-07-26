@@ -2,7 +2,7 @@
 /// logic for various types of data, for User Experience (UX) purposes.
 class UxValidate {
   // TODO: Add unit tests for this class.
-  static bool isMoneyGreaterThanZero(double money) {
-    return money.isFinite && money > 0;
+  static bool isDoubleGreaterThanZero(double value) {
+    return value.isFinite && value > 0;
   }
 }

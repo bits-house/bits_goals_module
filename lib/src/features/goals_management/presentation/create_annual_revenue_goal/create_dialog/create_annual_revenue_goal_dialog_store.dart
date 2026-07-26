@@ -149,14 +149,19 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
 
   // Synchronous validation only for UX purposes.
-  GoalRevenueTargetInputErrorReason? _validate(double? target) {
-    if (target == null) {
-      return GoalRevenueTargetInputErrorReason.invalidTarget;
-    } else {
-      return UxValidate.isMoneyGreaterThanZero(target)
-          ? null
-          : GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
-    }
+  GoalRevenueTargetInputErrorReason? _validate(double target) {
+    return UxValidate.isDoubleGreaterThanZero(target)
+        ? null
+        : GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
+  }
+
+  double _parseGoalTarget(String targetInput) {
+    final goalTarget = InputParser.tryParseMoneyString(
+      input: targetInput,
+      currencyLocale: _currency.locale,
+    );
+    final doubleGoalTarget = goalTarget ?? 0.00;
+    return doubleGoalTarget;
   }
 
   // Clear error - UX purposes
@@ -180,13 +185,10 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     required int year,
     required String revenueTargetInput,
   }) async {
-    final goalTarget = InputParser.tryParseMoneyString(
-      input: revenueTargetInput,
-      locale: _currency.locale,
-    );
+    final goalTarget = _parseGoalTarget(revenueTargetInput);
     final errorReason = _validate(goalTarget);
     final isValidInput = errorReason == null;
-    if (isValidInput && goalTarget != null) {
+    if (isValidInput) {
       setState(LoadingCreateAnnualRevenueGoal());
       final creationResult = await _createAnnualRevenueGoal(
         CreateAnnualRevenueGoalParams(
