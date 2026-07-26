@@ -1,5 +1,5 @@
 import 'package:bits_goals_module/src/core/domain/enums/currency.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/stores/impl/app_store.dart';
 import 'package:bits_goals_module/src/core/presentation/utils/input_parser.dart';
 import 'package:bits_goals_module/src/core/presentation/utils/ux_validate.dart';
 import 'package:bits_goals_module/src/features/goals_management/application/use_cases/create_annual_revenue_goal/create_annual_revenue_goal.dart';

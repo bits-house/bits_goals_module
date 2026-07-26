@@ -1,4 +1,4 @@
-import 'package:bits_goals_module/src/core/presentation/motion/app_motion.dart';
+import 'package:bits_goals_module/src/core/presentation/utils/app_motion.dart';
 import 'package:flutter/material.dart';
 
 /// A Dialog that animates its child when it changes, fading out the old one and

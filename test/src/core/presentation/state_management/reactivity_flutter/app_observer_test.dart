@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/app_observer.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_store.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/stores/impl/app_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/stores/store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

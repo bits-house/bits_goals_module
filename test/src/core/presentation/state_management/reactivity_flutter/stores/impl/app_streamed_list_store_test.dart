@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_streamed_list_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/stores/impl/app_streamed_list_store.dart';
 
 // =======================
 // TEST DOUBLES

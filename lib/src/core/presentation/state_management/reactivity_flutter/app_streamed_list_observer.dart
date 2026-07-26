@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:bits_goals_module/src/core/presentation/motion/app_motion.dart';
+import 'package:bits_goals_module/src/core/presentation/utils/app_motion.dart';
 import 'package:flutter/material.dart';
-import 'package:bits_goals_module/src/core/presentation/state_management/app_stores/impl/app_streamed_list_store.dart';
+import 'package:bits_goals_module/src/core/presentation/state_management/reactivity_flutter/stores/impl/app_streamed_list_store.dart';
 
 /// A self-contained, reactive Observer for [AppStreamedListStore] with built-in Infinite Scroll.
 ///
