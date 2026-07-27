@@ -34,6 +34,12 @@ class SelectYearCreateAnnualRevenueGoal
 }
 
 // Input revenue target for the annual revenue goal
+/// Meta-state for [InputGoalTargetCreateAnnualRevenueGoal] - UX reasons
+enum GoalRevenueTargetInputErrorReason {
+  zeroOrNegativeTarget,
+  invalidTarget,
+}
+
 class InputGoalTargetCreateAnnualRevenueGoal
     extends CreateAnnualRevenueGoalDialogState {
   final int selectedYear;
@@ -41,20 +47,14 @@ class InputGoalTargetCreateAnnualRevenueGoal
   final String? revenueTargetInput;
   final GoalRevenueTargetInputErrorReason? inputErrorReason;
 
-  bool get enableCreateButton => inputErrorReason == null;
-
   InputGoalTargetCreateAnnualRevenueGoal({
     required this.selectedYear,
     required this.currencySymbol,
     this.revenueTargetInput,
     this.inputErrorReason,
   });
-}
 
-/// Meta-state for [InputGoalTargetCreateAnnualRevenueGoal] - UX reasons
-enum GoalRevenueTargetInputErrorReason {
-  zeroOrNegativeTarget,
-  invalidTarget,
+  bool get enableCreateButton => inputErrorReason == null;
 }
 
 // Failure state when creating the annual revenue goal fails
@@ -149,12 +149,6 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
   // ---------------------------------------------------------------------
 
   // Synchronous validation only for UX purposes.
-  GoalRevenueTargetInputErrorReason? _validate(double target) {
-    return UxValidate.isDoubleGreaterThanZero(target)
-        ? null
-        : GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
-  }
-
   double _parseGoalTarget(String targetInput) {
     final goalTarget = InputParser.tryParseMoneyString(
       input: targetInput,
@@ -162,6 +156,12 @@ class CreateAnnualRevenueGoalDialogStore extends AppStore<
     );
     final doubleGoalTarget = goalTarget ?? 0.00;
     return doubleGoalTarget;
+  }
+
+  GoalRevenueTargetInputErrorReason? _validate(double target) {
+    return UxValidate.isDoubleGreaterThanZero(target)
+        ? null
+        : GoalRevenueTargetInputErrorReason.zeroOrNegativeTarget;
   }
 
   // Clear error - UX purposes
