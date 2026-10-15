@@ -70,7 +70,9 @@ abstract class GoalsModuleLocalizations {
 
   static GoalsModuleLocalizations of(BuildContext context) {
     return Localizations.of<GoalsModuleLocalizations>(
-        context, GoalsModuleLocalizations)!;
+      context,
+      GoalsModuleLocalizations,
+    )!;
   }
 
   static const LocalizationsDelegate<GoalsModuleLocalizations> delegate =
@@ -223,7 +225,8 @@ class _GoalsModuleLocalizationsDelegate
   @override
   Future<GoalsModuleLocalizations> load(Locale locale) {
     return SynchronousFuture<GoalsModuleLocalizations>(
-        lookupGoalsModuleLocalizations(locale));
+      lookupGoalsModuleLocalizations(locale),
+    );
   }
 
   @override
@@ -242,8 +245,9 @@ GoalsModuleLocalizations lookupGoalsModuleLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'GoalsModuleLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'GoalsModuleLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
